@@ -1,0 +1,48 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Cannon Muzzle",
+         "physicsMaterial" : "Default",
+         "renderable" : "$GAME_DATA/Objects/Renderable/decor/obj_decor_mug.rend",
+         "rotationSet" : "Default",
+         "scripted" : {
+            "classname" : "Cannon",
+            "filename" : "$CONTENT_DATA/Scripts/cannon.lua"
+         },
+         "uuid" : "98212a7d-eac1-45a9-8e5b-3e36319b9b29"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Cannon Barrel",
+         "physicsMaterial" : "Default",
+         "renderable" : "$GAME_DATA/Objects/Renderable/decor/obj_decor_toiletroll.rend",
+         "rotationSet" : "Default",
+         "uuid" : "90e6714d-e105-476f-875b-4b69b8c7802e"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 2,
+            "z" : 1
+         },
+         "name" : "Cannon Breech",
+         "physicsMaterial" : "Default",
+         "renderable" : "$GAME_DATA/Objects/Renderable/Interactive/obj_interactive_horn.rend",
+         "rotationSet" : "Default",
+         "scripted" : {
+            "classname" : "Breech",
+            "filename" : "$CONTENT_DATA/Scripts/breech.lua"
+         },
+         "uuid" : "ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb"
+      }
+   ]
+}
