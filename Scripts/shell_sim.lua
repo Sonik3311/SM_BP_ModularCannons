@@ -17,13 +17,13 @@ local function process_shell_collision (shell, dt)
         if not hit_shape then -- ground
             return false, end_point
         end
-
-        local is_alive, start_point, end_point, shell_direction = process_apfsds_penetration (shell, hit_shape, hit_data,
+        local is_alive
+        is_alive, start_point, end_point, shell_direction = process_apfsds_penetration (shell, hit_shape, hit_data,
                                                                                               start_point, end_point, dt)
         if not is_alive then
            return false, end_point
         end
-
+        add_point_to_line(shell.debug.path, start_point)
         is_hit, hit_data = raycast(start_point, end_point, hit_shape)
     end
 
@@ -45,7 +45,7 @@ function update_shells (shells, dt, net)
         add_point_to_line(shell.debug.path, next_position)
 
         if not alive then
-            --net:sendToClients("cl_visualize_path", shell.debug.path)
+            net:sendToClients("cl_save_path", shell.debug.path)
             shells[shell_id] = nil
             goto next
         end

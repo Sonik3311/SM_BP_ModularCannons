@@ -30,6 +30,8 @@ function Cannon:server_onCreate()
 end
 
 function Cannon:client_onCreate()
+    self.paths = {}
+    self.lines = {}
 end
 
 -------------------------------------------------------------------------------
@@ -59,6 +61,16 @@ function Cannon:server_onUpdate(dt)
 end
 
 function Cannon:client_onUpdate(dt)
+    for line_id = 1, # self.lines do
+        effect = self.lines[line_id][1]
+        a = self.lines[line_id][2]
+        if not effect:isPlaying() then
+            effect:start()
+        end
+        if not a:isPlaying() then
+            a:start()
+        end
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -99,8 +111,8 @@ function Cannon:sv_fire(is_debug_shell)
         position = self.shape:getWorldPosition() + self.shape:getAt() / 2,
         type = "APFSDS",
         parameters = {
-            diameter = 27,
-            penetrator_length = 150,
+            diameter = 7,
+            penetrator_length = 50,
             penetrator_density = 17500
         }
     }
@@ -111,9 +123,40 @@ function Cannon:sv_fire(is_debug_shell)
         }
     end
 
-    self.breech.interactable:setPublicData({is_loaded = false})
+    --self.breech.interactable:setPublicData({is_loaded = false})
 end
 
 -------------------------------------------------------------------------------
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
+
+function Cannon:cl_save_path(path)
+    dprint("recieved path with the length of "..tostring(#path), "info", dprint_filename, nil, "cl_save_path")
+    self.paths[#self.paths + 1] = path
+    for line_id = 1, #path do
+        local thickness = 0.025
+        local line = path[line_id]
+        local effect = sm.effect.createEffect("ShapeRenderable")
+        effect:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
+        effect:setParameter("color", sm.color.new("ffffff"))
+        effect:setScale( sm.vec3.one() * thickness )
+        local delta = line[2] - line[1]
+        local length = delta:length()
+
+        if length < 0.0001 then return end
+
+        local rot = sm.vec3.getRotation(sm.vec3.new(1,0,0), delta)
+
+        local distance = sm.vec3.new(length, thickness, thickness)
+
+        effect:setPosition(line[1] + delta * 0.5)
+        effect:setScale(distance)
+        effect:setRotation(rot)
+        local a = sm.effect.createEffect("ShapeRenderable")
+        a:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
+        a:setParameter("color", sm.color.new("ff0000"))
+        a:setScale( sm.vec3.one() * (thickness * 1.5) )
+        a:setPosition(line[1])
+        self.lines[#self.lines + 1] = {effect, a}
+    end
+end

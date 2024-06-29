@@ -42,7 +42,7 @@ function construct_cannon(shape, length)
             goto next
         end
 
-        do return Calculate_barrel_length(neighbour_shape, length + 1) end
+        do return construct_cannon(neighbour_shape, length + 1) end
 
         ::next::
     end

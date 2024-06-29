@@ -72,16 +72,16 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
     local exit_point = hit_data.pointWorld + shell_direction * (armor_thickness - math.max(armor_thickness - shell_penetration / 100, 0))
 
-    --if hit_shape.isBlock then
-    --    local p1 = hit_shape:getClosestBlockLocalPosition( exit_point )
-    --    local p2 = hit_shape:getClosestBlockLocalPosition( hit_data.pointWorld )
-    --    hit_shape:destroyBlock(p1)
-    --    for _,block in pairs(voxel_trace(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z)) do
-    --        hit_shape:destroyBlock(block)
-    --    end
-    --else
-    --    hit_shape:destroyShape()
-    --end
+    if hit_shape.isBlock then
+        local p1 = hit_shape:getClosestBlockLocalPosition( exit_point )
+        local p2 = hit_shape:getClosestBlockLocalPosition( hit_data.pointWorld )
+        hit_shape:destroyBlock(p1)
+        for _,block in pairs(voxel_trace(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z)) do
+            hit_shape:destroyBlock(block)
+        end
+    else
+        hit_shape:destroyShape()
+    end
 
     local new_pen_length = shell.parameters.penetrator_length * (1 - (armor_thickness * 100 / shell_penetration))
     shell.parameters.penetrator_length = new_pen_length

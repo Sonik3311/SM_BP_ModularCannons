@@ -13,7 +13,13 @@ function Breech:server_onCreate()
     self.interactable:setPublicData({is_loaded = self.loaded})
 end
 
-function Breech:server_onFixedUpdate(dt) end
+function Breech:server_onFixedUpdate(dt)
+    self.loaded = self.interactable:getPublicData().is_loaded
+    if not self.loaded then
+        self.loaded = true
+        self.interactable:setPublicData({is_loaded = self.loaded})
+    end
+end
 
 -----------------------------------------------------------------------------------------------
 

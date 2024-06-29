@@ -9,8 +9,9 @@ function calculate_shell_penetration(shell, armor_material, armor_thickness)
         local penetrator_length = shell.parameters.penetrator_length
         local penetrator_diameter = shell.parameters.diameter
         local penetrator_density = shell.parameters.penetrator_density
-        local max_pen = calculate_rod_penetration(shell.velocity:length() / 0.7, penetrator_length, penetrator_diameter, penetrator_density, 7850, 250)
-        shell.parameters.penetrator_length = penetrator_length * (1 - (armor_thickness / max_pen))
+        local max_pen = calculate_rod_penetration(shell.velocity:length(), penetrator_length, penetrator_diameter, penetrator_density, 7850, 250)
+        print(max_pen)
+        --shell.parameters.penetrator_length = penetrator_length * (1 - (armor_thickness / max_pen))
         return max_pen
     end
 end
@@ -65,9 +66,8 @@ function calculate_ricochet (direction, normal, shell_type)
         local chance = clamp(1, 0, 0.025 * (angle - 30))
         local choice = math.random()
         if choice <= chance then
-            local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5)
-            local new_dir = random_dir:normalize() + direction:normalize()
-            return Reflect(direction:normalize(), sm.vec3.lerp(normal,new_dir,0.2):normalize())
+            local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+            return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
         return nil
     end
