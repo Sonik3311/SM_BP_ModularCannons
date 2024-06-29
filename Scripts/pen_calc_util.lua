@@ -79,9 +79,9 @@ function calculate_armor_thickness ( ro, rd, boxSize )
     local rdz = rd.z^-1
 
     -- gives division by zero error if left unattended
-    rdx = rd.x and rd.x ~= 0 or 9999999
-    rdy = rd.y and rd.y ~= 0 or 9999999
-    rdz = rd.z and rd.z ~= 0 or 9999999
+    rdx = rd.x ~= 0 and rd.x or 9999999
+    rdy = rd.y ~= 0 and rd.y or 9999999
+    rdz = rd.z ~= 0 and rd.z or 9999999
 
     local m = sm.vec3.new(rdx, rdy, rdz) -- can precompute if traversing a set of aligned boxes
     local n = m * ro   -- can precompute if traversing a set of aligned boxes

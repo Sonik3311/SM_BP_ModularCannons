@@ -42,7 +42,7 @@ function Cannon:server_onFixedUpdate(dt)
     end
 
     if input_active(self.interactable) then
-        self:sv_fire()
+        self:sv_fire(true)
     end
 
     update_shells(self.fired_shells, dt, self.network)
@@ -92,7 +92,7 @@ function Cannon:sv_fire(is_debug_shell)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     local speed = bps * high_pressure - bps / 10 * low_pressure
 
-    dprint("Firing at speed "..tostring(speed), "info", dprint_filename, nil, "sv_fire")
+    dprint("Firing shell with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire")
 
     self.fired_shells[#self.fired_shells + 1] = {
         velocity = self.shape:getAt() * speed,
