@@ -98,7 +98,7 @@ function Cannon:sv_fire(is_debug_shell)
         return
     end
 
-    local bps = 20
+    local bps = 200
     local propellant = 4 -- temp, move to breech.lua
     local high_pressure = math.min(self.barrel_length, propellant * 2.2)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
@@ -111,8 +111,8 @@ function Cannon:sv_fire(is_debug_shell)
         position = self.shape:getWorldPosition() + self.shape:getAt() / 2,
         type = "APFSDS",
         parameters = {
-            diameter = 7,
-            penetrator_length = 50,
+            diameter = 27,
+            penetrator_length = 627,
             penetrator_density = 17500
         }
     }
@@ -123,7 +123,7 @@ function Cannon:sv_fire(is_debug_shell)
         }
     end
 
-    --self.breech.interactable:setPublicData({is_loaded = false})
+    self.breech.interactable:setPublicData({is_loaded = false})
 end
 
 -------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ function Cannon:cl_save_path(path)
         local delta = line[2] - line[1]
         local length = delta:length()
 
-        if length < 0.0001 then return end
+        if length < 0.0001 then goto next end
 
         local rot = sm.vec3.getRotation(sm.vec3.new(1,0,0), delta)
 
@@ -158,5 +158,6 @@ function Cannon:cl_save_path(path)
         a:setScale( sm.vec3.one() * (thickness * 1.5) )
         a:setPosition(line[1])
         self.lines[#self.lines + 1] = {effect, a}
+        ::next::
     end
 end

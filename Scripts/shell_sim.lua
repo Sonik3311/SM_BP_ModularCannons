@@ -2,6 +2,7 @@ dofile "$CONTENT_DATA/Scripts/pen_calc_util.lua"
 dofile "$CONTENT_DATA/Scripts/pen_proc_util.lua"
 dofile "$CONTENT_DATA/Scripts/shell_sim_util.lua"
 
+
 local function process_shell_collision (shell, dt)
     local raycast = sm.physics.raycast
 
@@ -13,24 +14,35 @@ local function process_shell_collision (shell, dt)
 
     while is_hit do
         local hit_shape = hit_data:getShape()
+        local is_alive = true
 
-        if not hit_shape then -- ground
+        if is_world_surface(hit_data.type) then
             return false, end_point
         end
-        local is_alive
+
+
+
+        if hit_data.type == "joint" then
+            start_point = hit_data.pointWorld
+            end_point = end_point
+            goto skip_shape
+        end
+
+
         is_alive, start_point, end_point, shell_direction = process_apfsds_penetration (shell, hit_shape, hit_data,
                                                                                               start_point, end_point, dt)
+
         if not is_alive then
            return false, end_point
         end
+        ::skip_shape::
+
         add_point_to_line(shell.debug.path, start_point)
         is_hit, hit_data = raycast(start_point, end_point, hit_shape)
     end
 
     return true, end_point
 end
-
-
 
 function update_shells (shells, dt, net)
     for shell_id, shell in pairs(shells) do

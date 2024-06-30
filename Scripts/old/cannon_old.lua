@@ -72,7 +72,7 @@ function Cannon:sv_attempt_to_fire()
 
     print("Fire!")
     -- TEMP --
-    local bps = 20
+    local bps = 100
     local propellant = 4 -- optimal barrel length
     -- TEMP --
 

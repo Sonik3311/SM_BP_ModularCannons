@@ -1,5 +1,3 @@
-dofile "$CONTENT_DATA/Scripts/util.lua"
-
 Breech = class()
 Breech.maxParentCount = 0
 Breech.maxChildCount = 0

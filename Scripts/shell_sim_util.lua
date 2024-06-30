@@ -6,3 +6,7 @@ function add_point_to_line(line, point)
         point
     }
 end
+
+function is_world_surface(object_type)
+    return object_type == "terrainSurface" or object_type == "limiter"
+end

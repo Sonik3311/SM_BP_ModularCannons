@@ -48,12 +48,12 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     local hit_direction = hit_shape:transformDirection(shell_direction)
     local hit_shape_aabb = hit_shape:getBoundingBox()
 
-    local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell.type)
+    local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
     local armor_thickness = calculate_armor_thickness(hit_point, hit_direction, hit_shape_aabb)
 
     if ricochet_dir then
         shell.position = hit_data.pointWorld
-        shell.velocity = ricochet_dir * shell.velocity:length() / 2
+        shell.velocity = ricochet_dir * shell.velocity:length() / 1.3
         shell_direction = ricochet_dir
         new_start_point = hit_data.pointWorld
         new_end_point = new_start_point + shell.velocity * dt
@@ -68,6 +68,8 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     end
     new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
 
+    local new_pen_length = shell.parameters.penetrator_length * (1 - (armor_thickness * 100 / shell_penetration))
+    shell.parameters.penetrator_length = new_pen_length
 
     hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
     local exit_point = hit_data.pointWorld + shell_direction * (armor_thickness - math.max(armor_thickness - shell_penetration / 100, 0))
@@ -82,9 +84,6 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     else
         hit_shape:destroyShape()
     end
-
-    local new_pen_length = shell.parameters.penetrator_length * (1 - (armor_thickness * 100 / shell_penetration))
-    shell.parameters.penetrator_length = new_pen_length
 
     return is_penetrated, new_start_point, new_end_point, shell_direction
 end
