@@ -1,4 +1,5 @@
 dofile "$CONTENT_DATA/Scripts/pen_calc_util.lua"
+dofile "$CONTENT_DATA/Scripts/spall.lua"
 
 
 local function voxel_trace(sx, sy, sz, dx, dy, dz)
@@ -35,13 +36,16 @@ local function voxel_trace(sx, sy, sz, dx, dy, dz)
     return voxels
 end
 
+local function is_exititing_body(position, direction, hit_shape)
+    local hit, _ = sm.physics.raycast(position, position + direction * 0.125, hit_shape)
+    return not hit
+end
+
 
 -- must return:
 -- is_alive, new_start_point, new_end_point, shell_direction
 
 function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
-    local new_start_point = start_point
-    local new_end_point = end_point
 
     local shell_direction = shell.velocity:normalize()
     local hit_point = hit_shape:transformPoint(hit_data.pointWorld) --hit_data.pointLocal
@@ -60,19 +64,16 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         return true, new_start_point, new_end_point, shell_direction
     end
 
-    local shell_penetration = calculate_shell_penetration(shell, nil, armor_thickness * 100)
-    local is_penetrated = (armor_thickness * 100 - shell_penetration) < 0
+    local shell_penetration = calculate_shell_penetration(shell, nil, armor_thickness * 700)
+    local is_penetrated = (armor_thickness * 700 - shell_penetration) < 0
+    print(armor_thickness, armor_thickness * 700, shell_penetration)
+    local exit_point = hit_data.pointWorld + shell_direction * (armor_thickness - math.max(armor_thickness - shell_penetration / 700, 0))
 
-    if not is_penetrated then
-        new_end_point = hit_data.pointWorld + shell_direction * (armor_thickness - shell_penetration / 100)
-    end
-    new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
 
-    local new_pen_length = shell.parameters.penetrator_length * (1 - (armor_thickness * 100 / shell_penetration))
+    local new_pen_length = shell.parameters.penetrator_length * (1 - (armor_thickness * 700 / shell_penetration))
     shell.parameters.penetrator_length = new_pen_length
 
     hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
-    local exit_point = hit_data.pointWorld + shell_direction * (armor_thickness - math.max(armor_thickness - shell_penetration / 100, 0))
 
     if hit_shape.isBlock then
         local p1 = hit_shape:getClosestBlockLocalPosition( exit_point )
@@ -83,6 +84,18 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         end
     else
         hit_shape:destroyShape()
+    end
+
+    local new_end_point = not is_penetrated and exit_point or end_point
+    local new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
+
+    if is_penetrated and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
+        for i=1, 10 do
+            local spall_start, spall_end = process_spall(new_start_point, random_vector_in_cone(shell_direction, math.pi/6), hit_shape, shell)
+            if shell.debug then
+               shell.debug.path.spall[#shell.debug.path.spall + 1] = {spall_start, spall_end}
+            end
+        end
     end
 
     return is_penetrated, new_start_point, new_end_point, shell_direction

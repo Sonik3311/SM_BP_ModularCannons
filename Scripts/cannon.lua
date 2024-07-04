@@ -12,6 +12,7 @@ local dprint_filename = "Cannon"
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/cannon_util.lua"
 dofile "$CONTENT_DATA/Scripts/shell_sim.lua"
+dofile "$CONTENT_DATA/Scripts/general_util.lua"
 
 Cannon = class()
 
@@ -48,6 +49,38 @@ function Cannon:server_onFixedUpdate(dt)
     end
 
     update_shells(self.fired_shells, dt, self.network)
+    --[[
+    local bodies = sm.body.getAllBodies()
+    for _, body in pairs(bodies) do
+        local shapes = body:getShapes()
+        local shape = shapes[1]
+        if shape.isBlock then
+            local neighbours = shape:getNeighbours()
+            local colors = {
+                sm.color.new("aa5555"),
+                sm.color.new("55aa55"),
+                sm.color.new("aaaa55"),
+                sm.color.new("5555aa"),
+                sm.color.new("aa55aa"),
+                sm.color.new("55aaaa"),
+                sm.color.new("aaaaaa")
+            }
+            local pos = shape:getWorldPosition()
+            for i, n in pairs(neighbours) do
+
+                local n_aabb = n:getBoundingBox()
+                local n_pos_local = shape:transformPoint(n:getWorldPosition())
+                -- we want to make go to 0,0,0 as close as possible
+                local delta_x = clamp(n_aabb.x/2, -n_aabb.x/2, n_pos_local.x)
+                local delta_y = clamp(n_aabb.y/2, -n_aabb.y/2, n_pos_local.y)
+                local delta_z = clamp(n_aabb.z/2, -n_aabb.z/2, n_pos_local.z)
+                local close_point_local = n_pos_local - sm.vec3.new(delta_x, delta_y, delta_z)
+                local p = n:getClosestBlockLocalPosition(shape:transformLocalPoint(close_point_local))
+
+                print(close_point_local, print(p))
+            end
+        end
+    end]]
 end
 
 function Cannon:client_onFixedUpdate(dt)
@@ -112,14 +145,16 @@ function Cannon:sv_fire(is_debug_shell)
         type = "APFSDS",
         parameters = {
             diameter = 27,
-            penetrator_length = 627,
-            penetrator_density = 17500
+            penetrator_length = 600,
+            penetrator_density = 19050
         }
     }
 
     if is_debug_shell then
         self.fired_shells[#self.fired_shells].debug = {
-            path = {{self.shape:getWorldPosition(), self.shape:getWorldPosition() + self.shape:getAt() / 2}}
+            path = {shell = {{self.shape:getWorldPosition(), self.shape:getWorldPosition() + self.shape:getAt() / 2}},
+                    spall={}
+            }
         }
     end
 
@@ -130,15 +165,16 @@ end
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
 
-function Cannon:cl_save_path(path)
-    dprint("recieved path with the length of "..tostring(#path), "info", dprint_filename, nil, "cl_save_path")
+function Cannon:cl_save_path(data)
+    dprint("recieved path with the length of "..tostring(#data.path).." and type "..data.type, "info", dprint_filename, nil, "cl_save_path")
     self.paths[#self.paths + 1] = path
-    for line_id = 1, #path do
+    for line_id = 1, #data.path do
         local thickness = 0.025
-        local line = path[line_id]
+        local line = data.path[line_id]
         local effect = sm.effect.createEffect("ShapeRenderable")
         effect:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
-        effect:setParameter("color", sm.color.new("ffffff"))
+        if data.type == "shell" then effect:setParameter("color", sm.color.new("ffffff"))
+        else effect:setParameter("color", sm.color.new("ffaa55")) end
         effect:setScale( sm.vec3.one() * thickness )
         local delta = line[2] - line[1]
         local length = delta:length()

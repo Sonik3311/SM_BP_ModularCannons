@@ -3,6 +3,7 @@ dofile "$CONTENT_DATA/Scripts/pen_proc_util.lua"
 dofile "$CONTENT_DATA/Scripts/shell_sim_util.lua"
 
 
+
 local function process_shell_collision (shell, dt)
     local raycast = sm.physics.raycast
 
@@ -20,24 +21,20 @@ local function process_shell_collision (shell, dt)
             return false, end_point
         end
 
-
-
         if hit_data.type == "joint" then
             start_point = hit_data.pointWorld
             end_point = end_point
             goto skip_shape
         end
 
-
         is_alive, start_point, end_point, shell_direction = process_apfsds_penetration (shell, hit_shape, hit_data,
-                                                                                              start_point, end_point, dt)
-
+                                                                                        start_point, end_point, dt)
         if not is_alive then
            return false, end_point
         end
-        ::skip_shape::
 
-        add_point_to_line(shell.debug.path, start_point)
+        ::skip_shape::
+        add_point_to_path(shell.debug.path.shell, start_point)
         is_hit, hit_data = raycast(start_point, end_point, hit_shape)
     end
 
@@ -54,10 +51,11 @@ function update_shells (shells, dt, net)
 
         local alive, next_position = process_shell_collision(shell, dt, net)
 
-        add_point_to_line(shell.debug.path, next_position)
+        add_point_to_path(shell.debug.path.shell, next_position)
 
         if not alive then
-            net:sendToClients("cl_save_path", shell.debug.path)
+            net:sendToClients("cl_save_path", {path = shell.debug.path.shell, type = "shell"})
+            net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
             shells[shell_id] = nil
             goto next
         end

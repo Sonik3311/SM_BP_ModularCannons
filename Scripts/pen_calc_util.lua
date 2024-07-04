@@ -10,7 +10,7 @@ function calculate_shell_penetration(shell, armor_material, armor_thickness)
         local penetrator_diameter = shell.parameters.diameter
         local penetrator_density = shell.parameters.penetrator_density
         local max_pen, min_velocity = calculate_rod_penetration(shell.velocity:length() / 1000, penetrator_length, penetrator_diameter, penetrator_density, 7850, 250)
-        return (shell.velocity:length()/1000) >= min_velocity and max_pen or max_pen * 1.5
+        return max_pen
     end
 end
 
