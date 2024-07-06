@@ -17,6 +17,7 @@ function random_vector_in_cone(dir, angle)
 end
 
 
+
 function process_spall(position, direction, amount, ignore_shape)
     local end_point = position + direction * 20
     local hit, hit_data = sm.physics.raycast(position, end_point, ignore_shape)
@@ -27,7 +28,6 @@ function process_spall(position, direction, amount, ignore_shape)
     elseif hit and hit_shape then
         hit_shape:destroyShape()
     end
-
 
     return position, hit_data.pointWorld:length2() ~= 0 and hit_data.pointWorld or end_point
 end
