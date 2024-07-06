@@ -2,11 +2,7 @@ dofile "$CONTENT_DATA/Scripts/armor_calc.lua"
 dofile "$CONTENT_DATA/Scripts/spall.lua"
 dofile "$CONTENT_DATA/Scripts/shell_util.lua"
 
-local function get_spall_amount(shell)
-    max_spall_amount = math.max(7, shell.parameters.diameter)
-end
-
-function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
+function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
 
     local shell_direction = shell.velocity:normalize()
 
@@ -39,7 +35,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     local new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
 
     penetrate_shape(hit_shape, exit_point, hit_data.pointWorld)
-    if hit_shape.isBlock and is_penetrated then then
+    if hit_shape.isBlock and is_penetrated then
         hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
     end
 

@@ -50,6 +50,13 @@ function calculate_ricochet (direction, normal, shell)
             return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
         return nil
+    elseif shell.type == "AP" then
+        local chance = clamp(1,0, 0.03*angle - 45 * 0.03)
+        local choice = math.random()
+        if choice <= chance then
+            local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+            return reflect(direction:normalize(), (normal + random_dir):normalize())
+        end
     end
 end
 

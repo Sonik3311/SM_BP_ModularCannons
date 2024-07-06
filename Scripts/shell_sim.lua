@@ -1,8 +1,8 @@
 -- hi there, watcha doin?
-dofile "$CONTENT_DATA/Scripts/apfsds.lua"
+dofile "$CONTENT_DATA/Scripts/Shells/apfsds.lua"
+dofile "$CONTENT_DATA/Scripts/Shells/ap.lua"
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/debug_path_draw.lua"
---dofile "$CONTENT_DATA/Scripts/shell_sim_functions.lua"
 
 local dprint_filename = "shell_sim"
 
@@ -34,7 +34,7 @@ function process_shell_collision (shell, dt)
             goto skip_shape
         end
 
-        is_alive, start_point, end_point, shell_direction = process_apfsds_penetration (shell, hit_shape, hit_data,
+        is_alive, start_point, end_point, shell_direction = process_ap_penetration (shell, hit_shape, hit_data,
                                                                                         start_point, end_point, dt)
         if not is_alive then
            return false, end_point

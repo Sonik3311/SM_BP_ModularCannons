@@ -9,6 +9,12 @@ function calculate_shell_penetration(shell)
         local penetrator_density = shell.parameters.penetrator_density
         local max_pen, min_velocity = calculate_rod_penetration(shell.velocity:length() / 1000, penetrator_length, penetrator_diameter, penetrator_density, 7850, 250)
         return max_pen
+    elseif shell.type == "AP" then
+        local mass = shell.parameters.projectile_mass
+        local diameter = shell.parameters.diameter
+        local is_apcbc = shell.parameters.is_apcbc
+        local velocity = shell.velocity:length()
+        return calculate_bullet_penetration(velocity, diameter, mass, is_apcbc)
     end
 end
 
@@ -37,10 +43,10 @@ end
 
 function calculate_bullet_penetration (impact_velocity, shell_diameter, shell_mass, is_apcbc)
     local kfbr = 1900
-    local knap = 1 -- tnt mass 0
+    local knap = 0.75 -- tnt mass 0
     local kf_apcbc = is_apcbc and 1 or 0.9
 
-    return (impact_velocity^1.43 * shell_mass^0.71) / (kfbr^1.43 * (shell_diameter/100^1.07)) * 100 * knap * kf_apcbc
+    return ((impact_velocity^1.43) * (shell_mass^0.71)) / ((kfbr^1.43) * ((shell_diameter/100)^1.07)) * 100 * knap * kf_apcbc
 end
 
 -- TODO: Replace this shit

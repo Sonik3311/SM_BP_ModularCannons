@@ -32,14 +32,29 @@ function Breech:server_onCreate()
     self.barrel_diameter = 100 --mm
 
     self.fired_shells = {}
+    --self.loaded_shell = {
+    --    type = "APFSDS",
+    --    parameters = {
+    --        propellant = 6,
+    --        projectile_mass = 5,
+    --        diameter = 27,
+    --        penetrator_length = 700,
+    --        penetrator_density = 17800
+    --    }
+    --}
+
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 7850
     self.loaded_shell = {
-        type = "APFSDS",
+        type = "AP",
         parameters = {
             propellant = 6,
-            projectile_mass = 5,
-            diameter = 27,
-            penetrator_length = 700,
-            penetrator_density = 17800
+            projectile_mass = mass,
+            diameter = self.barrel_diameter,
+            --penetrator_length = 700,
+            --penetrator_density = 17800
+            is_apcbc = true
         }
     }
 end
@@ -130,7 +145,7 @@ function Breech:sv_fire_shell(is_debug)
     local projectile_mass = self.loaded_shell.parameters.projectile_mass
 
     local propellant = self.loaded_shell.parameters.propellant
-    local propellant_power = propellant * self.barrel_diameter / projectile_mass
+    local propellant_power = propellant * self.barrel_diameter / (projectile_mass/2)
     local high_pressure = math.min(self.barrel_length, propellant * 2.2)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
