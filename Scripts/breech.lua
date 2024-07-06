@@ -57,10 +57,7 @@ function Breech:server_onFixedUpdate(dt)
     if body_has_changed(self.shape) then
         self.barrel_shapes = construct_cannon(self.shape)
         self.barrel_length = #self.barrel_shapes
-        --for k,v in pairs(self.barrel_shapes) do print(k,v) end
-        --print(self.barrel_shapes[#self.barrel_shapes])
         self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
-        print(self.barrel_shapes, self.muzzle_shape)
     end
 
     if input_active(self.interactable) then

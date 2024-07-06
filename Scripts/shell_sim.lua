@@ -2,7 +2,7 @@
 dofile "$CONTENT_DATA/Scripts/apfsds.lua"
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/debug_path_draw.lua"
-dofile "$CONTENT_DATA/Scripts/shell_sim_functions.lua"
+--dofile "$CONTENT_DATA/Scripts/shell_sim_functions.lua"
 
 local dprint_filename = "shell_sim"
 

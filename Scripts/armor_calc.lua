@@ -25,7 +25,7 @@ local function ray_box_intersection ( ro, rd, boxSize )
     local t2 = -n + k
     local tN = math.max(math.max( math.max( t1.x, t1.y ), t1.z ), 0)
     local tF = math.min( math.min( t2.x, t2.y ), t2.z )
-
+    --print("tN:",tN,"tF:",tF)
     return (tF - tN) / 2
 end
 
@@ -76,6 +76,6 @@ function material_to_RHA(hit_shape)
         Default = 0.8,
     }
     local material = hit_shape.material
-    print("hit", material, "::", multipliers[material])
+    --print("hit", material, "::", multipliers[material])
     return multipliers[material] / 1.4
 end

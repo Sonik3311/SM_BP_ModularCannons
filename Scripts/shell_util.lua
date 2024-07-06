@@ -36,3 +36,18 @@ function voxel_trace(sx, sy, sz, dx, dy, dz)
     end
     return voxels
 end
+
+function penetrate_shape(hit_shape, p1, p2)
+    if hit_shape.isBlock then
+        local p1 = hit_shape:getClosestBlockLocalPosition( p1 )
+        local p2 = hit_shape:getClosestBlockLocalPosition( p2 )
+        hit_shape:destroyBlock(p1)
+        hit_shape:destroyBlock(p2)
+
+        for _,block in pairs(voxel_trace(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z)) do
+            hit_shape:destroyBlock(block)
+        end
+    else
+        hit_shape:destroyShape()
+    end
+end
