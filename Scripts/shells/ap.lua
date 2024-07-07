@@ -34,7 +34,7 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
     local new_end_point = not is_penetrated and exit_point or end_point
     local new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
 
-    penetrate_shape(hit_shape, exit_point, hit_data.pointWorld)
+    penetrate_shape(hit_shape, hit_data.pointWorld, exit_point)
     if hit_shape.isBlock and is_penetrated then
         hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
     end
