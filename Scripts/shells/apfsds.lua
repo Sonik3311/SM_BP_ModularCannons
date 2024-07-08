@@ -48,7 +48,6 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     local exit_point = hit_data.pointWorld + shell_direction * armor_penetrated
     shell.max_pen = math.max(0, shell.max_pen - RHA_thickness)
 
-
     hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
 
     local new_end_point = not is_penetrated and exit_point or end_point
@@ -60,9 +59,9 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     end
 
 
-    if is_penetrated and not is_seat(hit_shape) and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
+    if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
         local start = os.clock()
-        local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, 5, 200}, {20, 10, 40}, {30, 15, 20}}, hit_shape)
+        local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, 5, 0}, {20, 10, 0}, {30, 15, 0}}, hit_shape)
         print("Spall process took",os.clock()-start)
 
         if shell.debug then

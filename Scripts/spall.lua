@@ -86,6 +86,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 local RHA_multiplier = material_to_RHA(hit_shape)
                 local RHA_thickness = armor_thickness * 1000 * RHA_multiplier
                 local is_penetrated = (RHA_thickness - ray.max_pen) < 0
+                ray.max_pen = math.max(0, ray.max_pen - RHA_thickness)
 
                 if not is_penetrated then
                     -- color the hit block black or smth
@@ -96,7 +97,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
 
                 local armor_penetrated = armor_thickness / math.max(1, RHA_thickness / ray.max_pen)
                 local exit_point = hit_result.pointWorld + ray.direction * armor_penetrated
-                ray.max_pen = math.max(0, ray.max_pen - RHA_thickness)
+
 
                 penetrate_shape(hit_shape, hit_result.pointWorld, exit_point)
                 if hit_shape.isBlock and is_penetrated then

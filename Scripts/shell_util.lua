@@ -1,5 +1,5 @@
 function is_exititing_body(position, direction, hit_shape)
-    local hit, _ = sm.physics.raycast(position, position + direction * 0.125, hit_shape)
+    local hit, _ = sm.physics.raycast(position, position + direction * 0.25, hit_shape)
     return not hit
 end
 

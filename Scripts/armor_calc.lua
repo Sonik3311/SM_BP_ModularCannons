@@ -103,5 +103,5 @@ function material_to_RHA(hit_shape)
     }
     local material = hit_shape.material
     --print("hit", material, "::", multipliers[material])
-    return multipliers[material]
+    return multipliers[material] / 1.5
 end
