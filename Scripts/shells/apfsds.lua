@@ -62,12 +62,18 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
 
 
     if is_penetrated and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
-        for i=1, get_spall_amount(shell, hit_shape) do
-            local spall_start, spall_end = process_spall(exit_point, random_vector_in_cone(shell_direction, math.pi/6), hit_shape, shell)
-            if shell.debug then
-               shell.debug.path.spall[#shell.debug.path.spall + 1] = {spall_start, spall_end}
+        local start = os.clock()
+        local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, 8, 200}, {20, 15, 40}, {30, 30, 20}}, hit_shape)
+        print("Spall process took",os.clock()-start)
+        start = os.clock()
+        if shell.debug then
+            for path_id = 1, #spall_paths do
+                local path = spall_paths[path_id]
+
+                shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
             end
         end
+        print("Add to debug draw took",os.clock()-start)
     end
 
     return is_penetrated, new_start_point, new_end_point, shell_direction

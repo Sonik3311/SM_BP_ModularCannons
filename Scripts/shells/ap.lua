@@ -9,7 +9,7 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
     local armor_thickness = calculate_armor_thickness(hit_shape, start_point, shell_direction)
     local RHA_multiplier = material_to_RHA(hit_shape)
-    local RHA_thickness = armor_thickness * 700 * RHA_multiplier
+    local RHA_thickness = armor_thickness * 1000 * RHA_multiplier
 
     if ricochet_dir then
         shell.position = hit_data.pointWorld
