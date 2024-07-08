@@ -1,30 +1,5 @@
 dofile "$CONTENT_DATA/Scripts/armor_calc.lua"
-
-local function is_seat(hit_shape)
-    local uuid_seat = {
-        sm.uuid.new("42786777-c148-4e13-9bab-e460564e79c3"), -- seat
-        sm.uuid.new("cf3fdcfc-a7e5-4497-b000-ffda67dd8db7"), -- driver's seat
-        sm.uuid.new("2b9c6e87-1b75-4a57-8979-74d9f95668ba"), -- seat 2
-        sm.uuid.new("3b972f2f-30c7-4a5e-a100-5e257e62295d"), -- seat 1
-        sm.uuid.new("46465697-ed36-4720-ba8a-08c568b4e36c"), -- seat 4
-        sm.uuid.new("703ca746-d802-4e76-b443-4881e83afb73"), -- seat 5
-        sm.uuid.new("77c2687c-2e13-4df8-996a-96fb26d75ee0"), -- driver's seat 1
-        sm.uuid.new("847daf20-02bf-4170-8699-9ab106acd29a"), -- scrap seat
-        sm.uuid.new("8694192c-d91b-444c-a184-910911bbb354"), -- oily toilet seat
-        sm.uuid.new("bd597ac9-6640-43ba-9bd8-ed584a794f13"), -- scrap driver's seat
-        sm.uuid.new("c3ef3008-9367-4ab7-813a-24195d63e5a3"), -- driver's seat 3
-        sm.uuid.new("d30dcd12-ec39-43b9-a115-44c08e1b9091"), -- driver's seat 4
-        sm.uuid.new("ebe2782e-a4f5-4d91-83cc-db110179393b"), -- seat 3
-        sm.uuid.new("efbf45f8-62ec-4541-9eb1-d529966f6a29"), -- driver's seat 2
-        sm.uuid.new("ffa3a47e-fc0d-4977-802f-bd15683bbe5c"), -- driver's seat 5
-    }
-    for i = 1, #uuid_seat do
-        if hit_shape.uuid == uuid_seat[i] then
-           return true
-        end
-    end
-    return false
-end
+dofile "$CONTENT_DATA/Scripts/shell_util.lua"
 
 local function is_soft_shape(hit_shape)
     local materials = {
@@ -81,7 +56,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 endPoint    =   position + dir * 10,
                 direction   =   dir,
                 max_pen = spall_penetration,
-                body = ignore_shape
+                mask = 1 + 2,
             }
         end
 
@@ -106,13 +81,6 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                     goto next
                 end
 
-                if hit_result.type == "joint" then -- joints have weird collisions, ignore them
-                    ray.body = hit_shape
-                    ray.startPoint = hit_result.pointWorld
-                    new_casts[#new_casts + 1] = ray
-                    return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
-                    goto next
-                end
                 -- penetrate if possible
                 local armor_thickness = calculate_armor_thickness(hit_shape, ray.startPoint, ray.direction)
                 local RHA_multiplier = material_to_RHA(hit_shape)
@@ -130,18 +98,18 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 local exit_point = hit_result.pointWorld + ray.direction * armor_penetrated
                 ray.max_pen = math.max(0, ray.max_pen - RHA_thickness)
 
-                ray.startPoint = exit_point
+                penetrate_shape(hit_shape, hit_result.pointWorld, exit_point)
+                if hit_shape.isBlock and is_penetrated then
+                    hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(exit_point))
+                end
 
                 return_paths[#return_paths + 1] = {ray.startPoint, exit_point}
+                ray.startPoint = exit_point
                 new_casts[#new_casts + 1] = ray
                 ::next::
             end
             iter_counter = iter_counter + 1
             casts = new_casts
-        end
-        print(iter_counter)
-        if iter_counter > 99 then
-
         end
     end
     return return_paths

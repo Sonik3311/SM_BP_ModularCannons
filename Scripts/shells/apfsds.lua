@@ -30,7 +30,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
     local armor_thickness = calculate_armor_thickness(hit_shape, start_point, shell_direction)
     local RHA_multiplier = material_to_RHA(hit_shape)
-    local RHA_thickness = armor_thickness * 700 * RHA_multiplier
+    local RHA_thickness = armor_thickness * 1000 * RHA_multiplier
 
     if ricochet_dir then
         shell.position = hit_data.pointWorld
@@ -46,7 +46,6 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
 
     local armor_penetrated = armor_thickness / math.max(1, RHA_thickness / shell_penetration)
     local exit_point = hit_data.pointWorld + shell_direction * armor_penetrated
-    print("shell:",shell_penetration, "orig_thickness:",armor_thickness*1000,"RHA:",RHA_thickness,"A/P ratio:",RHA_thickness/shell_penetration)
     shell.max_pen = math.max(0, shell.max_pen - RHA_thickness)
 
 
@@ -61,19 +60,17 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     end
 
 
-    if is_penetrated and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
+    if is_penetrated and not is_seat(hit_shape) and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
         local start = os.clock()
-        local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, 8, 200}, {20, 15, 40}, {30, 30, 20}}, hit_shape)
+        local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, 5, 200}, {20, 10, 40}, {30, 15, 20}}, hit_shape)
         print("Spall process took",os.clock()-start)
-        start = os.clock()
+
         if shell.debug then
             for path_id = 1, #spall_paths do
                 local path = spall_paths[path_id]
-
                 shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
             end
         end
-        print("Add to debug draw took",os.clock()-start)
     end
 
     return is_penetrated, new_start_point, new_end_point, shell_direction

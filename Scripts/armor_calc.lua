@@ -37,6 +37,19 @@ end
 --[[                        Armor properties calculation                       ]]--
 -----------------------------------------------------------------------------------
 
+function is_seat(hit_shape)
+    local interactable = hit_shape.interactable
+    if not interactable then
+        return false
+    end
+
+    if interactable.type == "seat" or interactable.type == "scripted" then
+        return true
+    end
+
+    return false
+end
+
 function calculate_ricochet (direction, normal, shell)
     local angle = math.acos(normal:dot(direction:normalize())) * 180/math.pi
     if angle > 90 then
@@ -68,6 +81,12 @@ function calculate_armor_thickness(hit_shape, hit_point, hit_direction)
 end
 
 function material_to_RHA(hit_shape)
+    if not hit_shape.isBlock then
+        if is_seat(hit_shape) then
+            return 0.01
+        end
+    end
+
     local multipliers = {
         Plastic = 0.15,
         Rock = 0.7,
@@ -84,5 +103,5 @@ function material_to_RHA(hit_shape)
     }
     local material = hit_shape.material
     --print("hit", material, "::", multipliers[material])
-    return multipliers[material] / 1.4
+    return multipliers[material]
 end
