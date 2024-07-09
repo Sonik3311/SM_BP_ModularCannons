@@ -182,7 +182,7 @@ function Breech:cl_save_path(data)
         local effect = sm.effect.createEffect("ShapeRenderable")
         effect:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
         if data.type == "shell" then effect:setParameter("color", sm.color.new("ffffff"))
-        else effect:setParameter("color", sm.color.new("ffaa55")) end
+        else effect:setParameter("color", sm.color.new(math.random(70,90)/90, math.random(40,60)/60, math.random(40,60)/60)) end
         effect:setScale( sm.vec3.one() * thickness )
         local delta = line[2] - line[1]
         local length = delta:length()
