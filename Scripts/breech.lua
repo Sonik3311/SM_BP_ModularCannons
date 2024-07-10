@@ -32,31 +32,31 @@ function Breech:server_onCreate()
     self.barrel_diameter = 100 --mm
 
     self.fired_shells = {}
-    self.loaded_shell = {
-        type = "APFSDS",
-        parameters = {
-            propellant = 7,
-            projectile_mass = 12,
-            diameter = 27,
-            penetrator_length = 700,
-            penetrator_density = 17800
-        }
-    }
-
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 7850
     --self.loaded_shell = {
-    --    type = "AP",
+    --    type = "APFSDS",
     --    parameters = {
-    --        propellant = 6,
-    --        projectile_mass = mass,
-    --        diameter = self.barrel_diameter,
-    --        --penetrator_length = 700,
-    --        --penetrator_density = 17800
-    --        is_apcbc = true
+    --        propellant = 7,
+    --        projectile_mass = 12,
+    --        diameter = 27,
+    --        penetrator_length = 700,
+    --        penetrator_density = 17800
     --    }
     --}
+
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 7850
+    self.loaded_shell = {
+        type = "AP",
+        parameters = {
+            propellant = 6,
+            projectile_mass = mass,
+            diameter = self.barrel_diameter,
+            --penetrator_length = 700,
+            --penetrator_density = 17800
+            is_apcbc = true
+        }
+    }
 end
 
 function Breech:client_onCreate()
@@ -165,7 +165,7 @@ function Breech:sv_fire_shell(is_debug)
         }
     end
 
-    dprint("Firing shell with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire_shell")
+    dprint("Firing shell ("..self.loaded_shell.type..") with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire_shell")
     dprint("Fired shell has "..tostring(self.loaded_shell.max_pen).." mm pen of RHA", "info", dprint_filename, nil, "sv_fire_shell")
 
     self.muzzle_shape:setColor(sm.color.new("0000ff"))

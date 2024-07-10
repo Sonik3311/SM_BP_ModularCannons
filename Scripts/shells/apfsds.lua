@@ -19,7 +19,6 @@ local function get_spall_amount(shell, hit_shape)
     }
 
     local max_spall_amount = math.max(7, math.min(shell.parameters.diameter, 60))
-    print("spall:",math.ceil(max_spall_amount * material_multiplier[hit_shape.material]))
     return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
 end
 
@@ -60,13 +59,11 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
 
 
     if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
-        local start = os.clock()
         local spall_amount = get_spall_amount(shell, hit_shape)
         local big_spall_amount = math.ceil(spall_amount / 10)
         local med_spall_amount = math.ceil(spall_amount / 5)
         local low_spall_amount = spall_amount
         local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, big_spall_amount, 70}, {20, med_spall_amount, 40}, {30, low_spall_amount, 20}}, hit_shape)
-        print("Spall process took",os.clock() - start)
 
         if shell.debug then
             for path_id = 1, #spall_paths do

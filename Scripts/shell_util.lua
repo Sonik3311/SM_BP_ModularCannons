@@ -1,6 +1,6 @@
 function is_exititing_body(position, direction, hit_shape)
-    local hit, _ = sm.physics.raycast(position, position + direction * 0.25, hit_shape)
-    return not hit
+    local hit, hit_data = sm.physics.raycast(position, position + direction * 0.25, hit_shape)
+    return not hit or hit_data.type == "joint"
 end
 
 function voxel_trace(sx, sy, sz, dx, dy, dz)
