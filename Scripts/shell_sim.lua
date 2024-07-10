@@ -1,11 +1,11 @@
 -- hi there, watcha doin?
 dofile "$CONTENT_DATA/Scripts/Shells/apfsds.lua"
 dofile "$CONTENT_DATA/Scripts/Shells/ap.lua"
+dofile "$CONTENT_DATA/Scripts/Shells/aphe.lua"
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/debug_path_draw.lua"
 
 local dprint_filename = "shell_sim"
-
 
 local function is_world_surface(object_type)
     return object_type == "terrainSurface" or object_type == "limiter"
@@ -34,7 +34,17 @@ function process_shell_collision (shell, dt)
             goto skip_shape
         end
 
-        is_alive, start_point, end_point, shell_direction = process_ap_penetration (shell, hit_shape, hit_data,
+        if shell.type == "APHE" and shell.fuse.active then
+            print("calc")
+            local end_pos = is_hit and hit_data.pointWorld or end_point
+            local explosion_point = process_aphe_fuse(shell, start_point, end_pos)
+            if explosion_point then
+                print("EXPLOOOO", shell.fuse.active)
+                return false, explosion_point
+            end
+        end
+
+        is_alive, start_point, end_point, shell_direction = process_aphe_penetration (shell, hit_shape, hit_data,
                                                                                         start_point, end_point, dt)
         if not is_alive then
            return false, end_point
@@ -45,6 +55,16 @@ function process_shell_collision (shell, dt)
             add_point_to_path(shell.debug.path.shell, start_point)
         end
         is_hit, hit_data = raycast(start_point, end_point, hit_shape)
+    end
+
+    if shell.type == "APHE" and shell.fuse.active then
+        print("calc last")
+        local end_pos = is_hit and hit_data.pointWorld or end_point
+        local explosion_point = process_aphe_fuse(shell, start_point, end_pos)
+        if explosion_point then
+            print("EXPLOOOO", shell.fuse.active)
+            return false, explosion_point
+        end
     end
 
     return true, end_point
@@ -69,6 +89,10 @@ function update_shells (shells, dt, net)
             if shell.debug then
                 net:sendToClients("cl_save_path", {path = shell.debug.path.shell, type = "shell"})
                 net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
+            end
+            if shell.type == "APHE" then -- TEMP, REMOVE ONCE LOADING SYSTEM IS IMPLEMENTED
+                shell.fuse.active = false
+                shell.fuse.delay = 0.0015
             end
             shells[shell_id] = nil
             goto next

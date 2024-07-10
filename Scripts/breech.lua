@@ -43,20 +43,38 @@ function Breech:server_onCreate()
     --    }
     --}
 
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 7850
+    --self.loaded_shell = {
+    --    type = "AP",
+    --    parameters = {
+    --        propellant = 6,
+    --        projectile_mass = mass,
+    --        diameter = self.barrel_diameter,
+    --        is_apcbc = true
+    --    }
+    --}
+
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 7850
-    self.loaded_shell = {
-        type = "AP",
-        parameters = {
-            propellant = 6,
-            projectile_mass = mass,
-            diameter = self.barrel_diameter,
-            --penetrator_length = 700,
-            --penetrator_density = 17800
-            is_apcbc = true
+        local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+        local mass = (volume_sphere + volume_cylinder) * 7850
+        self.loaded_shell = {
+            type = "APHE",
+            parameters = {
+                propellant = 6,
+                projectile_mass = mass,
+                diameter = self.barrel_diameter,
+                is_apcbc = true,
+
+                explosive_mass = 0.2, --kg
+            },
+            fuse = {
+                active = false,
+                delay = 0.0015, --seconds
+                trigger_depth = 100 --mm
+            }
         }
-    }
 end
 
 function Breech:client_onCreate()
@@ -154,7 +172,7 @@ function Breech:sv_fire_shell(is_debug)
 
     self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.muzzle_shape:getAt() * 0.126
     self.loaded_shell.velocity = -self.muzzle_shape:getAt() * speed
-    self.loaded_shell.max_pen = calculate_shell_penetration(self.loaded_shell)
+    self.loaded_shell.max_pen = 500 --calculate_shell_penetration(self.loaded_shell)
 
     if is_debug then
         self.loaded_shell.debug = {

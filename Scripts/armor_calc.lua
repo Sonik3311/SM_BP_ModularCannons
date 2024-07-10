@@ -63,7 +63,7 @@ function calculate_ricochet (direction, normal, shell)
             return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
         return nil
-    elseif shell.type == "AP" then
+    elseif shell.type == "AP" or shell.type == "APHE" then
         local chance = clamp(1,0, 0.03*angle - 45 * 0.03)
         local choice = math.random()
         if choice <= chance then

@@ -14,7 +14,14 @@ function calculate_shell_penetration(shell)
         local diameter = shell.parameters.diameter
         local is_apcbc = shell.parameters.is_apcbc
         local velocity = shell.velocity:length()
-        return calculate_bullet_penetration(velocity, diameter, mass, is_apcbc)
+        return calculate_bullet_penetration(velocity, diameter, mass, 0, is_apcbc)
+    elseif shell.type == "APHE" then
+        local mass = shell.parameters.projectile_mass
+        local ex_mass = shell.parameters.explosive_mass
+        local diameter = shell.parameters.diameter
+        local is_apcbc = shell.parameters.is_apcbc
+        local velocity = shell.velocity:length()
+        return calculate_bullet_penetration(velocity, diameter, mass, ex_mass, is_apcbc)
     end
 end
 
@@ -41,10 +48,26 @@ function calculate_rod_penetration (impact_velocity, penetrator_length,
     return max_pen, Vmin
 end
 
-function calculate_bullet_penetration (impact_velocity, shell_diameter, shell_mass, is_apcbc)
+function calculate_bullet_penetration (impact_velocity, shell_diameter, shell_mass, explosive_mass, is_apcbc)
     local kfbr = 1900
-    local knap = 0.75 -- tnt mass 0
     local kf_apcbc = is_apcbc and 1 or 0.9
+    local tnt = (explosive_mass / shell_mass) * 100
+
+    -- blame War Thunder
+    local knap
+    if tnt < 0.65 then
+        knap = 1;
+    elseif (tnt < 1.6) then
+        knap = 1 + ((tnt - 0.65) * (0.93 - 1)) / (1.6 - 0.65)
+    elseif (tnt < 2) then
+        knap = 0.93 + ((tnt - 1.6) * (0.9 - 0.93)) / (2 - 1.6)
+    elseif (tnt < 3) then
+        knap = 0.9 + ((tnt - 2) * (0.85 - 0.9)) / (3 - 2)
+    elseif (tnt < 4) then
+        knap = 0.85 + ((tnt - 3) * (0.75 - 0.85)) / (4 - 3)
+    else
+        knap = 0.75
+    end
 
     return ((impact_velocity^1.43) * (shell_mass^0.71)) / ((kfbr^1.43) * ((shell_diameter/100)^1.07)) * 100 * knap * kf_apcbc
 end
