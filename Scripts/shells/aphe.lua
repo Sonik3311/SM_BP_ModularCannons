@@ -22,6 +22,23 @@ local function get_spall_amount(shell, hit_shape)
     return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
 end
 
+local function get_fragment_config(shell)
+    local shell_mass = shell.parameters.projectile_mass
+    local explosive_mass = shell.parameters.explosive_mass
+    local shell_diameter = shell.parameters.diameter
+    local shell_velocity = shell.velocity:length()
+
+    local fragment_mass = (explosive_mass / shell_mass) * shell_diameter
+    local fragment_pen = fragment_mass * shell_mass
+
+    local fragment_amount = math.max(math.min(explosive_mass / shell_mass * 300, 250), 20)
+
+    local min_angle = 70
+    local max_angle = 135
+    local fragment_angle = math.max(math.min(max_angle - shell_velocity * (2/3/10), max_angle), min_angle)
+    return fragment_amount, fragment_pen, fragment_angle
+end
+
 local function get_spall_cones(shell)
     local velocity = shell.velocity:length()
     local diameter = shell.parameters.diameter
@@ -62,8 +79,8 @@ function process_aphe_fuse(shell, start_point, end_point)
     end
 
     local explosion_point = start_point + shell.velocity * fuse_time
-
-    local spall_paths = process_multi_spall(explosion_point, shell.velocity:normalize(), {{100, 150, 100}}, nil)
+    local fragment_amount, fragment_pen, fragment_angle = get_fragment_config(shell)
+    local spall_paths = process_multi_spall(explosion_point, shell.velocity:normalize(), {{fragment_angle, fragment_amount, fragment_angle}}, nil)
 
     if shell.debug then
         for path_id = 1, #spall_paths do
@@ -121,30 +138,29 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
     end
 
-    if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then
-        local spall_amount = get_spall_amount(shell, hit_shape)
-        local big_spall_amount = math.ceil(spall_amount / 10)
-        local med_spall_amount = math.ceil(spall_amount / 5)
-        local low_spall_amount = spall_amount
+    --if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then
+    --    local spall_amount = get_spall_amount(shell, hit_shape)
+    --    local big_spall_amount = math.ceil(spall_amount / 10)
+    --    local med_spall_amount = math.ceil(spall_amount / 5)
+    --    local low_spall_amount = spall_amount
 
-        local spall_angles = get_spall_cones(shell)
+    --    local spall_angles = get_spall_cones(shell)
 
-        local spall_cones = {
-            spall_angles[1] and {spall_angles[1], big_spall_amount, 70} or nil,
-            spall_angles[2] and {spall_angles[2], big_spall_amount, 50} or nil,
-            spall_angles[3] and {spall_angles[3], big_spall_amount, 30} or nil,
-        }
-        print(#spall_cones, spall_cones)
+    --    local spall_cones = {
+    --        spall_angles[1] and {spall_angles[1], big_spall_amount, 70} or nil,
+    --        spall_angles[2] and {spall_angles[2], big_spall_amount, 50} or nil,
+    --        spall_angles[3] and {spall_angles[3], big_spall_amount, 30} or nil,
+    --    }
 
-        local spall_paths = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
+    --    local spall_paths = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
 
-        if shell.debug then
-            for path_id = 1, #spall_paths do
-                local path = spall_paths[path_id]
-                shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
-            end
-        end
-        end
+    --    if shell.debug then
+    --        for path_id = 1, #spall_paths do
+    --            local path = spall_paths[path_id]
+    --            shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
+    --        end
+    --    end
+    --end
 
     return is_penetrated, new_start_point, new_end_point, shell_direction
 end

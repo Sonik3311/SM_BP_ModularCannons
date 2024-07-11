@@ -1,4 +1,5 @@
 -- hi there, watcha doin?
+-- Dev note 11.07.24: APHE and other HE rounds really fucked this up huh
 dofile "$CONTENT_DATA/Scripts/Shells/apfsds.lua"
 dofile "$CONTENT_DATA/Scripts/Shells/ap.lua"
 dofile "$CONTENT_DATA/Scripts/Shells/aphe.lua"
@@ -34,8 +35,7 @@ function process_shell_collision (shell, dt)
             goto skip_shape
         end
 
-        if shell.type == "APHE" and shell.fuse.active then -- APHE INJECT
-            -- Must do this with any shell that has a delayed fuse
+        if shell.type == "APHE" and shell.fuse.active then
             local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, is_hit, end_point, hit_data.pointWorld)
             if not is_alive then
                 return false, explosion_point
@@ -56,11 +56,8 @@ function process_shell_collision (shell, dt)
     end
 
     if shell.type == "APHE" and shell.fuse.active then
-        print("calc last")
-        local end_pos = is_hit and hit_data.pointWorld or end_point
-        local explosion_point = process_aphe_fuse(shell, start_point, end_pos)
-        if explosion_point then
-            print("EXPLOOOO", shell.fuse.active)
+        local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, is_hit, end_point, hit_data.pointWorld)
+        if not is_alive then
             return false, explosion_point
         end
     end

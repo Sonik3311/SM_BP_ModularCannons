@@ -51,7 +51,7 @@ end
 function calculate_bullet_penetration (impact_velocity, shell_diameter, shell_mass, explosive_mass, is_apcbc)
     local kfbr = 1900
     local kf_apcbc = is_apcbc and 1 or 0.9
-    local tnt = (explosive_mass / shell_mass) * 100
+    local tnt = (explosive_mass / 5 / shell_mass) * 100
 
     -- blame War Thunder
     local knap

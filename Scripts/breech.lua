@@ -59,6 +59,7 @@ function Breech:server_onCreate()
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
         local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
         local mass = (volume_sphere + volume_cylinder) * 7850
+        print(mass)
         self.loaded_shell = {
             type = "APHE",
             parameters = {
@@ -67,7 +68,7 @@ function Breech:server_onCreate()
                 diameter = self.barrel_diameter,
                 is_apcbc = true,
 
-                explosive_mass = 0.2, --kg
+                explosive_mass = 5, --kg
             },
             fuse = {
                 active = false,
