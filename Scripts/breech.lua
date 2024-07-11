@@ -56,26 +56,40 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-        local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-        local mass = (volume_sphere + volume_cylinder) * 7850
-        print(mass)
-        self.loaded_shell = {
-            type = "APHE",
-            parameters = {
-                propellant = 6,
-                projectile_mass = mass,
-                diameter = self.barrel_diameter,
-                is_apcbc = true,
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 7850
+    --print(mass)
+    --self.loaded_shell = {
+    --    type = "APHE",
+    --    parameters = {
+    --        propellant = 6,
+    --        projectile_mass = mass,
+    --        diameter = self.barrel_diameter,
+    --        is_apcbc = true,
 
-                explosive_mass = 5, --kg
-            },
-            fuse = {
-                active = false,
-                delay = 0.0025, --seconds
-                trigger_depth = 10 --mm
-            }
+    --        explosive_mass = 5, --kg
+    --    },
+    --    fuse = {
+    --        active = false,
+    --        delay = 0.001, --seconds
+    --        trigger_depth = 10 --mm
+    --    }
+    --}
+
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 6000
+    print(mass)
+    self.loaded_shell = {
+        type = "HE",
+        parameters = {
+            propellant = 6,
+            projectile_mass = mass,
+            explosive_mass = 3,
+            diameter = self.barrel_diameter
         }
+    }
 end
 
 function Breech:client_onCreate()
@@ -173,7 +187,7 @@ function Breech:sv_fire_shell(is_debug)
 
     self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.muzzle_shape:getAt() * 0.126
     self.loaded_shell.velocity = -self.muzzle_shape:getAt() * speed
-    self.loaded_shell.max_pen = calculate_shell_penetration(self.loaded_shell)
+    self.loaded_shell.max_pen = self.loaded_shell.type ~= "HE" and calculate_shell_penetration(self.loaded_shell) or 1
 
     if is_debug then
         self.loaded_shell.debug = {

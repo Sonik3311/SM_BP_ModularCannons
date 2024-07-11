@@ -3,6 +3,8 @@
 dofile "$CONTENT_DATA/Scripts/Shells/apfsds.lua"
 dofile "$CONTENT_DATA/Scripts/Shells/ap.lua"
 dofile "$CONTENT_DATA/Scripts/Shells/aphe.lua"
+dofile "$CONTENT_DATA/Scripts/Shells/he.lua"
+
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/debug_path_draw.lua"
 
@@ -35,14 +37,7 @@ function process_shell_collision (shell, dt)
             goto skip_shape
         end
 
-        if shell.type == "APHE" and shell.fuse.active then
-            local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, is_hit, end_point, hit_data.pointWorld)
-            if not is_alive then
-                return false, explosion_point
-            end
-        end
-
-        is_alive, start_point, end_point, shell_direction = process_aphe_penetration (shell, hit_shape, hit_data,
+        is_alive, start_point, end_point, shell_direction = process_he_penetration (shell, hit_shape, hit_data,
                                                                                         start_point, end_point, dt)
         if not is_alive then
            return false, end_point
