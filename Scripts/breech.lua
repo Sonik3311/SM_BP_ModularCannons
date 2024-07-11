@@ -43,18 +43,18 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 7850
-    --self.loaded_shell = {
-    --    type = "AP",
-    --    parameters = {
-    --        propellant = 6,
-    --        projectile_mass = mass,
-    --        diameter = self.barrel_diameter,
-    --        is_apcbc = true
-    --    }
-    --}
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 7850
+    self.loaded_shell = {
+        type = "AP",
+        parameters = {
+            propellant = 6,
+            projectile_mass = mass,
+            diameter = self.barrel_diameter,
+            is_apcbc = true
+        }
+    }
 
     --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
@@ -77,19 +77,19 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 6000
-    print(mass)
-    self.loaded_shell = {
-        type = "HE",
-        parameters = {
-            propellant = 6,
-            projectile_mass = mass,
-            explosive_mass = 3,
-            diameter = self.barrel_diameter
-        }
-    }
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 6000
+    --print(mass)
+    --self.loaded_shell = {
+    --    type = "HE",
+    --    parameters = {
+    --        propellant = 6,
+    --        projectile_mass = 8,--mass,
+    --        explosive_mass = 8-- mass,
+    --        diameter = self.barrel_diameter
+    --    }
+    --}
 end
 
 function Breech:client_onCreate()

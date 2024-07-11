@@ -95,12 +95,12 @@ function material_to_RHA(hit_shape)
     end
 
     local multipliers = {
-        Plastic = 0.15,
+        Plastic = 0.25,
         Rock = 0.7,
         Metal = 1,
         Mechanical = 0.99,
-        Wood = 0.07,
-        Sand = 0.04,
+        Wood = 0.4,
+        Sand = 0.1,
         Glass = 0.4,
         Grass = 0.03,
         Cardboard = 0.03,
@@ -109,5 +109,7 @@ function material_to_RHA(hit_shape)
         Default = 0.8,
     }
     local material = hit_shape.material
-    return multipliers[material] / 2
+    local durability = sm.item.getQualityLevel(hit_shape.shapeUuid)
+
+    return durability / 7 * multipliers[material] / 2
 end

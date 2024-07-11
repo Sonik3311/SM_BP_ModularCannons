@@ -14,6 +14,9 @@
             <Index name="ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb">
                 <Frame point="0 96"/>
             </Index>
+            <Index name="c5ad1edb-94e5-4057-9b5e-ece5f44fe1a9">
+                <Frame point="96 96"/>
+            </Index>
         </Group>
     </Resource>
 </MyGUI>

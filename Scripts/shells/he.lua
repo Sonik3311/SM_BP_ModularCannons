@@ -31,6 +31,9 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
         return true, new_start_point, new_end_point, shell_direction
     end
 
+    local shape = hit_data:getShape()
+    --sm.physics.applyImpulse( shape, shell_direction * 10 * shape.body.mass, true )
+
     local f_amount, f_pen, f_angle = get_fragment_config(shell)
     local spall_paths = process_multi_spall(hit_data.pointWorld - shell_direction / 10, shell.velocity:normalize(), {{f_angle, f_amount, f_pen}}, nil)
 
