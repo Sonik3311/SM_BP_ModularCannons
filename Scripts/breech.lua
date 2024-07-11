@@ -71,8 +71,8 @@ function Breech:server_onCreate()
             },
             fuse = {
                 active = false,
-                delay = 0.0015, --seconds
-                trigger_depth = 100 --mm
+                delay = 0.0025, --seconds
+                trigger_depth = 10 --mm
             }
         }
 end
@@ -172,7 +172,7 @@ function Breech:sv_fire_shell(is_debug)
 
     self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.muzzle_shape:getAt() * 0.126
     self.loaded_shell.velocity = -self.muzzle_shape:getAt() * speed
-    self.loaded_shell.max_pen = 500 --calculate_shell_penetration(self.loaded_shell)
+    self.loaded_shell.max_pen = calculate_shell_penetration(self.loaded_shell)
 
     if is_debug then
         self.loaded_shell.debug = {
@@ -197,6 +197,9 @@ function Breech:cl_save_path(data)
     for line_id = 1, #data.path do
         local thickness = 0.025
         local line = data.path[line_id]
+        if #line ~= 2 then
+           goto next
+        end
         local effect = sm.effect.createEffect("ShapeRenderable")
         effect:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
         if data.type == "shell" then effect:setParameter("color", sm.color.new("ffffff"))

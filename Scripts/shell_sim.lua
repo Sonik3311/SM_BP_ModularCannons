@@ -34,12 +34,10 @@ function process_shell_collision (shell, dt)
             goto skip_shape
         end
 
-        if shell.type == "APHE" and shell.fuse.active then
-            print("calc")
-            local end_pos = is_hit and hit_data.pointWorld or end_point
-            local explosion_point = process_aphe_fuse(shell, start_point, end_pos)
-            if explosion_point then
-                print("EXPLOOOO", shell.fuse.active)
+        if shell.type == "APHE" and shell.fuse.active then -- APHE INJECT
+            -- Must do this with any shell that has a delayed fuse
+            local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, is_hit, end_point, hit_data.pointWorld)
+            if not is_alive then
                 return false, explosion_point
             end
         end
@@ -92,7 +90,7 @@ function update_shells (shells, dt, net)
             end
             if shell.type == "APHE" then -- TEMP, REMOVE ONCE LOADING SYSTEM IS IMPLEMENTED
                 shell.fuse.active = false
-                shell.fuse.delay = 0.0015
+                shell.fuse.delay = 0.0025
             end
             shells[shell_id] = nil
             goto next

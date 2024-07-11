@@ -2,23 +2,68 @@ dofile "$CONTENT_DATA/Scripts/armor_calc.lua"
 dofile "$CONTENT_DATA/Scripts/spall.lua"
 dofile "$CONTENT_DATA/Scripts/shell_util.lua"
 
+local function get_spall_amount(shell, hit_shape)
+    local material_multiplier = {
+        Plastic = 0.4,
+        Rock = 0.7,
+        Metal = 1,
+        Mechanical = 1.1,
+        Wood = 0.15,
+        Sand = 0.05,
+        Glass = 0.3,
+        Grass = 0.05,
+        Cardboard = 0.05,
+        Steering = 0.8,
+        Fruit = 0.05,
+        Default = 0.8,
+    }
+
+    local max_spall_amount = math.max(7, math.min(shell.parameters.diameter, 90))
+    return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
+end
+
+local function get_spall_cones(shell)
+    local velocity = shell.velocity:length()
+    local diameter = shell.parameters.diameter
+
+    local hi_velocity_cone = math.max(math.min(velocity, 30), 10)
+    local me_velocity_cone = hi_velocity_cone * 2
+    local lo_velocity_cone = hi_velocity_cone * 3
+
+    if velocity > 400 and diameter >= 40 then
+        return {hi_velocity_cone, me_velocity_cone, lo_velocity_cone}
+    end
+    if velocity > 300 and diameter >= 20 then
+        return {hi_velocity_cone, me_velocity_cone, nil}
+    end
+
+    return {hi_velocity_cone, nil, nil}
+end
+
+function process_collision_aphe_inject(shell, start_pos, is_hit, end_point, hit_point)
+    local end_pos = is_hit and hit_point or end_point
+    local explosion_point = process_aphe_fuse(shell, start_pos, end_pos)
+    if explosion_point then
+        return false, explosion_point
+    end
+    return true, nil
+end
+
 function process_aphe_fuse(shell, start_point, end_point)
 
     local distance = (start_point - end_point):length()
     local time = distance / shell.velocity:length()
     local fuse_time = shell.fuse.delay
+
     local delta_time = fuse_time - time
-    if delta_time > 0 then -- there's still time left
-        shell.fuse.delay = fuse_time - time
+    if delta_time > 0 then
+        shell.fuse.delay = delta_time
         return nil
     end
-    --explosion
 
-    local explosion_time = fuse_time
-    local explosion_point = start_point + shell.velocity * explosion_time
-    print(explosion_point)
+    local explosion_point = start_point + shell.velocity * fuse_time
 
-    local spall_paths = process_multi_spall(explosion_point, shell.velocity:normalize(), {{100, 150, 10}}, nil)
+    local spall_paths = process_multi_spall(explosion_point, shell.velocity:normalize(), {{100, 150, 100}}, nil)
 
     if shell.debug then
         for path_id = 1, #spall_paths do
@@ -55,21 +100,12 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
     shell.max_pen = math.max(0, shell.max_pen - RHA_thickness)
 
     if is_penetrated and not shell.fuse.active and RHA_thickness >= shell.fuse.trigger_depth then
-        -- fuse ignition
-        print("IGNITION")
         shell.fuse.active = true
-        local time_to_travel_shape = armor_thickness / shell.velocity:length()
+    end
 
-        if shell.fuse.delay - time_to_travel_shape <= 0 then
-            print("exploded in armor", time_to_travel_shape)
-            return false, start_point, hit_data.pointWorld + shell.velocity * shell.fuse.delay
-        end
-        shell.fuse.delay = shell.fuse.delay - time_to_travel_shape
-    elseif shell.fuse.active then
-        print(armor_thickness)
+    if shell.fuse.active then
         local time_to_travel_shape = armor_thickness / shell.velocity:length()
         if shell.fuse.delay - time_to_travel_shape <= 0 then
-            print("exploded in armor 2", time_to_travel_shape, shell.fuse.delay)
             return false, start_point, hit_data.pointWorld + shell.velocity * shell.fuse.delay
         end
         shell.fuse.delay = shell.fuse.delay - time_to_travel_shape
@@ -85,7 +121,7 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
     end
 
-    --[[if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then
+    if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then
         local spall_amount = get_spall_amount(shell, hit_shape)
         local big_spall_amount = math.ceil(spall_amount / 10)
         local med_spall_amount = math.ceil(spall_amount / 5)
@@ -108,7 +144,7 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
                 shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
             end
         end
-        end]]
+        end
 
     return is_penetrated, new_start_point, new_end_point, shell_direction
 end
