@@ -14,6 +14,16 @@ local function is_world_surface(object_type)
     return object_type == "terrainSurface" or object_type == "limiter"
 end
 
+local function get_penetration_function(shell)
+    local functions = {
+        AP = process_ap_penetration,
+        APHE = process_aphe_penetration,
+        APFSDS = process_apfsds_penetration,
+        HE = process_he_penetration
+    }
+    return functions[shell.type]
+end
+
 function process_shell_collision (shell, dt)
     local raycast = sm.physics.raycast
 
@@ -30,14 +40,15 @@ function process_shell_collision (shell, dt)
         if is_world_surface(hit_data.type) then
             return false, end_point
         end
-
+        local penetration_function = get_penetration_function(shell)
         if hit_data.type == "joint" then
             start_point = hit_data.pointWorld
             end_point = end_point
             goto skip_shape
         end
 
-        is_alive, start_point, end_point, shell_direction = process_ap_penetration (shell, hit_shape, hit_data,
+
+        is_alive, start_point, end_point, shell_direction = penetration_function (shell, hit_shape, hit_data,
                                                                                         start_point, end_point, dt)
         if not is_alive then
            return false, end_point
@@ -77,8 +88,8 @@ function update_shells (shells, dt, net)
         if not alive then
             dprint("Shell (id: "..tostring(shell_id)..") has died", "info", dprint_filename, "sv", "update_shells")
             if shell.debug then
-                net:sendToClients("cl_save_path", {path = shell.debug.path.shell, type = "shell"})
-                net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
+                net:sendToClients("cl_save_path", {path = shell.debug.path, type = "shell"})
+                --net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
             end
             if shell.type == "APHE" then -- TEMP, REMOVE ONCE LOADING SYSTEM IS IMPLEMENTED
                 shell.fuse.active = false

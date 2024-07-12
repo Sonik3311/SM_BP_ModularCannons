@@ -13,10 +13,19 @@ function Visualizer.client_onRefresh( self )
 end
 
 function Visualizer.cl_onEquipped( self )
-	print("EQEQEEQEQ")
 end
 
 function Visualizer.cl_onUneqipped( self )
+    local path_amount = #sm.ACC.vis.paths
+    for _, path in pairs(sm.ACC.vis.paths) do
+        local lines = path.lines
+        for line_id = 1, #lines do
+            effect = lines[line_id][1]
+            a = lines[line_id][2]
+            effect:stop()
+            a:stop()
+        end
+    end
 end
 
 function Visualizer.client_onEquip( self )
@@ -28,6 +37,20 @@ end
 
 
 function Visualizer.client_onEquippedUpdate( self, primaryState, secondaryState )
+    local path_amount = #sm.ACC.vis.paths
+    for _, path in pairs(sm.ACC.vis.paths) do
+        local lines = path.lines
+        for line_id = 1, #lines do
+            effect = lines[line_id][1]
+            a = lines[line_id][2]
+            if not effect:isPlaying() then
+                effect:start()
+            end
+            if not a:isPlaying() then
+                a:start()
+            end
+        end
+    end
 	return true, true
 end
 

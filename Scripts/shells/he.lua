@@ -8,10 +8,10 @@ local function get_fragment_config(shell)
     local shell_diameter = shell.parameters.diameter
     local shell_velocity = shell.velocity:length()
 
-    local fragment_mass = (explosive_mass / shell_mass) * shell_diameter
-    local fragment_pen = fragment_mass * 2
+    --local fragment_mass = (explosive_mass / shell_mass) * shell_diameter
+    local fragment_pen = explosive_mass * shell_diameter
 
-    local fragment_amount = math.max(math.min(explosive_mass / shell_mass * 500, 350), 50)
+    local fragment_amount = math.max(math.min(shell_diameter^1.2, 450), 50)
 
     local fragment_angle = 150
     print(fragment_pen)

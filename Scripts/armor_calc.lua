@@ -56,7 +56,7 @@ function calculate_ricochet (direction, normal, shell)
         angle = 180 - angle
     end
     if shell.type == "APFSDS" then
-        local chance = clamp(1, 0, -0.005*angle^2 + 0.9*angle - 39.5)
+        local chance = clamp(1, 0, -0.00125*angle^2+0.225*angle-9.125)
         local choice = math.random()
         if choice <= chance then
             local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
