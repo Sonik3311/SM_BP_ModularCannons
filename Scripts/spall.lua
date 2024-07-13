@@ -88,20 +88,19 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 local is_penetrated = (RHA_thickness - ray.max_pen) < 0
                 ray.max_pen = math.max(0, ray.max_pen - RHA_thickness)
 
+                local armor_penetrated = armor_thickness / math.max(1, RHA_thickness / ray.max_pen)
+                local exit_point = hit_result.pointWorld + ray.direction * armor_penetrated
+                penetrate_shape(hit_shape, hit_result.pointWorld, exit_point)
+
+                if hit_shape.isBlock and is_penetrated then
+                    hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(exit_point))
+                end
+
                 if not is_penetrated then
                     -- color the hit block black or smth
                     return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
 
                     goto next
-                end
-
-                local armor_penetrated = armor_thickness / math.max(1, RHA_thickness / ray.max_pen)
-                local exit_point = hit_result.pointWorld + ray.direction * armor_penetrated
-
-
-                penetrate_shape(hit_shape, hit_result.pointWorld, exit_point)
-                if hit_shape.isBlock and is_penetrated then
-                    hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(exit_point))
                 end
 
                 return_paths[#return_paths + 1] = {ray.startPoint, exit_point}

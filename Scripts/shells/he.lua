@@ -28,7 +28,7 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
         shell_direction = ricochet_dir
         new_start_point = hit_data.pointWorld
         new_end_point = new_start_point + shell.velocity * dt
-        return true, new_start_point, new_end_point, shell_direction
+        return true, false, new_start_point, new_end_point, shell_direction
     end
 
     local shape = hit_data:getShape()
@@ -44,5 +44,5 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
         end
     end
 
-    return false, new_start_point, hit_data.pointWorld, shell_direction
+    return false, false, new_start_point, hit_data.pointWorld, shell_direction
 end

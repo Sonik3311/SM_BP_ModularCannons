@@ -24,7 +24,7 @@ local function get_penetration_function(shell)
     return functions[shell.type]
 end
 
-function process_shell_collision (shell, dt)
+function process_shell_collision (shell, dt, net)
     local raycast = sm.physics.raycast
 
     local shell_direction = shell.velocity:normalize()
@@ -32,6 +32,7 @@ function process_shell_collision (shell, dt)
     local end_point = shell.position + shell.velocity * dt
 
     local is_hit, hit_data = raycast(start_point, end_point)
+    local is_entering = true
 
     while is_hit do
         local hit_shape = hit_data:getShape()
@@ -40,16 +41,31 @@ function process_shell_collision (shell, dt)
         if is_world_surface(hit_data.type) then
             return false, end_point
         end
+
         local penetration_function = get_penetration_function(shell)
+
         if hit_data.type == "joint" then
             start_point = hit_data.pointWorld
             end_point = end_point
             goto skip_shape
         end
 
+        if is_entering then
+            net:sendToClients("cl_play_entry_effect", {type = shell.type,
+                                                       position = hit_data.pointWorld,
+                                                       direction = (-hit_data.normalWorld):normalize(),
+                                                       velocity = hit_shape:getVelocity()})
+            print("play enter effect")
+            is_entering = false
+        end
 
-        is_alive, start_point, end_point, shell_direction = penetration_function (shell, hit_shape, hit_data,
-                                                                                        start_point, end_point, dt)
+        is_alive, is_exiting, start_point, end_point, shell_direction = penetration_function (shell, hit_shape, hit_data,
+                                                                                    start_point, end_point, dt)
+        is_entering = is_exiting
+        if is_exiting then
+            print("play exit effect")
+        end
+
         if not is_alive then
            return false, end_point
         end
@@ -58,6 +74,7 @@ function process_shell_collision (shell, dt)
         if shell.debug then
             add_point_to_path(shell.debug.path.shell, start_point)
         end
+
         is_hit, hit_data = raycast(start_point, end_point, hit_shape)
     end
 

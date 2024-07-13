@@ -144,7 +144,8 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
     end
 
-    if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then
+    local is_exiting = is_exititing_body(new_start_point, shell_direction, hit_shape)
+    if is_penetrated and (not is_seat(hit_shape)) and is_exiting then
         local spall_amount = get_spall_amount(shell, hit_shape)
         local big_spall_amount = math.ceil(spall_amount / 10)
         local med_spall_amount = math.ceil(spall_amount / 5)
@@ -168,5 +169,5 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         end
     end
 
-    return is_penetrated, new_start_point, new_end_point, shell_direction
+    return is_penetrated, is_exititing, new_start_point, new_end_point, shell_direction
 end

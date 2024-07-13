@@ -37,7 +37,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         shell_direction = ricochet_dir
         new_start_point = hit_data.pointWorld
         new_end_point = new_start_point + shell.velocity * dt
-        return true, new_start_point, new_end_point, shell_direction
+        return true, false, new_start_point, new_end_point, shell_direction
     end
 
     local shell_penetration = shell.max_pen
@@ -57,8 +57,8 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
     end
 
-
-    if is_penetrated and (not is_seat(hit_shape)) and is_exititing_body(new_start_point, shell_direction, hit_shape) then -- check if exiting body and create spall if we do
+    local is_exiting = is_exititing_body(new_start_point, shell_direction, hit_shape)
+    if is_penetrated and (not is_seat(hit_shape)) and is_exiting then -- check if exiting body and create spall if we do
         local spall_amount = get_spall_amount(shell, hit_shape)
         local big_spall_amount = math.ceil(spall_amount / 10)
         local med_spall_amount = math.ceil(spall_amount / 5)
@@ -73,5 +73,5 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         end
     end
 
-    return is_penetrated, new_start_point, new_end_point, shell_direction
+    return is_penetrated, is_exiting, new_start_point, new_end_point, shell_direction
 end
