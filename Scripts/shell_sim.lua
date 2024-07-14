@@ -43,6 +43,8 @@ function process_shell_collision (shell, dt, net)
         end
 
         local penetration_function = get_penetration_function(shell)
+        local last_direction = shell_direction
+        local is_ricochet
 
         if hit_data.type == "joint" then
             start_point = hit_data.pointWorld
@@ -50,7 +52,13 @@ function process_shell_collision (shell, dt, net)
             goto skip_shape
         end
 
-        if is_entering then
+
+        is_alive, is_exiting, start_point, end_point, shell_direction = penetration_function (shell, hit_shape, hit_data,
+                                                                                    start_point, end_point, dt)
+
+        is_ricochet = last_direction ~= shell_direction
+
+        if is_entering and not is_ricochet then
             net:sendToClients("cl_play_entry_effect", {type = shell.type,
                                                        position = hit_data.pointWorld,
                                                        direction = (-hit_data.normalWorld):normalize(),
@@ -59,8 +67,6 @@ function process_shell_collision (shell, dt, net)
             is_entering = false
         end
 
-        is_alive, is_exiting, start_point, end_point, shell_direction = penetration_function (shell, hit_shape, hit_data,
-                                                                                    start_point, end_point, dt)
         is_entering = is_exiting
         if is_exiting then
             print("play exit effect")

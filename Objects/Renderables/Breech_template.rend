@@ -4,7 +4,7 @@
          "mesh" : "$CONTENT_DATA/Objects/Mesh/cannon_breach_placeholder5.fbx",
          "subMeshList" : [
             {
-               "material" : "DifAsgNor",
+               "material" : "Dif",
                "textureList" : [ "", "", "" ]
             }
          ]

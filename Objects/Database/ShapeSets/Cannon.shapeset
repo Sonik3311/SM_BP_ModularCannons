@@ -32,7 +32,7 @@
          },
          "name" : "Cannon Breech",
          "physicsMaterial" : "Default",
-         "renderable" : "$CONTENT_DATA/Objects/Renderable/Breech_template.rend",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/Breech_template.rend",
          "rotationSet" : "Default",
          "scripted" : {
             "classname" : "Breech",

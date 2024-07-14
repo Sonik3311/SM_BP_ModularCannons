@@ -12,10 +12,13 @@
                 <Frame point="96 0"/>
             </Index>
             <Index name="ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb">
-                <Frame point="0 96"/>
+                <Frame point="192 0"/>
+            </Index>
+            <Index name="f8353f82-d9ae-4dc3-bc98-2517337ee188">
+                <Frame point="288 0"/>
             </Index>
             <Index name="c5ad1edb-94e5-4057-9b5e-ece5f44fe1a9">
-                <Frame point="96 96"/>
+                <Frame point="384 0"/>
             </Index>
         </Group>
     </Resource>

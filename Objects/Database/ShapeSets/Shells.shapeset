@@ -1,0 +1,21 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "APFSDS round",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/APFSDS_template.rend",
+         "rotationSet" : "Default",
+         "uuid" : "f8353f82-d9ae-4dc3-bc98-2517337ee188",
+         "restrictions": {
+		 	"liftable": false,
+		 	"paintable": false
+		 },
+		 "carryItem": true
+      }
+   ]
+}

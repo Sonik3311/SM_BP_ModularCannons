@@ -10,6 +10,17 @@
             "file" : "$CONTENT_DATA/Scripts/tool/vis.lua"
          },
          "uuid" : "c5ad1edb-94e5-4057-9b5e-ece5f44fe1a9"
+      },
+      {
+         "name" : "Hook Tool",
+         "previewRenderable" : "$SURVIVAL_DATA/Character/Char_Tools/Char_logbook/char_logbook.rend",
+         "script" : {
+            "class" : "HookTool",
+            "data" : {},
+            "file" : "$CONTENT_DATA/Scripts/tool/hook_tool.lua"
+         },
+         "uuid" : "6396815f-13cc-40a6-bc17-e452433d5e4e",
+         "autoTool" : true
       }
    ]
 }

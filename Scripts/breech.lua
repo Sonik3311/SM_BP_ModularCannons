@@ -32,16 +32,16 @@ function Breech:server_onCreate()
     self.barrel_diameter = 100 --mm
     self.fired_shells = {}
 
-    self.loaded_shell = {
-        type = "APFSDS",
-        parameters = {
-            propellant = 7,
-            projectile_mass = 12,
-            diameter = 27,
-            penetrator_length = 700,
-            penetrator_density = 17800
-        }
-    }
+    --self.loaded_shell = {
+    --    type = "APFSDS",
+    --    parameters = {
+    --        propellant = 7,
+    --        projectile_mass = 12,
+    --        diameter = 27,
+    --        penetrator_length = 700,
+    --        penetrator_density = 17800
+    --    }
+    --}
 
     --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
@@ -56,10 +56,10 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 7850
-    --print(mass)
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 7850
+    print(mass)
     --self.loaded_shell = {
     --    type = "APHE",
     --    parameters = {
@@ -77,19 +77,19 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 6000
-    --print(mass)
-    --self.loaded_shell = {
-    --    type = "HE",
-    --    parameters = {
-    --        propellant = 2,
-    --        projectile_mass = 4,--mass,
-    --        explosive_mass = 2, -- mass,
-    --        diameter = self.barrel_diameter
-    --    }
-    --}
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 6000
+    print(mass)
+    self.loaded_shell = {
+        type = "HE",
+        parameters = {
+            propellant = 6,
+            projectile_mass = 10,--mass,
+            explosive_mass = 3, -- mass,
+            diameter = self.barrel_diameter
+        }
+    }
 end
 
 function Breech:client_onCreate()
@@ -119,6 +119,7 @@ function Breech:server_onFixedUpdate(dt)
 end
 
 function Breech:client_onFixedUpdate(dt)
+    --print(sm.localPlayer.getCarry():getItem( 0 ))
     for key, effect in pairs(self.effects) do
         if effect:isDone() then
             effect:destroy()
@@ -261,38 +262,37 @@ end
 
 local function get_rotation(v1,v2)
     local d = v1:dot(v2)
-    if d > 0.999 then
-        return sm.quat.identity()
+    if d > 0.9999 then
+        return sm.quat.new(0,0,0,1)
     end
-    if d < -0.999 then
+    if d < -0.9999 then
         return sm.quat.new(1,0,0,0)
     end
 
-    return sm.quat.angleAxis(math.acos(d), v1:cross(v2))
+    local q = sm.quat.angleAxis(math.acos(d), v1:cross(v2))
+    local l = math.sqrt(q.x^2 + q.y^2 + q.z^2 + q.w^2)
+    q.x = q.x / l
+    q.y = q.y / l
+    q.z = q.z / l
+    q.w = q.w / l
+    return q
 end
 
 function Breech:cl_play_entry_effect(data)
+    local entry_effects = {
+        APFSDS = "APFSDS_entry_ferrium",
+        HE = "HE_willturn",
+    }
     local shell_type = data.type
     local position = data.position
     local velocity = data.velocity
     local dir = data.direction
-
     local rotation = get_rotation(sm.vec3.new(0,1,0), dir)
 
-    if shell_type == "APFSDS" then
-        local eff = sm.effect.createEffect( "APFSDS_entry_ferrium" )
-        eff:setPosition(position)
-        eff:setRotation(rotation)
-        eff:setVelocity(velocity)
-        self.effects[#self.effects + 1] = eff
-        eff:start()
-    elseif shell_type == "HE" then
-        sm.camera.setShake( 10 )
-        local eff = sm.effect.createEffect( "HE_willturn" )
-        eff:setPosition(position)
-        eff:setRotation(rotation)
-        eff:setVelocity(velocity)
-        self.effects[#self.effects + 1] = eff
-        eff:start()
-    end
+    local effect = sm.effect.createEffect(entry_effects[shell_type])
+    effect:setPosition(position)
+    effect:setRotation(rotation)
+    effect:setVelocity(velocity)
+    self.effects[#self.effects + 1] = effect
+    effect:start()
 end
