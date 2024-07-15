@@ -9,7 +9,7 @@
          "name" : "Cannon Muzzle",
          "physicsMaterial" : "Default",
          "renderable" : "$GAME_DATA/Objects/Renderable/decor/obj_decor_mug.rend",
-         "rotationSet" : "Default",
+         "rotationSet" : "PropFull",
          "uuid" : "98212a7d-eac1-45a9-8e5b-3e36319b9b29"
       },
       {
@@ -21,7 +21,7 @@
          "name" : "Cannon Barrel",
          "physicsMaterial" : "Default",
          "renderable" : "$GAME_DATA/Objects/Renderable/decor/obj_decor_toiletroll.rend",
-         "rotationSet" : "Default",
+         "rotationSet" : "PropFull",
          "uuid" : "90e6714d-e105-476f-875b-4b69b8c7802e"
       },
       {
@@ -33,7 +33,7 @@
          "name" : "Cannon Breech",
          "physicsMaterial" : "Default",
          "renderable" : "$CONTENT_DATA/Objects/Renderables/Breech_template.rend",
-         "rotationSet" : "Default",
+         "rotationSet" : "PropFull",
          "scripted" : {
             "classname" : "Breech",
             "filename" : "$CONTENT_DATA/Scripts/breech.lua"

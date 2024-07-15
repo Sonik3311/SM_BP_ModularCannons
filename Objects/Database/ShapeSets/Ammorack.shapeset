@@ -1,0 +1,20 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 5
+         },
+         "name" : "Debug ammorack",
+         "physicsMaterial" : "Default",
+         "renderable" : "$GAME_DATA/Objects/Renderable/Interactive/obj_interactive_sensor.rend",
+         "rotationSet" : "PropFull",
+         "scripted" : {
+            "classname" : "Ammorack",
+            "filename" : "$CONTENT_DATA/Scripts/Ammorack.lua"
+         },
+         "uuid" : "2d93cd84-6690-4eb0-8058-9c239dde0fbe"
+      }
+   ]
+}

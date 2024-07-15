@@ -29,7 +29,7 @@ function Breech:server_onCreate()
     self.barrel_shapes = construct_cannon(self.shape, 1)
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 100 --mm
+    self.barrel_diameter = 152 --mm
     self.fired_shells = {}
 
     --self.loaded_shell = {
@@ -56,10 +56,9 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 7850
-    print(mass)
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 7850
     --self.loaded_shell = {
     --    type = "APHE",
     --    parameters = {
@@ -80,13 +79,13 @@ function Breech:server_onCreate()
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
     local mass = (volume_sphere + volume_cylinder) * 6000
-    print(mass)
+
     self.loaded_shell = {
         type = "HE",
         parameters = {
             propellant = 6,
             projectile_mass = 10,--mass,
-            explosive_mass = 3, -- mass,
+            explosive_mass = 5.82, -- mass,
             diameter = self.barrel_diameter
         }
     }

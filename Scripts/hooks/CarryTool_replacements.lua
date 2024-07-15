@@ -71,9 +71,6 @@ function repl_cl_loadAnimations( self, activeUid )
         obj_harvest_metal2,
         obj_harvest_stone
     }
-    if sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188") == activeUid then
-        print("heHEE")
-    end
 
 	if isAnyOf( activeUid, harvestItems ) or activeUid == sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188") then
 		self.tpAnimations = createTpAnimations(

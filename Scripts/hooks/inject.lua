@@ -72,7 +72,6 @@ function newScriptFunctions()
 		_G[class].cl_updateCarryRenderables = repl_cl_updateCarryRenderables
 		_G[class].cl_loadAnimations = repl_cl_loadAnimations
 		sm.log.info("| - CarryTool hooked")
-		print(_G[class].cl_updateCarryRenderables, _G[class].cl_loadAnimations)
 	end
 	sm.log.info("├ Hooking CarryTool")
 	HookCarry("CarryTool")
