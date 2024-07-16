@@ -152,6 +152,12 @@ end
 --[[                            Network Server                             ]]--
 -------------------------------------------------------------------------------
 
+function Breech:sv_e_receiveItem(data)
+    local character = data.character
+    local ammo = character:getPublicData()
+    print("Carry -> Breech:",ammo)
+end
+
 function Breech:sv_load_shell(shell_type, shell_parameters)
     if self.loaded_shell then
         return false
@@ -295,3 +301,13 @@ function Breech:cl_play_entry_effect(data)
     self.effects[#self.effects + 1] = effect
     effect:start()
 end
+
+
+--function Breech.client_onInteract( self, character, state )
+--    print("interact breech")
+--end
+--
+--function Breech.client_canInteract( self, character )
+--    --local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
+--	return true
+--end

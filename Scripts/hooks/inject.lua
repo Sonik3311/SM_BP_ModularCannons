@@ -1,5 +1,3 @@
---dofile "$CONTENT_DATA/Scripts/hooks/CarryTool_replacements.lua"
-
 g_customGame, gameClassName = false, "CreativeGame"
 print("Custom Game:", g_customGame)
 
@@ -39,53 +37,22 @@ hookToGameFunction( gameClassName )
 
 
 function newScriptFunctions()
-
-	--[[function HookPlayer( class )
-
-		old_onInteract = _G[class].client_onInteract or function() end
-		function new_onInteract( self, character, state )
-			local old_return = old_onInteract( self, character, state ) or false
-
-			player_state_onInteract = state
-			print("Interact")
-			return old_return
-		end
-		_G[class].client_onInteract = new_onInteract
-
-
-		old_onReload = _G[class].client_onReload or function() end
-		function new_onReload( self )
-			local old_return = old_onReload(self) or false
-			return old_return
-		end
-		_G[class].client_onReload = new_onReload
-
-	end
-
-	HookPlayer("CreativePlayer")]]
-
 	function HookCarry( class )
 	    if not _G[class] then
 			sm.log.warning("| | CarryTool not found, skipping")
 			return
 		end
+		sm.log.info("| - Hooking cl_updateCarryRenderables")
 		_G[class].cl_updateCarryRenderables = repl_cl_updateCarryRenderables
+		sm.log.info("| - Hooking cl_loadAnimations")
 		_G[class].cl_loadAnimations = repl_cl_loadAnimations
+		sm.log.info("| - Hooking client_onEquippedUpdate")
+		_G[class].client_onEquippedUpdate = repl_client_onEquippedUpdate
+		sm.log.info("| - Hooking sv_n_dropCarry")
+		_G[class].sv_n_dropCarry = repl_sv_n_dropCarry
 		sm.log.info("| - CarryTool hooked")
 	end
+
 	sm.log.info("├ Hooking CarryTool")
 	HookCarry("CarryTool")
-
-
-	--Harvestables event - hooks to hit them by events
-	--if WoodHarvestable then
-	--	function WoodHarvestable.sv_e_onHit( self, params )
-	--		self:sv_onHit( params.damage, params.position )
-	--	end
-	--end
-	--if StoneHarvestable then
-	--	function StoneHarvestable.sv_e_onHit( self, params )
-	--		self:sv_onHit( params.damage, params.position )
-	--	end
-	--end
 end

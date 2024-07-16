@@ -6,16 +6,21 @@
             "y" : 1,
             "z" : 1
          },
+         "carryItem" : true,
+         "color" : "FFFFFF",
          "name" : "APFSDS round",
          "physicsMaterial" : "Default",
          "renderable" : "$CONTENT_DATA/Objects/Renderables/APFSDS_template.rend",
+         "restrictions" : {
+            "liftable" : false,
+            "paintable" : false
+         },
          "rotationSet" : "Default",
-         "uuid" : "f8353f82-d9ae-4dc3-bc98-2517337ee188",
-         "restrictions": {
-		 	"liftable": false,
-		 	"paintable": false
-		 },
-		 "carryItem": true
+         "scripted" : {
+            "classname" : "Shell",
+            "filename" : "$CONTENT_DATA/Scripts/shells/shell_shape_base.lua"
+         },
+         "uuid" : "f8353f82-d9ae-4dc3-bc98-2517337ee188"
       }
    ]
 }

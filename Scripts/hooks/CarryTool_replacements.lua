@@ -1,3 +1,10 @@
+-- you know what? maybe i should've created my own separate solution.
+-- This is awful. AWFUL
+-- I lost so many braincells here that i just don't want to do this ever again
+-- this game needs an update. No, IT REQUIRES an update to just stay ALIVE.
+-- STOP BEING SILENT, AXOLOT STUDIOS. I WANT THIS GAME TO PROSPER BUT I SEE IT BEING STARVED TO DEATH.
+-- CAUTION: MAJOR SWEARING AND SKILL ISSUES
+
 local scrapwoodRenderables = {
 	"$SURVIVAL_DATA/Character/Char_Tools/Char_item/char_item_scrapwood.rend"
 }
@@ -16,6 +23,10 @@ local woodRenderables = {
 
 local metalRenderables = {
 	"$SURVIVAL_DATA/Character/Char_Tools/Char_item/char_item_metal.rend"
+}
+
+local genericAPFSDSrenderables = {
+    "$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/APFSDS_template.rend"
 }
 
 local harvestItems =
@@ -45,6 +56,11 @@ local renderablesWormTp = { "$SURVIVAL_DATA/Character/Char_Male/Animations/char_
 local renderablesWormFp = { "$SURVIVAL_DATA/Character/Char_Male/Animations/char_male_fp_toolgorp.rend", "$SURVIVAL_DATA/Character/Char_Tools/Char_toolgorp/char_toolgorp_fp.rend" }
 
 
+local obj_generic_apfsds = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")
+local obj_generic_breech = sm.uuid.new("ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb")
+local obj_generic_ammorack = sm.uuid.new("2d93cd84-6690-4eb0-8058-9c239dde0fbe")
+
+
 CarryTool.emptyTpRenderables = {}
 CarryTool.emptyFpRenderables = {}
 
@@ -61,6 +77,7 @@ sm.tool.preloadRenderables( renderablesHeavyTp )
 sm.tool.preloadRenderables( renderablesHeavyFp )
 sm.tool.preloadRenderables( renderablesWormTp )
 sm.tool.preloadRenderables( renderablesWormFp )
+sm.tool.preloadRenderables( genericAPFSDSrenderables )
 
 
 function repl_cl_loadAnimations( self, activeUid )
@@ -69,10 +86,11 @@ function repl_cl_loadAnimations( self, activeUid )
         obj_harvest_wood2,
         obj_harvest_metal,
         obj_harvest_metal2,
-        obj_harvest_stone
+        obj_harvest_stone,
+        obj_generic_apfsds
     }
 
-	if isAnyOf( activeUid, harvestItems ) or activeUid == sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188") then
+	if isAnyOf( activeUid, harvestItems ) then
 		self.tpAnimations = createTpAnimations(
 			self.tool,
 			{
@@ -244,10 +262,9 @@ function repl_cl_loadAnimations( self, activeUid )
 	end
 end
 
-function repl_cl_updateCarryRenderables( self, activeUid, activeColor ) -- REPLACE
+function repl_cl_updateCarryRenderables( self, activeUid, activeColor )
 
-	local obj_generic_apfsds = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")
-	local genericAPFSDSrenderables = {"$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/APFSDS_template.rend"}
+
 
     local carryRenderables = {}
 	local animationRenderablesTp = {}
@@ -283,7 +300,6 @@ function repl_cl_updateCarryRenderables( self, activeUid, activeColor ) -- REPLA
 		animationRenderablesTp = renderablesWormTp
 		animationRenderablesFp = renderablesWormFp
 	elseif activeUid == obj_generic_apfsds then
-	    print("APFSFPS")
         carryRenderables = genericAPFSDSrenderables
 		animationRenderablesTp = renderablesItemTp
 		animationRenderablesFp = renderablesItemFp
@@ -311,5 +327,179 @@ function repl_cl_updateCarryRenderables( self, activeUid, activeColor ) -- REPLA
 		self.tool:setFpRenderables( currentRenderablesFp )
 		self.tool:setFpColor( activeColor )
 	end
+end
+
+function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
+
+	local playerCarry = sm.localPlayer.getCarry()
+	local playerCarryColor = sm.localPlayer.getCarryColor()
+	local carryUuid = sm.container.itemUuid( playerCarry )[1]
+	local characterShape = sm.item.getCharacterShape( carryUuid )
+	local isHarvest = sm.shape.getIsHarvest( carryUuid )
+	local isACCshell = isAnyOf(carryUuid, {obj_generic_apfsds})
+	if (isHarvest or isACCshell) and secondaryState ~= sm.tool.interactState.start then
+        local aimRange = 7.5
+		local success, result = sm.localPlayer.getRaycast( aimRange )
+		if result.type == "body" then
+			local shape = result:getShape()
+			local shapeContainer = nil
+			if isHarvest then
+    			if shape:getShapeUuid() == obj_craftbot_refinery then
+    				shapeContainer = shape.interactable:getContainer( 1 )
+    			elseif shape:getShapeUuid() == obj_craftbot_resourcecontainer then
+    				shapeContainer = shape.interactable:getContainer( 0 )
+    			end
+    			if shapeContainer then
+    				if sm.container.canCollect( shapeContainer, carryUuid, 1 ) then
+    					sm.gui.setCenterIcon( "Use" )
+    					local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
+    					sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
+
+    					if primaryState == sm.tool.interactState.start then
+    						local character = self.tool:getOwner().character
+    						local fromPosition = character:getTpBonePos( "jnt_right_weapon" )
+    						local fromRotation = character:getTpBoneRot( "jnt_right_weapon" )
+    						local params = { containerA = playerCarry, itemA = carryUuid, quantityA = 1, targetShape = shape, fromPosition = fromPosition, fromRotation = fromRotation, color = playerCarryColor  }
+    						self.network:sendToServer( "sv_n_sendItem", params )
+    					end
+    					return true, true
+    				end
+    			end
+			elseif isACCshell then
+    			if isAnyOf(shape:getShapeUuid(), {obj_generic_breech, obj_generic_ammorack}) then
+    			    sm.gui.setCenterIcon( "Use" )
+    				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
+    				sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
+                    if primaryState == sm.tool.interactState.start then
+                        local character = self.tool:getOwner().character
+                        local params = {targetShape = shape, character = character, playerCarry = playerCarry, itemUuid = carryUuid}
+                        self.network:sendToServer( "sv_n_sendItem", params )
+                    end
+                    return true, true
+    			end
+			end
+		end
+	elseif ( primaryState == sm.tool.interactState.start and characterShape ) or secondaryState == sm.tool.interactState.start then
+		local dropRange = 7.5
+		local success, result = sm.localPlayer.getRaycast( dropRange )
+
+		local fraction = 1
+		if success then
+			fraction = result.fraction
+		end
+
+		local aimPosition = sm.localPlayer.getRaycastStart() + sm.localPlayer.getDirection() * dropRange * fraction
+		local camUp = sm.camera.getUp()
+		local camRight = sm.camera.getRight()
+		local camDirection = sm.camera.getDirection()
+
+		local params = { containerA = playerCarry, itemA = carryUuid, quantityA = 1, aimPosition = aimPosition, camUp = camUp, camRight = camRight, camDirection = camDirection, raycastNormal = result.normalWorld, color = playerCarryColor }
+		if characterShape then
+			params.characterShape = characterShape
+			if primaryState == sm.tool.interactState.start then
+				params.checkCollision = true
+			end
+		end
+
+		params.shapePlacement = sm.visualization.getShapePlacementVisualization()
+		params.character = self.tool:getOwner().character
+		params.color = sm.color.new("ffffff")
+		self.network:sendToServer( "sv_n_dropCarry", params )
+		return false, false
+	end
+	if characterShape then
+		return true, true
+	end
+
+	if isACCshell and primaryState == sm.tool.interactState.start then -- nuh uh
+		sm.gui.displayAlertText( "Use RMB", 0.5 )
+		return true, false
+	end
+
+	return false, false
+end
+
+function repl_sv_n_dropCarry( self, params )
+
+	local meshRot = sm.quat.angleAxis( math.pi * 0.5, sm.vec3.new( 1, 0, 0 ) ) -- TODO Look at the construction rotation set?
+
+	local forward = sm.vec3.new( params.camDirection.x, params.camDirection.y, 0 ):safeNormalize( sm.vec3.new( 0, 1, 0 ) )
+	local pitch = math.asin( params.camDirection.z )
+	local yaw = math.atan2( forward.x, -forward.y )
+	local rotation = sm.quat.angleAxis( pitch, params.camRight ) * sm.quat.angleAxis( yaw, sm.vec3.new( 0, 0, 1 ) ) -- TODO Preview rotation?
+	if params.characterShape then
+
+		local offset = params.raycastNormal * params.characterShape.placementSphereRadius
+		local spawnPosition = params.aimPosition + offset
+		local collision = false
+		if params.checkCollision then
+			collision = sm.physics.sphereContactCount( spawnPosition, params.characterShape.placementSphereRadius ) > 0
+		end
+		if not collision then
+			if sm.container.beginTransaction() then
+				sm.container.spendFromSlot( params.containerA, 0, params.itemA, params.quantityA, true )
+				if sm.container.endTransaction() then
+					sm.unit.createUnit( sm.uuid.new( params.characterShape.characterUuid ), spawnPosition, math.random()*2*math.pi )
+				end
+			end
+		end
+	else
+		local shapeOffset = sm.item.getShapeOffset( params.itemA )
+		local rotatedOffset = rotation * meshRot * shapeOffset
+		rotatedOffset.z = 0
+		local spawnPosition = params.aimPosition - rotatedOffset
+		if sm.container.beginTransaction() then
+			sm.container.spendFromSlot( params.containerA, 0, params.itemA, params.quantityA, true )
+			if sm.container.endTransaction() then
+
+				local shape = nil
+				if sm.item.isBlueprintShape( params.itemA ) then
+					shape = sm.creation.buildBlueprintShape( params.itemA,
+						spawnPosition, rotation, -- Global transform
+						sm.vec3.new(0,0,0), meshRot ) -- Local transform
+				else
+
+					if params.shapePlacement then
+						local spawnWorldPosition = params.shapePlacement.worldPosition - params.shapePlacement.worldRotation * shapeOffset
+						shape = sm.shape.createPart( params.itemA, spawnWorldPosition, params.shapePlacement.worldRotation, true, true )
+					else
+						local body = sm.body.createBody( spawnPosition, rotation )
+						shape = body:createPart( params.itemA, sm.vec3.new( 0, 0, 0 ), sm.vec3.new( 0, -1, 0 ), sm.vec3.new( 1, 0, 0 ), true )
+					end
+				end
+				assert(shape)
+				local isACCshell = isAnyOf(params.itemA, {obj_generic_apfsds})
+				if isACCshell then
+					local public_data = params.character:getPublicData()
+					print("Carry -> World")
+					public_data.carried_shell = {}
+				    shape.interactable:setPublicData(public_data.carried_shell)
+					params.character:setPublicData(public_data)
+				end
+				shape:setColor( params.color )
+
+
+				if params.containerA:getSize() > 1 then -- Additional items in carry
+					local interactable = shape:getInteractable()
+					local container = interactable:getContainer( 0 )
+					if container == nil then
+						container = interactable:addContainer( 0, params.containerA:getSize() - 1, params.containerA:getMaxStackSize() )
+					end
+					sm.container.beginTransaction()
+					for slot = 2, params.containerA:getSize() do
+						local item = params.containerA:getItem( slot - 1 )
+						sm.container.setItem( params.containerA, slot - 1, sm.uuid.getNil(), 0 )
+						sm.container.setItem( container, slot - 2, item.uuid, item.quantity, item.instance )
+					end
+					if not sm.container.endTransaction() then
+						sm.log.error("Failed to move carry items!")
+					end
+				end
+
+			end
+		end
+	end
 
 end
+
+-- mistakes were made.

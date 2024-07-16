@@ -82,15 +82,16 @@ function Ammorack.client_onInteract( self, character, state )
     if (not self.cl.is_loaded and carried_uuid ~= sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")) then
         return
     end
-    print("interact")
-    self.network:sendToServer("sv_takeShell", {carryContainer = sm.localPlayer.getCarry(), uuid = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")})
+    self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")})
     self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end
 
 function Ammorack.client_canInteract( self, character )
+    self:cl_update_loadedState()
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
-	return (not self.cl.is_loaded and carried_uuid == sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")) or self.cl.is_loaded --true or false, default true if onInteract is implemented
+    local can_unload = self.cl.is_loaded and carried_uuid == sm.uuid.getNil()
+	return can_unload
 end
 
 -------------------------------------------------------------------------------
@@ -101,12 +102,30 @@ function Ammorack:sv_sendTCL_isLoaded(data, client)
     self.network:sendToClient(client, "cl_recieve_isLoaded", {self.sv.stored_shell ~= nil})
 end
 
-function Ammorack:sv_takeShell(params)
+function Ammorack:sv_giveShell(params)
     sm.container.beginTransaction()
     sm.container.collect( params.carryContainer, params.uuid, 1, true )
     if sm.container.endTransaction() then
-        print("Successful transaction")
+        print("Ammorack -> Carry [success]")
+        local pd = params.character:getPublicData()
+        pd.carried_shell = self.sv.stored_shell
+        params.character:setPublicData(pd)
         self.sv.stored_shell = nil
+    end
+end
+
+function Ammorack:sv_e_receiveItem(data)
+    local character = data.character
+    local ammo = character:getPublicData().carried_shell
+    sm.container.beginTransaction()
+    sm.container.spend( data.playerCarry, data.itemUuid, 1, true )
+    if sm.container.endTransaction() then
+        print("Carry -> Ammorack:")
+        self.sv.stored_shell = ammo
+
+        local pd = character:getPublicData()
+        pd.carried_shell = {}
+        character:setPublicData(pd)
     end
 end
 
@@ -124,7 +143,5 @@ end
 
 function Ammorack:cl_update_visualization(data)
     self.cl.loaded_shell_effect:setParameter("uuid", sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188"))
-    --self.cl.loaded_shell_effect:setPosition(self.shape:getWorldPosition() + self.shape:getUp()/3)
-    --self.cl.loaded_shell_effect:setRotation(self.shape:getWorldRotation())
     self.cl.loaded_shell_effect:setScale(sm.vec3.one() / 4)
 end
