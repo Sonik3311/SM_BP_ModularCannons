@@ -27,6 +27,7 @@ function Ammorack:server_onCreate()
             penetrator_density = 17800
         }
     }
+    self.interactable:setPower(1)
 end
 
 function Ammorack:client_onCreate()
@@ -111,6 +112,7 @@ function Ammorack:sv_giveShell(params)
         pd.carried_shell = self.sv.stored_shell
         params.character:setPublicData(pd)
         self.sv.stored_shell = nil
+        self.interactable:setPower(0)
     end
 end
 
@@ -125,6 +127,7 @@ function Ammorack:sv_e_receiveItem(data)
         local pd = character:getPublicData()
         pd.carried_shell = {}
         character:setPublicData(pd)
+        self.interactable:setPower(1)
     end
 end
 

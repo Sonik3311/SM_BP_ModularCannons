@@ -27,8 +27,6 @@ end
 local oldBindCommand = sm.game.bindChatCommand
 
 function bindCommandHook(command, params, callback, help)
-    sm.log.error("\n bindCommandHooked \n")
-
 	oldBindCommand(command, params, callback, help)
 	local openFiles, bool = hook_dofile( "inject", isGameHooked )
 	isGameHooked = bool

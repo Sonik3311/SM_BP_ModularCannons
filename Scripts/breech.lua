@@ -29,7 +29,7 @@ function Breech:server_onCreate()
     self.barrel_shapes = construct_cannon(self.shape, 1)
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 152 --mm
+    self.barrel_diameter = 100 --mm
     self.fired_shells = {}
 
     --self.loaded_shell = {
@@ -59,6 +59,7 @@ function Breech:server_onCreate()
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
     local mass = (volume_sphere + volume_cylinder) * 7850
+    print(mass)
     self.loaded_shell = {
         type = "APHE",
         parameters = {
@@ -89,6 +90,7 @@ function Breech:server_onCreate()
     --        diameter = self.barrel_diameter
     --    }
     --}
+    self.interactable:setPower(1)
 end
 
 function Breech:client_onCreate()
@@ -154,23 +156,19 @@ end
 
 function Breech:sv_e_receiveItem(data)
     local character = data.character
-    local ammo = character:getPublicData()
+    local ammo = character:getPublicData().carried_shell
     print("Carry -> Breech:",ammo)
-end
-
-function Breech:sv_load_shell(shell_type, shell_parameters)
-    if self.loaded_shell then
-        return false
+    sm.container.beginTransaction()
+    sm.container.spend( data.playerCarry, data.itemUuid, 1, true )
+    if sm.container.endTransaction() then
+        print("Breech Loaded")
+        self.loaded_shell = ammo
+        local pd = character:getPublicData()
+        pd.carried_shell = {}
+        character:setPublicData(pd)
+        self.interactable:setPower(1)
     end
-
-    self.loaded_shell = {
-        type = shell_type,
-        parameters = shell_parameters
-    }
-
-    return true
 end
-
 
 function Breech:sv_fire_shell(is_debug)
     if not self.loaded_shell then
@@ -206,7 +204,8 @@ function Breech:sv_fire_shell(is_debug)
 
     self.muzzle_shape:setColor(sm.color.new("0000ff"))
     self.fired_shells[#self.fired_shells] = self.loaded_shell
-    --self.loaded_shell = nil
+    self.loaded_shell = nil
+    self.interactable:setPower(0)
 end
 
 function Breech:cl_save_path(data)
@@ -287,7 +286,8 @@ function Breech:cl_play_entry_effect(data)
     local entry_effects = {
         APFSDS = "APFSDS_entry_ferrium",
         HE = "HE_willturn",
-        APHE = "APHE_willturn"
+        APHE = "APHE_willturn",
+        AP = "APHE_willturn",
     }
     local shell_type = data.type
     local position = data.position
@@ -302,13 +302,3 @@ function Breech:cl_play_entry_effect(data)
     self.effects[#self.effects + 1] = effect
     effect:start()
 end
-
-
---function Breech.client_onInteract( self, character, state )
---    print("interact breech")
---end
---
---function Breech.client_canInteract( self, character )
---    --local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
---	return true
---end

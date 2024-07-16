@@ -264,8 +264,6 @@ end
 
 function repl_cl_updateCarryRenderables( self, activeUid, activeColor )
 
-
-
     local carryRenderables = {}
 	local animationRenderablesTp = {}
 	local animationRenderablesFp = {}
@@ -367,13 +365,17 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
     			end
 			elseif isACCshell then
     			if isAnyOf(shape:getShapeUuid(), {obj_generic_breech, obj_generic_ammorack}) then
-    			    sm.gui.setCenterIcon( "Use" )
-    				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
-    				sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
-                    if primaryState == sm.tool.interactState.start then
-                        local character = self.tool:getOwner().character
-                        local params = {targetShape = shape, character = character, playerCarry = playerCarry, itemUuid = carryUuid}
-                        self.network:sendToServer( "sv_n_sendItem", params )
+                    if shape.interactable:getPower() ~= 1 then
+     			    sm.gui.setCenterIcon( "Use" )
+        				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
+        				sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
+                        if primaryState == sm.tool.interactState.start then
+                            if not self.is_shape_loaded then
+                                local character = self.tool:getOwner().character
+                                local params = {targetShape = shape, character = character, playerCarry = playerCarry, itemUuid = carryUuid}
+                                self.network:sendToServer( "sv_n_sendItem", params )
+                            end
+                        end
                     end
                     return true, true
     			end
@@ -499,7 +501,6 @@ function repl_sv_n_dropCarry( self, params )
 			end
 		end
 	end
-
 end
 
 -- mistakes were made.
