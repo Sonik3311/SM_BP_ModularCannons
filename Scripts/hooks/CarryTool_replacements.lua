@@ -26,7 +26,7 @@ local metalRenderables = {
 }
 
 local genericAPFSDSrenderables = {
-    "$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/APFSDS_template.rend"
+    "$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/generic_APFSDS_carry.rend"
 }
 
 local harvestItems =
@@ -405,7 +405,7 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
 		params.character = self.tool:getOwner().character
 		params.color = sm.color.new("ffffff")
 		self.network:sendToServer( "sv_n_dropCarry", params )
-		return false, false
+		return false, true
 	end
 	if characterShape then
 		return true, true

@@ -1,8 +1,7 @@
 {
    "lodList" : [
       {
-         "includes" : [ "POSITION", "NORMAL", "UV0", "TANGENTS" ],
-         "mesh" : "$CONTENT_DATA/Objects/Mesh/APFSDS_placeholder_rig2.fbx",
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_ammorack.fbx",
          "subMeshList" : [
             {
                "material" : "Dif",

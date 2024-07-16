@@ -1,25 +1,26 @@
 {
    "partList" : [
       {
-         "box" : {
-            "x" : 1,
-            "y" : 1,
-            "z" : 1
-         },
          "carryItem" : true,
          "color" : "FFFFFF",
+         "cylinder" : {
+            "axis" : "Z",
+            "depth" : 5,
+            "diameter" : 1
+         },
          "name" : "APFSDS round",
          "physicsMaterial" : "Default",
-         "renderable" : "$CONTENT_DATA/Objects/Renderables/APFSDS_template.rend",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_APFSDS.rend",
          "restrictions" : {
             "liftable" : false,
             "paintable" : false
          },
-         "rotationSet" : "Default",
+         "rotationSet" : "PropNegZ",
          "scripted" : {
             "classname" : "Shell",
             "filename" : "$CONTENT_DATA/Scripts/shells/shell_shape_base.lua"
          },
+         "sticky" : "+Z",
          "uuid" : "f8353f82-d9ae-4dc3-bc98-2517337ee188"
       }
    ]

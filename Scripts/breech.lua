@@ -56,39 +56,39 @@ function Breech:server_onCreate()
     --    }
     --}
 
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 7850
-    --self.loaded_shell = {
-    --    type = "APHE",
-    --    parameters = {
-    --        propellant = 6,
-    --        projectile_mass = mass,
-    --        diameter = self.barrel_diameter,
-    --        is_apcbc = true,
-
-    --        explosive_mass = 5, --kg
-    --    },
-    --    fuse = {
-    --        active = false,
-    --        delay = 0.001, --seconds
-    --        trigger_depth = 10 --mm
-    --    }
-    --}
-
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 6000
-
+    local mass = (volume_sphere + volume_cylinder) * 7850
     self.loaded_shell = {
-        type = "HE",
+        type = "APHE",
         parameters = {
             propellant = 6,
-            projectile_mass = 10,--mass,
-            explosive_mass = 5.82, -- mass,
-            diameter = self.barrel_diameter
+            projectile_mass = mass,
+            diameter = self.barrel_diameter,
+            is_apcbc = true,
+
+            explosive_mass = 5, --kg
+        },
+        fuse = {
+            active = false,
+            delay = 0.001, --seconds
+            trigger_depth = 10 --mm
         }
     }
+
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 6000
+
+    --self.loaded_shell = {
+    --    type = "HE",
+    --    parameters = {
+    --        propellant = 6,
+    --        projectile_mass = 10,--mass,
+    --        explosive_mass = 5.82, -- mass,
+    --        diameter = self.barrel_diameter
+    --    }
+    --}
 end
 
 function Breech:client_onCreate()
@@ -287,13 +287,14 @@ function Breech:cl_play_entry_effect(data)
     local entry_effects = {
         APFSDS = "APFSDS_entry_ferrium",
         HE = "HE_willturn",
+        APHE = "APHE_willturn"
     }
     local shell_type = data.type
     local position = data.position
     local velocity = data.velocity
     local dir = data.direction
     local rotation = get_rotation(sm.vec3.new(0,1,0), dir)
-
+    print(entry_effects[shell_type])
     local effect = sm.effect.createEffect(entry_effects[shell_type])
     effect:setPosition(position)
     effect:setRotation(rotation)

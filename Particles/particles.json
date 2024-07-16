@@ -1,7 +1,8 @@
 {
-  "particleSystemList": [
-    "HE_willturn.json",
-    "HE_fixed.json",
-    "APFSDS_entry_ferrium.json"
-  ]
+   "particleSystemList" : [
+      "HE_willturn.json",
+      "HE_fixed.json",
+      "APFSDS_entry_ferrium.json",
+      "APHE_willturn.json"
+   ]
 }

@@ -2,6 +2,10 @@
 
 Shell = class()
 
+function Shell:server_onCreate()
+    self.interactable:setPublicData({})
+end
+
 function Shell.client_onInteract(self, character)
     self.network:sendToServer("sv_transfer_to_carry")
 end

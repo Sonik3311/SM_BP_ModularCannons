@@ -1,7 +1,8 @@
 {
    "lodList" : [
       {
-         "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_breech.fbx",
+         "includes" : [ "POSITION", "NORMAL", "UV0", "TANGENTS" ],
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_APFSDS_carry.fbx",
          "subMeshList" : [
             {
                "material" : "Dif",

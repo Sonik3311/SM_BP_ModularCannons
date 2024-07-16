@@ -122,7 +122,6 @@ function Ammorack:sv_e_receiveItem(data)
     if sm.container.endTransaction() then
         print("Carry -> Ammorack:")
         self.sv.stored_shell = ammo
-
         local pd = character:getPublicData()
         pd.carried_shell = {}
         character:setPublicData(pd)

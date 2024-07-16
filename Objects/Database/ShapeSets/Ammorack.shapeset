@@ -8,7 +8,7 @@
          },
          "name" : "Debug ammorack",
          "physicsMaterial" : "Default",
-         "renderable" : "$GAME_DATA/Objects/Renderable/Interactive/obj_interactive_sensor.rend",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_Ammorack.rend",
          "rotationSet" : "PropFull",
          "scripted" : {
             "classname" : "Ammorack",
