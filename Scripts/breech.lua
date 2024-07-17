@@ -26,10 +26,12 @@ Breech.connectionOutput = sm.interactable.connectionType.none
 -------------------------------------------------------------------------------
 
 function Breech:server_onCreate()
-    self.barrel_shapes = construct_cannon(self.shape, 1)
+    self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
+
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 100 --mm
+    self.barrel_diameter = 380 --mm
+    update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fired_shells = {}
 
     --self.loaded_shell = {
@@ -107,9 +109,10 @@ end
 
 function Breech:server_onFixedUpdate(dt)
     if body_has_changed(self.shape) then
-        self.barrel_shapes = construct_cannon(self.shape)
+        self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
         self.barrel_length = #self.barrel_shapes
         self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
+        update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     end
 
     if input_active(self.interactable) then
@@ -137,7 +140,9 @@ function Breech:server_onUpdate(dt)
 end
 
 function Breech:client_onUpdate(dt)
-    --print(sm.localPlayer.getPlayer().character.direction)
+    if self.barrel_effect and not self.barrel_effect:isPlaying() then
+        self.barrel_effect:start()
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -185,14 +190,14 @@ function Breech:sv_fire_shell(is_debug)
 
 
 
-    self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.muzzle_shape:getAt() * 0.126
-    self.loaded_shell.velocity = -self.muzzle_shape:getAt() * speed
+    self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.shape:getAt() * 0.126
+    self.loaded_shell.velocity = -self.shape:getAt() * speed
     self.loaded_shell.max_pen = self.loaded_shell.type ~= "HE" and calculate_shell_penetration(self.loaded_shell) or 1
 
     if is_debug then
         self.loaded_shell.debug = {
             path = {
-                shell = {{self.loaded_shell.position, self.loaded_shell.position - self.muzzle_shape:getAt()}},
+                shell = {{self.loaded_shell.position, self.loaded_shell.position - self.shape:getAt()}},
                 spall = {},
                 creations = {}
             }
@@ -263,6 +268,15 @@ function Breech:cl_save_path(data)
     end
 end
 
+function Breech:cl_update_barrelEffect(data)
+    if self.barrel_effect then
+        self.barrel_effect:stopImmediate()
+        self.barrel_effect:destroy()
+    end
+    local effect = create_barrel_effect(data[1], data[2], self.shape)
+    self.barrel_effect = effect
+    self.barrel_effect:start()
+end
 
 local function get_rotation(v1,v2)
     local d = v1:dot(v2)

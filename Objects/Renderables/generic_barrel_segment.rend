@@ -1,0 +1,14 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/obj_generic_barrel_segment_off.fbx",
+         "pose0" : "$CONTENT_DATA/Objects/Mesh/obj_generic_barrel_segment_on.fbx",
+         "subMeshList" : [
+            {
+               "material" : "PoseAnimDif",
+               "textureList" : [ "", "", "" ]
+            }
+         ]
+      }
+   ]
+}

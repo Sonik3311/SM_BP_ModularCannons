@@ -11,7 +11,7 @@ dofile "$CONTENT_DATA/Scripts/debug_path_draw.lua"
 local dprint_filename = "shell_sim"
 
 local function is_world_surface(object_type)
-    return object_type == "terrainSurface" or object_type == "terrainAsset" or object_type == "limiter" or object_type == "harvestable"
+    return object_type == "terrainSurface" or object_type == "terrainAsset" or object_type == "limiter" or object_type == "harvestable" or object_type == "lift" or object_type == "character"
 end
 
 local function get_penetration_function(shell)

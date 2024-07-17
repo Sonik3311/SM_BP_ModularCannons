@@ -13,15 +13,20 @@
          "uuid" : "98212a7d-eac1-45a9-8e5b-3e36319b9b29"
       },
       {
-         "box" : {
-            "x" : 1,
-            "y" : 1,
-            "z" : 1
+         "cylinder" : {
+            "axis" : "Y",
+            "depth" : 1,
+            "diameter" : 1
          },
          "name" : "Cannon Barrel",
          "physicsMaterial" : "Default",
-         "renderable" : "$GAME_DATA/Objects/Renderable/decor/obj_decor_toiletroll.rend",
-         "rotationSet" : "PropFull",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_barrel_segment.rend",
+         "rotationSet" : "PropNegY",
+         "scripted" : {
+            "classname" : "Barrel",
+            "filename" : "$CONTENT_DATA/Scripts/barrel.lua"
+         },
+         "sticky" : "+Y-Y",
          "uuid" : "90e6714d-e105-476f-875b-4b69b8c7802e"
       },
       {

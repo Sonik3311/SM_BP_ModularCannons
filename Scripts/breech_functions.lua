@@ -3,12 +3,10 @@ function body_has_changed(shape)
 end
 
 -----------------------------------------------------------------------------------------------
-
-function construct_cannon(shape)
+local barrel_shape = sm.uuid.new("90e6714d-e105-476f-875b-4b69b8c7802e")
+local muzzle_shape = sm.uuid.new("98212a7d-eac1-45a9-8e5b-3e36319b9b29")
+function construct_cannon_new(shape, global_dir, last)
     local neighbours = shape:getNeighbours()
-    local barrel_shape = sm.uuid.new("90e6714d-e105-476f-875b-4b69b8c7802e")
-    local muzzle_shape = sm.uuid.new("98212a7d-eac1-45a9-8e5b-3e36319b9b29")
-
     for neighbour_id = 1, #neighbours do
         local neighbour_shape = neighbours[neighbour_id]
 
@@ -16,11 +14,15 @@ function construct_cannon(shape)
             goto next
         end
 
+        if last == neighbour_shape then
+            goto next
+        end
+
         local neighbour_shape_position = neighbour_shape:getWorldPosition()
         local shape_position = shape:getWorldPosition()
         local to_neighbour_dir = (neighbour_shape_position - shape_position):normalize()
-
-        if to_neighbour_dir:dot(shape:getAt()) > -0.8 then
+        --print(to_neighbour_dir:dot(neighbour_shape:getAt()))
+        if math.abs(to_neighbour_dir:dot(neighbour_shape:getUp())) == 1 then
             goto next
         end
 
@@ -29,7 +31,7 @@ function construct_cannon(shape)
                 return {neighbour_shape}
             end
 
-            local c = construct_cannon(neighbour_shape)
+            local c = construct_cannon_new(neighbour_shape, global_dir, shape)
             table.insert(c, 1, neighbour_shape)
             return c
         end
@@ -37,6 +39,29 @@ function construct_cannon(shape)
         ::next::
     end
     return {}
+end
+
+function create_barrel_effect(segments, diameter_mm, breech)
+    local effect = sm.effect.createEffect("ShapeRenderable", breech.interactable)
+    effect:setParameter("uuid", sm.uuid.new("084f7d27-576a-4728-9e1e-81b6fa9f6d59"))
+
+    local middle_pos = sm.vec3.zero()
+    for i=1,#segments do
+        middle_pos = middle_pos + segments[i]:getWorldPosition()
+    end
+    middle_pos = middle_pos / #segments
+    dist = (middle_pos - breech:getWorldPosition()):length()
+    local diameter = diameter_mm / 100
+
+    effect:setOffsetPosition(sm.vec3.new(0,-dist,0))
+    effect:setScale(sm.vec3.new(diameter/4,#segments/4,diameter/4))
+    return effect
+end
+
+function update_barrel_diameter(segments, diameter)
+    for i=1, #segments do
+        segments[i].interactable:setPower(diameter)
+    end
 end
 
 -----------------------------------------------------------------------------------------------
