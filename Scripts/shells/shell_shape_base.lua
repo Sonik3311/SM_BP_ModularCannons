@@ -3,7 +3,6 @@
 Shell = class()
 
 function Shell:server_onCreate()
-    self.interactable:setPublicData({})
 end
 
 function Shell.client_onInteract(self, character)
@@ -12,8 +11,6 @@ end
 
 function Shell:sv_transfer_to_carry(data, player)
     local character = player.character
-
-
     sm.container.beginTransaction()
     sm.container.collect( player:getCarry(), sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188"), 1, true )
     if sm.container.endTransaction() then

@@ -474,8 +474,8 @@ function repl_sv_n_dropCarry( self, params )
 				if isACCshell then
 					local public_data = params.character:getPublicData()
 					print("Carry -> World")
-					public_data.carried_shell = {}
 				    shape.interactable:setPublicData(public_data.carried_shell)
+					public_data.carried_shell = {}
 					params.character:setPublicData(public_data)
 				end
 				shape:setColor( params.color )
