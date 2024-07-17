@@ -336,7 +336,7 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
 	local isHarvest = sm.shape.getIsHarvest( carryUuid )
 	local isACCshell = isAnyOf(carryUuid, {obj_generic_apfsds})
 	if (isHarvest or isACCshell) and secondaryState ~= sm.tool.interactState.start then
-        local aimRange = 7.5
+        local aimRange = isHarvest and 7.5 or 3
 		local success, result = sm.localPlayer.getRaycast( aimRange )
 		if result.type == "body" then
 			local shape = result:getShape()

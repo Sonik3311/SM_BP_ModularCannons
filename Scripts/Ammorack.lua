@@ -28,6 +28,9 @@ function Ammorack:server_onCreate()
         }
     }
     self.interactable:setPower(1)
+
+
+
 end
 
 function Ammorack:client_onCreate()
