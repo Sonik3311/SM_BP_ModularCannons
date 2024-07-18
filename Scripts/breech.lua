@@ -187,8 +187,6 @@ function Breech:sv_fire_shell(is_debug)
 
     local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000)^0.4, 0.99), 1) --crude approximation
     local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(), accuracy_factor):normalize()
-    print(accuracy_factor)
-
 
     self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.shape:getAt() * 0.126
     self.loaded_shell.velocity = direction * speed
