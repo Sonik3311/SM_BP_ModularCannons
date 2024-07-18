@@ -32,5 +32,21 @@
             "type" : "particle"
          }
       ]
+   },
+   "Medium_caliber_fire" : {
+      "effectList" : [
+         {
+            "particles" : [ "Medium_caliber_fire" ],
+            "type" : "particle"
+         }
+      ]
+   },
+   "Small_caliber_smoke" : {
+      "effectList" : [
+         {
+            "particles" : [ "Small_caliber_smoke" ],
+            "type" : "particle"
+         }
+      ]
    }
 }

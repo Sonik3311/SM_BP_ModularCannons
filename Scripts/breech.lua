@@ -13,6 +13,7 @@ dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/breech_functions.lua"
 dofile "$CONTENT_DATA/Scripts/pen_calc.lua"
 dofile "$CONTENT_DATA/Scripts/shell_sim.lua"
+dofile "$CONTENT_DATA/Scripts/effects.lua"
 
 Breech = class()
 
@@ -30,7 +31,7 @@ function Breech:server_onCreate()
 
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 380 --mm
+    self.barrel_diameter = 100 --mm
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fired_shells = {}
 
@@ -123,7 +124,6 @@ function Breech:server_onFixedUpdate(dt)
 end
 
 function Breech:client_onFixedUpdate(dt)
-    --print(sm.localPlayer.getCarry():getItem( 0 ))
     for key, effect in pairs(self.effects) do
         if effect:isDone() then
             effect:destroy()
@@ -140,9 +140,6 @@ function Breech:server_onUpdate(dt)
 end
 
 function Breech:client_onUpdate(dt)
-    if self.barrel_effect and not self.barrel_effect:isPlaying() then
-        self.barrel_effect:start()
-    end
 end
 
 -------------------------------------------------------------------------------
@@ -188,16 +185,19 @@ function Breech:sv_fire_shell(is_debug)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
 
+    local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000)^0.4, 0.99), 1) --crude approximation
+    local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(), accuracy_factor):normalize()
+    print(accuracy_factor)
 
 
     self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.shape:getAt() * 0.126
-    self.loaded_shell.velocity = -self.shape:getAt() * speed
+    self.loaded_shell.velocity = direction * speed
     self.loaded_shell.max_pen = self.loaded_shell.type ~= "HE" and calculate_shell_penetration(self.loaded_shell) or 1
 
     if is_debug then
         self.loaded_shell.debug = {
             path = {
-                shell = {{self.loaded_shell.position, self.loaded_shell.position - self.shape:getAt()}},
+                shell = {{self.loaded_shell.position, self.loaded_shell.position + direction}},
                 spall = {},
                 creations = {}
             }
@@ -211,6 +211,7 @@ function Breech:sv_fire_shell(is_debug)
     self.fired_shells[#self.fired_shells] = self.loaded_shell
     self.loaded_shell = nil
     self.interactable:setPower(0)
+    self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 end
 
 function Breech:cl_save_path(data)
@@ -268,51 +269,14 @@ function Breech:cl_save_path(data)
     end
 end
 
-function Breech:cl_update_barrelEffect(data)
-    if self.barrel_effect then
-        self.barrel_effect:stopImmediate()
-        self.barrel_effect:destroy()
-    end
-    local effect = create_barrel_effect(data[1], data[2], self.shape)
-    self.barrel_effect = effect
-    self.barrel_effect:start()
-end
-
-local function get_rotation(v1,v2)
-    local d = v1:dot(v2)
-    if d > 0.9999 then
-        return sm.quat.new(0,0,0,1)
-    end
-    if d < -0.9999 then
-        return sm.quat.new(1,0,0,0)
-    end
-
-    local q = sm.quat.angleAxis(math.acos(d), v1:cross(v2))
-    local l = math.sqrt(q.x^2 + q.y^2 + q.z^2 + q.w^2)
-    q.x = q.x / l
-    q.y = q.y / l
-    q.z = q.z / l
-    q.w = q.w / l
-    return q
+function Breech:cl_play_launch_effect(data)
+    local effect = get_launch_effect(data)
+    effect:start()
+    self.effects[#self.effects + 1] = effect
 end
 
 function Breech:cl_play_entry_effect(data)
-    local entry_effects = {
-        APFSDS = "APFSDS_entry_ferrium",
-        HE = "HE_willturn",
-        APHE = "APHE_willturn",
-        AP = "APHE_willturn",
-    }
-    local shell_type = data.type
-    local position = data.position
-    local velocity = data.velocity
-    local dir = data.direction
-    local rotation = get_rotation(sm.vec3.new(0,1,0), dir)
-    print(entry_effects[shell_type])
-    local effect = sm.effect.createEffect(entry_effects[shell_type])
-    effect:setPosition(position)
-    effect:setRotation(rotation)
-    effect:setVelocity(velocity)
-    self.effects[#self.effects + 1] = effect
+    local effect = get_entry_effect(data)
     effect:start()
+    self.effects[#self.effects + 1] = effect
 end

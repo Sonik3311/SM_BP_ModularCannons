@@ -41,7 +41,6 @@ function process_shell_collision (shell, dt, net)
         if is_world_surface(hit_data.type) then
             return false, end_point
         end
-        print(hit_data.type)
 
         local penetration_function = get_penetration_function(shell)
         local last_direction = shell_direction

@@ -21,7 +21,6 @@ function construct_cannon_new(shape, global_dir, last)
         local neighbour_shape_position = neighbour_shape:getWorldPosition()
         local shape_position = shape:getWorldPosition()
         local to_neighbour_dir = (neighbour_shape_position - shape_position):normalize()
-        --print(to_neighbour_dir:dot(neighbour_shape:getAt()))
         if math.abs(to_neighbour_dir:dot(neighbour_shape:getUp())) == 1 then
             goto next
         end
