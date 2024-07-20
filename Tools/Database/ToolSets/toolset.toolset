@@ -12,6 +12,7 @@
          "uuid" : "c5ad1edb-94e5-4057-9b5e-ece5f44fe1a9"
       },
       {
+         "autoTool" : true,
          "name" : "Hook Tool",
          "previewRenderable" : "$SURVIVAL_DATA/Character/Char_Tools/Char_logbook/char_logbook.rend",
          "script" : {
@@ -19,8 +20,18 @@
             "data" : {},
             "file" : "$CONTENT_DATA/Scripts/tool/hook_tool.lua"
          },
-         "uuid" : "6396815f-13cc-40a6-bc17-e452433d5e4e",
-         "autoTool" : true
+         "uuid" : "6396815f-13cc-40a6-bc17-e452433d5e4e"
+      },
+      {
+         "autoTool" : true,
+         "name" : "Simulation Tool",
+         "previewRenderable" : "",
+         "script" : {
+            "class" : "SimTool",
+            "data" : {},
+            "file" : "$CONTENT_DATA/Scripts/tool/sim_tool.lua"
+         },
+         "uuid" : "c526057a-177b-4f9a-8cbb-b6ab0d7b0eab"
       }
    ]
 }

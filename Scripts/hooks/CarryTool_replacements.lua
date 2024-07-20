@@ -365,8 +365,9 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
     			end
 			elseif isACCshell then
     			if isAnyOf(shape:getShapeUuid(), {obj_generic_breech, obj_generic_ammorack}) then
-                    if shape.interactable:getPower() ~= 1 then
-     			    sm.gui.setCenterIcon( "Use" )
+                    local is_loaded = shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil()
+                    if not is_loaded then
+                        sm.gui.setCenterIcon( "Use" )
         				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
         				sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
                         if primaryState == sm.tool.interactState.start then

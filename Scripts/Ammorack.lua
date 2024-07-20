@@ -5,17 +5,24 @@
 -------------------------------------------------------------------------------
 --[[                                Setup                                  ]]--
 -------------------------------------------------------------------------------
+dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 
 local dprint_filename = "Ammorack"
 
 Ammorack = class()
-Ammorack.maxChildCount = 0
 
 -------------------------------------------------------------------------------
 --[[                                Create                                 ]]--
 -------------------------------------------------------------------------------
 
 function Ammorack:server_onCreate()
+
+    local container = self.shape.interactable:getContainer( 0 )
+	if not container then
+		container = self.shape:getInteractable():addContainer( 0, 1, 1 )
+	end
+	container:setFilters( { obj_generic_apfsds } )
+
     self.sv = {}
     self.sv.stored_shell = {
         type = "APFSDS",
@@ -27,18 +34,21 @@ function Ammorack:server_onCreate()
             penetrator_density = 17800
         }
     }
-    self.interactable:setPower(1)
+    --self.interactable:setPower(1)
 
+    sm.container.beginTransaction()
+    sm.container.collect( container, obj_generic_apfsds, 1, true )
+    sm.container.endTransaction()
 
 
 end
 
 function Ammorack:client_onCreate()
     self.cl = {}
-    self.cl.is_loaded = true
+    --self.cl.is_loaded = true
     self.cl.loaded_shell_effect = sm.effect.createEffect("ShapeRenderable", self.shape.interactable)
-    self:cl_update_visualization()
     self:cl_update_loadedState()
+    self:cl_update_visualization()
 end
 
 -------------------------------------------------------------------------------
@@ -60,8 +70,10 @@ function Ammorack:server_onUpdate(dt)
 end
 
 function Ammorack:client_onUpdate(dt)
-    if not self.cl.loaded_shell_effect:isPlaying() and self.cl.is_loaded then
+    if not self.cl.loaded_shell_effect:isPlaying() and self.shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil() then
         self.cl.loaded_shell_effect:start()
+    elseif self.cl.loaded_shell_effect:isPlaying() and self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() then
+        self.cl.loaded_shell_effect:stop()
     end
 end
 
@@ -83,18 +95,18 @@ end
 
 function Ammorack.client_onInteract( self, character, state )
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
-    if (not self.cl.is_loaded and carried_uuid ~= sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")) then
+    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() and carried_uuid ~= sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")) then
         return
     end
     self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")})
-    self.cl.is_loaded = false
+    --self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end
 
 function Ammorack.client_canInteract( self, character )
     self:cl_update_loadedState()
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
-    local can_unload = self.cl.is_loaded and carried_uuid == sm.uuid.getNil()
+    local can_unload = self.shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil() and carried_uuid == sm.uuid.getNil()
 	return can_unload
 end
 
@@ -103,7 +115,7 @@ end
 -------------------------------------------------------------------------------
 
 function Ammorack:sv_sendTCL_isLoaded(data, client)
-    self.network:sendToClient(client, "cl_recieve_isLoaded", {self.sv.stored_shell ~= nil})
+    self.network:sendToClient(client, "cl_recieve_isLoaded", {self.shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil()})
 end
 
 function Ammorack:sv_giveShell(params)
@@ -115,7 +127,9 @@ function Ammorack:sv_giveShell(params)
         pd.carried_shell = self.sv.stored_shell
         params.character:setPublicData(pd)
         self.sv.stored_shell = nil
-        self.interactable:setPower(0)
+        sm.container.beginTransaction()
+        sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+        sm.container.endTransaction()
     end
 end
 
@@ -130,7 +144,9 @@ function Ammorack:sv_e_receiveItem(data)
         local pd = character:getPublicData()
         pd.carried_shell = {}
         character:setPublicData(pd)
-        self.interactable:setPower(1)
+        sm.container.beginTransaction()
+        sm.container.collect( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+        sm.container.endTransaction()
     end
 end
 

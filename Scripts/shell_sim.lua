@@ -24,7 +24,7 @@ local function get_penetration_function(shell)
     return functions[shell.type]
 end
 
-function process_shell_collision (shell, dt, net)
+function process_shell_collision (shell, dt, net, client)
     local raycast = sm.physics.raycast
 
     local shell_direction = shell.velocity:normalize()
@@ -112,12 +112,12 @@ function update_shells (shells, dt, net)
             dprint("Shell (id: "..tostring(shell_id)..") has died", "info", dprint_filename, "sv", "update_shells")
             if shell.debug then
                 net:sendToClients("cl_save_path", {path = shell.debug.path, type = "shell"})
-                --net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
+            --    --net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
             end
-            if shell.type == "APHE" then -- TEMP, REMOVE ONCE LOADING SYSTEM IS IMPLEMENTED
-                shell.fuse.active = false
-                shell.fuse.delay = 0.0025
-            end
+            --if shell.type == "APHE" then -- TEMP, REMOVE ONCE LOADING SYSTEM IS IMPLEMENTED
+            --    shell.fuse.active = false
+            --    shell.fuse.delay = 0.0025
+            --end
             shells[shell_id] = nil
             goto next
         end

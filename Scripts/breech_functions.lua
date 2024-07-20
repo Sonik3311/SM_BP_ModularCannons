@@ -59,7 +59,7 @@ end
 
 function update_barrel_diameter(segments, diameter)
     for i=1, #segments do
-        segments[i].interactable:setPower(diameter)
+        segments[i].interactable:setPublicData({diameter = diameter})
     end
 end
 

@@ -9,13 +9,15 @@
 
 local dprint_filename = "Breech"
 
+
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/breech_functions.lua"
 dofile "$CONTENT_DATA/Scripts/pen_calc.lua"
-dofile "$CONTENT_DATA/Scripts/shell_sim.lua"
+dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
 
 Breech = class()
+
 
 Breech.maxParentCount = 1
 Breech.maxChildCount = 0
@@ -27,8 +29,17 @@ Breech.connectionOutput = sm.interactable.connectionType.none
 -------------------------------------------------------------------------------
 
 function Breech:server_onCreate()
-    self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
+    local container = self.shape.interactable:getContainer( 0 )
+	if not container then
+		container = self.shape:getInteractable():addContainer( 0, 1, 1 )
+	end
+	container:setFilters( { obj_generic_apfsds } )
 
+	sm.container.beginTransaction()
+    sm.container.collect( container, obj_generic_apfsds, 1, true )
+    sm.container.endTransaction()
+
+    self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
     self.barrel_diameter = 100 --mm
@@ -97,10 +108,6 @@ function Breech:server_onCreate()
 end
 
 function Breech:client_onCreate()
-    sm.ACC = {}
-    sm.ACC.vis = {}
-    sm.ACC.vis.paths = {}
-
     self.effects = {}
 end
 
@@ -120,7 +127,7 @@ function Breech:server_onFixedUpdate(dt)
         self:sv_fire_shell(true)
     end
 
-    update_shells(self.fired_shells, dt, self.network)
+    --update_shells(self.fired_shells, dt, self.network)
 end
 
 function Breech:client_onFixedUpdate(dt)
@@ -168,7 +175,9 @@ function Breech:sv_e_receiveItem(data)
         local pd = character:getPublicData()
         pd.carried_shell = {}
         character:setPublicData(pd)
-        self.interactable:setPower(1)
+        sm.container.beginTransaction()
+        sm.container.collect( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+        sm.container.endTransaction()
     end
 end
 
@@ -206,66 +215,15 @@ function Breech:sv_fire_shell(is_debug)
     dprint("Fired shell has "..tostring(self.loaded_shell.max_pen).." mm pen of RHA", "info", dprint_filename, nil, "sv_fire_shell")
 
     self.muzzle_shape:setColor(sm.color.new("0000ff"))
-    self.fired_shells[#self.fired_shells] = self.loaded_shell
+    --self.fired_shells[#self.fired_shells] = self.loaded_shell
+    sm.ACC.shells[#sm.ACC.shells + 1] = self.loaded_shell
     self.loaded_shell = nil
-    self.interactable:setPower(0)
+    sm.container.beginTransaction()
+    sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+    sm.container.endTransaction()
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 end
 
-function Breech:cl_save_path(data)
-    dprint("recieved path with the length of "..tostring(#data.path.shell + #data.path.spall), "info", dprint_filename, nil, "cl_save_path")
-    local spall_path = data.path.spall
-    local shell_path = data.path.shell
-    local hit_creations = data.path.creations
-    local ACC_index = #sm.ACC.vis.paths + 1
-    sm.ACC.vis.paths[ACC_index] = {}
-    sm.ACC.vis.paths[ACC_index].lines = {}
-
-
-    local is_spall = true
-    for _,path in pairs({spall_path, shell_path}) do
-        for line_id = 1, #path do
-            local thickness = 0.025
-            if not is_spall then
-               thickness = 0.05
-            end
-            local line = path[line_id]
-
-            if #line ~= 2 then
-                goto next
-            end
-
-            local effect = sm.effect.createEffect("ShapeRenderable")
-            effect:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
-
-            if not is_spall then effect:setParameter("color", sm.color.new("ffffff"))
-            else effect:setParameter("color", sm.color.new(math.random(70,90)/90, math.random(40,60)/60, math.random(40,60)/60)) end
-
-            effect:setScale( sm.vec3.one() * thickness )
-            local delta = line[2] - line[1]
-            local length = delta:length()
-
-            if length < 0.0001 then goto next end
-
-            local rot = sm.vec3.getRotation(sm.vec3.new(1,0,0), delta)
-
-            local distance = sm.vec3.new(length, thickness, thickness)
-
-            effect:setPosition(line[1] + delta * 0.5)
-            effect:setScale(distance)
-            effect:setRotation(rot)
-            local a = sm.effect.createEffect("ShapeRenderable")
-            a:setParameter("uuid", sm.uuid.new("3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"))
-            a:setParameter("color", sm.color.new("ff0000"))
-            a:setScale( sm.vec3.one() * (thickness * 1.5) )
-            a:setPosition(line[1])
-            local line_index = #sm.ACC.vis.paths[ACC_index].lines + 1
-            sm.ACC.vis.paths[ACC_index].lines[line_index] = {effect, a}
-            ::next::
-        end
-        is_spall = false
-    end
-end
 
 function Breech:cl_play_launch_effect(data)
     local effect = get_launch_effect(data)

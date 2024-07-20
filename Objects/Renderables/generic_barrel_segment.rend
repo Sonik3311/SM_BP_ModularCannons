@@ -5,8 +5,8 @@
          "pose0" : "$CONTENT_DATA/Objects/Mesh/obj_generic_barrel_segment_on.fbx",
          "subMeshList" : [
             {
-               "material" : "PoseAnimDif",
-               "textureList" : [ "", "", "" ]
+               "material" : "PoseAnimDifNor",
+               "textureList" : [ "", "", "$CONTENT_DATA/Objects/Texture/FlatNormals.png" ]
             }
          ]
       }
