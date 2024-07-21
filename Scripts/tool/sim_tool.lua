@@ -46,6 +46,7 @@ function SimTool:client_onCreate()
     print("Client Created")
     self.time_since_last_tick = 0
     self.effects = {}
+    self.tracers_per_projectile = {}
 end
 
 -------------------------------------------------------------------------------
@@ -75,6 +76,14 @@ function SimTool:client_onFixedUpdate(dt)
             self.effects[key] = nil
         end
     end
+
+    for tracer_id, tracer in pairs(self.tracers_per_projectile) do
+        if not sm.ACC.shells[tracer_id] then
+            tracer:stopImmediate()
+            tracer:destroy()
+            self.tracers_per_projectile[tracer_id] = nil
+        end
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -91,7 +100,18 @@ function SimTool:client_onUpdate(dt)
     end
 
     local time_fraction = self.time_since_last_tick / tick_time
-    --print(time_fraction)
+    for shell_id, shell in pairs(sm.ACC.shells) do
+        if self.tracers_per_projectile[shell_id] == nil then
+            self.tracers_per_projectile[shell_id] = sm.effect.createEffect("ShapeRenderable")
+            self.tracers_per_projectile[shell_id]:setParameter("uuid", sm.uuid.new("01246ab4-e30c-4d77-a15a-8fc110a29723"))
+            self.tracers_per_projectile[shell_id]:start()
+        end
+        local effect = self.tracers_per_projectile[shell_id]
+        if not effect:isPlaying() then
+            effect:start()
+        end
+        effect:setPosition(sm.vec3.lerp(shell.position, shell.next_position, time_fraction))
+    end
 end
 
 -------------------------------------------------------------------------------

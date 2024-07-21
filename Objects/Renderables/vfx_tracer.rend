@@ -1,0 +1,13 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/vfx_tracer.fbx",
+         "subMeshList" : [
+            {
+               "material" : "DifAsg",
+               "textureList" : [ "", "$CONTENT_DATA/Objects/Texture/FlatNormals.png", "" ]
+            }
+         ]
+      }
+   ]
+}

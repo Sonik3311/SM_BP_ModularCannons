@@ -123,6 +123,7 @@ function update_shells (shells, dt, net)
         end
 
         shell.position = next_position
+        shell.next_position = shell.position + shell.velocity * dt
 
         ::next::
     end

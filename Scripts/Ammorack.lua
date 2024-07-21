@@ -38,7 +38,7 @@ function Ammorack:server_onCreate()
     self.sv.stored_shell = {
         type = "HE",
         parameters = {
-            propellant = 6,
+            propellant = 1,
             projectile_mass = 10,--mass,
             explosive_mass = 500, -- mass,
             diameter = 100

@@ -16,7 +16,6 @@ function Barrel:sv_getBarrelDiameter(data, client)
     local pd = self.interactable:getPublicData()
 
     if pd and pd.diameter then
-        print(pd.diameter)
         self.network:sendToClient(client, "cl_getBarrelDiameter", {pd.diameter})
         return
     end

@@ -70,7 +70,7 @@ function Breech:server_onCreate()
 
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 7850
+    local mass = (volume_sphere + volume_cylinder) * 17850
     print(mass)
     self.loaded_shell = {
         type = "APHE",
@@ -121,7 +121,7 @@ function Breech:server_onFixedUpdate(dt)
     end
 
     if input_active(self.interactable) then
-        self:sv_fire_shell(true)
+        self:sv_fire_shell(true, dt)
     end
 
     --update_shells(self.fired_shells, dt, self.network)
@@ -178,7 +178,7 @@ function Breech:sv_e_receiveItem(data)
     end
 end
 
-function Breech:sv_fire_shell(is_debug)
+function Breech:sv_fire_shell(is_debug, dt)
     if not self.loaded_shell then
         return false
     end
@@ -196,6 +196,7 @@ function Breech:sv_fire_shell(is_debug)
 
     self.loaded_shell.position = self.muzzle_shape:getWorldPosition() - self.shape:getAt() * 0.126
     self.loaded_shell.velocity = direction * speed
+    self.loaded_shell.next_position = self.loaded_shell.position + self.loaded_shell.velocity * dt
     self.loaded_shell.max_pen = self.loaded_shell.type ~= "HE" and calculate_shell_penetration(self.loaded_shell) or 1
 
     if is_debug then
@@ -213,7 +214,7 @@ function Breech:sv_fire_shell(is_debug)
 
     self.muzzle_shape:setColor(sm.color.new("0000ff"))
     --self.fired_shells[#self.fired_shells] = self.loaded_shell
-    sm.ACC.shells[#sm.ACC.shells + 1] = self.loaded_shell
+    sm.ACC.shells[math.random(10000)] = self.loaded_shell
     self.loaded_shell = nil
     sm.container.beginTransaction()
     sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )

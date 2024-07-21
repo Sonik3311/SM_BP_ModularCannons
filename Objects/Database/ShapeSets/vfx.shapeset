@@ -1,0 +1,18 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "color" : "FF5555",
+         "name" : "vfx_tracer",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/vfx_tracer.rend",
+         "rotationSet" : "Default",
+         "showInInventory" : false,
+         "uuid" : "01246ab4-e30c-4d77-a15a-8fc110a29723"
+      }
+   ]
+}
