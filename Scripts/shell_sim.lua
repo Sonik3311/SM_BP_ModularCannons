@@ -100,7 +100,7 @@ function update_shells (shells, dt, net)
             goto next
         end
 
-        shell.velocity = shell.velocity - sm.vec3.new(0, 0, 9.8 * dt)
+        shell.velocity = shell.velocity - sm.vec3.new(0, 0, 10 * dt)
 
         local alive, next_position = process_shell_collision(shell, dt, net)
 
@@ -112,12 +112,7 @@ function update_shells (shells, dt, net)
             dprint("Shell (id: "..tostring(shell_id)..") has died", "info", dprint_filename, "sv", "update_shells")
             if shell.debug then
                 net:sendToClients("cl_save_path", {path = shell.debug.path, type = "shell"})
-            --    --net:sendToClients("cl_save_path", {path = shell.debug.path.spall, type = "spall"})
             end
-            --if shell.type == "APHE" then -- TEMP, REMOVE ONCE LOADING SYSTEM IS IMPLEMENTED
-            --    shell.fuse.active = false
-            --    shell.fuse.delay = 0.0025
-            --end
             shells[shell_id] = nil
             goto next
         end

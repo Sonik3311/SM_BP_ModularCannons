@@ -79,6 +79,7 @@ function SimTool:client_onFixedUpdate(dt)
 
     for tracer_id, tracer in pairs(self.tracers_per_projectile) do
         if not sm.ACC.shells[tracer_id] then
+            print("destroy")
             tracer:stopImmediate()
             tracer:destroy()
             self.tracers_per_projectile[tracer_id] = nil
@@ -101,7 +102,9 @@ function SimTool:client_onUpdate(dt)
 
     local time_fraction = self.time_since_last_tick / tick_time
     for shell_id, shell in pairs(sm.ACC.shells) do
+
         if self.tracers_per_projectile[shell_id] == nil then
+            print("add")
             self.tracers_per_projectile[shell_id] = sm.effect.createEffect("ShapeRenderable")
             self.tracers_per_projectile[shell_id]:setParameter("uuid", sm.uuid.new("01246ab4-e30c-4d77-a15a-8fc110a29723"))
             self.tracers_per_projectile[shell_id]:start()

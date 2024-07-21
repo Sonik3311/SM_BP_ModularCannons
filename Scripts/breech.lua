@@ -16,6 +16,29 @@ dofile "$CONTENT_DATA/Scripts/pen_calc.lua"
 dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
 
+local function deep_copy( tbl )
+    local copy = {}
+    for key, value in pairs( tbl ) do
+        local var_type = type(value)
+        if var_type ~= 'table' then
+            if var_type == "Vec3" then
+				copy[key] = sm.vec3.new(value.x, value.y, value.z)
+			elseif var_type == "Quat" then
+				copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
+			elseif var_type == "Color" then
+				copy[key] = sm.color.new(value.r, value.g, value.b)
+			elseif var_type == "Uuid" then
+				copy[key] = sm.uuid.new(tostring(value))
+            else
+                copy[key] = value
+            end
+        else
+            copy[key] = deep_copy( value )
+        end
+    end
+    return copy
+end
+
 Breech = class()
 Breech.maxParentCount = 1
 Breech.maxChildCount = 0
@@ -214,11 +237,15 @@ function Breech:sv_fire_shell(is_debug, dt)
 
     self.muzzle_shape:setColor(sm.color.new("0000ff"))
     --self.fired_shells[#self.fired_shells] = self.loaded_shell
-    sm.ACC.shells[math.random(10000)] = self.loaded_shell
-    self.loaded_shell = nil
-    sm.container.beginTransaction()
-    sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
-    sm.container.endTransaction()
+    local index = math.random(100000)
+    while sm.ACC.shells[index] do
+        index = math.random(100000)
+    end
+    sm.ACC.shells[index] = deep_copy(self.loaded_shell)
+    --self.loaded_shell = nil
+    --sm.container.beginTransaction()
+    --sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+    --sm.container.endTransaction()
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 end
 
