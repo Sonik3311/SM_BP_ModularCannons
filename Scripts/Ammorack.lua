@@ -24,14 +24,24 @@ function Ammorack:server_onCreate()
 	container:setFilters( { obj_generic_apfsds } )
 
     self.sv = {}
+    --self.sv.stored_shell = {
+    --    type = "APFSDS",
+    --    parameters = {
+    --        propellant = 7,
+    --        projectile_mass = 12,
+    --        diameter = 27,
+    --        penetrator_length = 700,
+    --        penetrator_density = 17800
+    --    }
+    --}
+
     self.sv.stored_shell = {
-        type = "APFSDS",
+        type = "HE",
         parameters = {
-            propellant = 7,
-            projectile_mass = 12,
-            diameter = 27,
-            penetrator_length = 700,
-            penetrator_density = 17800
+            propellant = 6,
+            projectile_mass = 10,--mass,
+            explosive_mass = 500, -- mass,
+            diameter = 100
         }
     }
     --self.interactable:setPower(1)

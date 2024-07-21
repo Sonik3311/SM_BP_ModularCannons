@@ -1,9 +1,24 @@
+--[[
+    Class responsible for processing projectiles
+    and drawing their effects
+]]
+
+-------------------------------------------------------------------------------
+--[[                                Setup                                  ]]--
+-------------------------------------------------------------------------------
+
 dofile "$CONTENT_DATA/Scripts/shell_sim.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
+
 SimTool = class()
 SimTool.sv_instance = nil
 SimTool.cl_instance = nil
 
+local tick_time = 0.025
+
+-------------------------------------------------------------------------------
+--[[                                Create                                 ]]--
+-------------------------------------------------------------------------------
 
 function SimTool:server_onCreate()
     print("Trying to create Server")
@@ -29,8 +44,13 @@ function SimTool:client_onCreate()
     sm.ACC.vis = {}
     sm.ACC.vis.paths = {}
     print("Client Created")
+    self.time_since_last_tick = 0
     self.effects = {}
 end
+
+-------------------------------------------------------------------------------
+--[[                             Fixed Update                              ]]--
+-------------------------------------------------------------------------------
 
 function SimTool:server_onFixedUpdate(dt)
     if SimTool.sv_instance ~= self then
@@ -56,6 +76,31 @@ function SimTool:client_onFixedUpdate(dt)
         end
     end
 end
+
+-------------------------------------------------------------------------------
+--[[                                Update                                 ]]--
+-------------------------------------------------------------------------------
+
+function SimTool:server_onUpdate(dt)
+end
+
+function SimTool:client_onUpdate(dt)
+    self.time_since_last_tick = self.time_since_last_tick + dt
+    if self.time_since_last_tick >= tick_time then
+       self.time_since_last_tick = self.time_since_last_tick % tick_time
+    end
+
+    local time_fraction = self.time_since_last_tick / tick_time
+    --print(time_fraction)
+end
+
+-------------------------------------------------------------------------------
+--[[                            Network Server                             ]]--
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+--[[                            Network Client                             ]]--
+-------------------------------------------------------------------------------
 
 function SimTool:cl_play_entry_effect(data)
     if SimTool.cl_instance ~= self then

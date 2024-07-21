@@ -17,8 +17,6 @@ dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
 
 Breech = class()
-
-
 Breech.maxParentCount = 1
 Breech.maxChildCount = 0
 Breech.connectionInput = sm.interactable.connectionType.logic
@@ -104,7 +102,6 @@ function Breech:server_onCreate()
     --        diameter = self.barrel_diameter
     --    }
     --}
-    self.interactable:setPower(1)
 end
 
 function Breech:client_onCreate()
