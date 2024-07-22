@@ -1,9 +1,8 @@
 -- you know what? maybe i should've created my own separate solution.
 -- This is awful. AWFUL
 -- I lost so many braincells here that i just don't want to do this ever again
--- this game needs an update. No, IT REQUIRES an update to just stay ALIVE.
--- STOP BEING SILENT, AXOLOT STUDIOS. I WANT THIS GAME TO PROSPER BUT I SEE IT BEING STARVED TO DEATH.
--- CAUTION: MAJOR SWEARING AND SKILL ISSUES
+-- this game needs an update. No, IT REQUIRES an update just to stay ALIVE.
+-- STOP BEING SILENT, AXOLOT STUDIOS. I WANT THIS GAME TO PROSPER BUT I SEE IT BEING STARVED TO DEATH INSTEAD.
 
 local scrapwoodRenderables = {
 	"$SURVIVAL_DATA/Character/Char_Tools/Char_item/char_item_scrapwood.rend"

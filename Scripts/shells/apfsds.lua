@@ -33,7 +33,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
 
     if ricochet_dir then
         shell.position = hit_data.pointWorld
-        shell.velocity = ricochet_dir * shell.velocity:length() / 1.3
+        shell.velocity = ricochet_dir * shell.velocity:length() / 2
         shell_direction = ricochet_dir
         new_start_point = hit_data.pointWorld
         new_end_point = new_start_point + shell.velocity * dt

@@ -107,12 +107,16 @@ function SimTool:client_onUpdate(dt)
             print("add")
             self.tracers_per_projectile[shell_id] = sm.effect.createEffect("ShapeRenderable")
             self.tracers_per_projectile[shell_id]:setParameter("uuid", sm.uuid.new("01246ab4-e30c-4d77-a15a-8fc110a29723"))
+            local diameter_factor = (shell.parameters.diameter / 150)
+            self.tracers_per_projectile[shell_id]:setScale(sm.vec3.new(diameter_factor,4 * diameter_factor,diameter_factor))
             self.tracers_per_projectile[shell_id]:start()
         end
         local effect = self.tracers_per_projectile[shell_id]
         if not effect:isPlaying() then
             effect:start()
         end
+        local rotation = get_rotation(sm.vec3.new(0,1,0), shell.velocity:normalize())
+        effect:setRotation(rotation)
         effect:setPosition(sm.vec3.lerp(shell.position, shell.next_position, time_fraction))
     end
 end

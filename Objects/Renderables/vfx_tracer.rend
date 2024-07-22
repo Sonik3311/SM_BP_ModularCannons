@@ -4,8 +4,8 @@
          "mesh" : "$CONTENT_DATA/Objects/Mesh/vfx_tracer.fbx",
          "subMeshList" : [
             {
-               "material" : "DifAsg",
-               "textureList" : [ "", "$CONTENT_DATA/Objects/Texture/FlatNormals.png", "" ]
+               "material" : "DifAsgAlpha",
+               "textureList" : [ "", "$CONTENT_DATA/Objects/Texture/obj_vfx_traccer.png", "" ]
             }
          ]
       }

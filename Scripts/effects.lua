@@ -1,4 +1,4 @@
-local function get_rotation(v1,v2)
+function get_rotation(v1,v2)
     local d = v1:dot(v2)
     if d > 0.9999 then
         return sm.quat.new(0,0,0,1)

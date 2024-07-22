@@ -100,7 +100,7 @@ function update_shells (shells, dt, net)
             goto next
         end
 
-        shell.velocity = shell.velocity - sm.vec3.new(0, 0, 10 * dt)
+        shell.velocity = shell.velocity - sm.vec3.new(0, 0, 20 * dt)
 
         local alive, next_position = process_shell_collision(shell, dt, net)
 

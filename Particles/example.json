@@ -1,0 +1,15 @@
+{
+   "APFSDS_entry_ferrioum_sound" : {
+      "effectList" : [
+         {
+            "offset" : [ 0.0, 0.0, 0.0 ],
+            "particles" : [ "APFSDS_entry_ferrium" ],
+            "type" : "particle"
+         },
+         {
+            "audio" : [ "Gas Explosion" ],
+            "type" : "audio"
+         }
+      ]
+   }
+}

@@ -63,7 +63,7 @@ function Breech:server_onCreate()
     self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 100 --mm
+    self.barrel_diameter = 155 --mm
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fired_shells = {}
 
@@ -93,7 +93,7 @@ function Breech:server_onCreate()
 
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 17850
+    local mass = (volume_sphere + volume_cylinder) * 6000
     print(mass)
     self.loaded_shell = {
         type = "APHE",
@@ -209,7 +209,7 @@ function Breech:sv_fire_shell(is_debug, dt)
     local projectile_mass = self.loaded_shell.parameters.projectile_mass
 
     local propellant = self.loaded_shell.parameters.propellant
-    local propellant_power = propellant * self.barrel_diameter / (projectile_mass/2)
+    local propellant_power = propellant * (self.barrel_diameter / (projectile_mass*2) / 2)
     local high_pressure = math.min(self.barrel_length, propellant * 2.2)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
@@ -242,10 +242,10 @@ function Breech:sv_fire_shell(is_debug, dt)
         index = math.random(100000)
     end
     sm.ACC.shells[index] = deep_copy(self.loaded_shell)
-    --self.loaded_shell = nil
-    --sm.container.beginTransaction()
-    --sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
-    --sm.container.endTransaction()
+    self.loaded_shell = nil
+    sm.container.beginTransaction()
+    sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+    sm.container.endTransaction()
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 end
 

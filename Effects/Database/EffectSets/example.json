@@ -1,52 +1,58 @@
 {
-   "APFSDS_entry_ferrium" : {
-      "effectList" : [
-         {
-            "particles" : [ "APFSDS_entry_ferrium" ],
-            "type" : "particle"
-         }
-      ]
-   },
-   "APHE_willturn" : {
-      "effectList" : [
-         {
-            "particles" : [ "APHE_willturn" ],
-            "type" : "particle"
-         }
-      ]
-   },
-   "HE_willturn" : {
-      "effectList" : [
-         {
-            "offset" : [ 0.0, 0.0, 0.0 ],
-            "particles" : [ "HE_fixed" ],
-            "type" : "particle"
-         }
-      ]
-   },
-   "HE_willturn_old" : {
-      "effectList" : [
-         {
-            "offset" : [ 0.0, 0.0, 0.0 ],
-            "particles" : [ "HE_willturn" ],
-            "type" : "particle"
-         }
-      ]
-   },
-   "Medium_caliber_fire" : {
-      "effectList" : [
-         {
-            "particles" : [ "Medium_caliber_fire" ],
-            "type" : "particle"
-         }
-      ]
-   },
-   "Small_caliber_smoke" : {
-      "effectList" : [
-         {
-            "particles" : [ "Small_caliber_smoke" ],
-            "type" : "particle"
-         }
-      ]
-   }
+  "APFSDS_entry_ferrium": {
+    "effectList": [
+      {
+        "particles": ["APFSDS_entry_ferrium"],
+        "type": "particle"
+      },
+      {
+        "delay": 0.0,
+        "name": "Collision - Single",
+        "parameters": ["Size", "Velocity_max_50", "Material", "Phys_energy"],
+        "type": "audio"
+      }
+    ]
+  },
+  "APHE_willturn": {
+    "effectList": [
+      {
+        "particles": ["APHE_willturn"],
+        "type": "particle"
+      }
+    ]
+  },
+  "HE_willturn": {
+    "effectList": [
+      {
+        "offset": [0.0, 0.0, 0.0],
+        "particles": ["HE_fixed"],
+        "type": "particle"
+      }
+    ]
+  },
+  "HE_willturn_old": {
+    "effectList": [
+      {
+        "offset": [0.0, 0.0, 0.0],
+        "particles": ["HE_willturn"],
+        "type": "particle"
+      }
+    ]
+  },
+  "Medium_caliber_fire": {
+    "effectList": [
+      {
+        "particles": ["Medium_caliber_fire"],
+        "type": "particle"
+      }
+    ]
+  },
+  "Small_caliber_smoke": {
+    "effectList": [
+      {
+        "particles": ["Small_caliber_smoke"],
+        "type": "particle"
+      }
+    ]
+  }
 }
