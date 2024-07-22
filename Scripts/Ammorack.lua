@@ -27,7 +27,7 @@ function Ammorack:server_onCreate()
     --self.sv.stored_shell = {
     --    type = "APFSDS",
     --    parameters = {
-    --        propellant = 2,
+    --        propellant = 10,
     --        projectile_mass = 12,
     --        diameter = 27,
     --        penetrator_length = 700,
@@ -38,13 +38,12 @@ function Ammorack:server_onCreate()
     self.sv.stored_shell = {
         type = "HE",
         parameters = {
-            propellant = 8,
-            projectile_mass = 45,--mass,
-            explosive_mass = 10, -- mass,
-            diameter = 155
+            propellant = 20,
+            projectile_mass = 170,--mass,
+            explosive_mass = 30, -- mass,
+            diameter = 380
         }
     }
-    --self.interactable:setPower(1)
 
     sm.container.beginTransaction()
     sm.container.collect( container, obj_generic_apfsds, 1, true )

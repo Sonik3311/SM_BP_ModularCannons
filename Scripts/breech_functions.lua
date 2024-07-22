@@ -78,3 +78,12 @@ function input_active(interactable)
 
     return parent:isActive()
 end
+
+-----------------------------------------------------------------------------------------------
+
+function calculate_muzzle_velocity(barrel_length, barrel_diameter, shell)
+    local A = math.pi * (barrel_diameter / 2)^2
+    local k = 0.5 * 1.225 * A
+    local v = math.sqrt((2 * 9.8 * barrel_length) / (1 + (2 * k * barrel_length / shell.parameters.projectile_mass)))
+    return v
+end
