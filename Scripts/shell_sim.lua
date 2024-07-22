@@ -38,9 +38,9 @@ function process_shell_collision (shell, dt, net, client)
         local hit_shape = hit_data:getShape()
         local is_alive = true
 
-        if is_world_surface(hit_data.type) then
-            return false, end_point
-        end
+        --if is_world_surface(hit_data.type) then
+        --    return false, end_point
+        --end
 
         local penetration_function = get_penetration_function(shell)
         local last_direction = shell_direction
@@ -62,7 +62,7 @@ function process_shell_collision (shell, dt, net, client)
             net:sendToClients("cl_play_entry_effect", {type = shell.type,
                                                        position = hit_data.pointWorld,
                                                        direction = (-hit_data.normalWorld):normalize(),
-                                                       velocity = hit_shape:getVelocity()})
+                                                       velocity = sm.vec3.zero()}) --hit_shape:getVelocity()
             print("play enter effect")
             is_entering = false
         end

@@ -19,7 +19,13 @@ end
 function process_he_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
 
     local shell_direction = shell.velocity:normalize()
-    local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
+    local is_world_surface = is_world_surface(hit_data.type)
+    local ricochet_dir
+    if is_world_surface then
+        goto explode
+    end
+
+    ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
     if ricochet_dir then
         shell.position = hit_data.pointWorld
         shell.velocity = ricochet_dir * shell.velocity:length() / 1.3
@@ -29,9 +35,9 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
         return true, false, new_start_point, new_end_point, shell_direction
     end
 
+    ::explode::
     local shape = hit_data:getShape()
     --sm.physics.applyImpulse( shape, shell_direction * 10 * shape.body.mass, true )
-
     local f_amount, f_pen, f_angle = get_fragment_config(shell)
     local spall_paths = process_multi_spall(hit_data.pointWorld - shell_direction / 10, shell.velocity:normalize(), {{f_angle, f_amount, f_pen}}, nil)
 

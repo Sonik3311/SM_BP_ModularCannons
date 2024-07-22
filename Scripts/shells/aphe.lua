@@ -95,11 +95,15 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
     if shell.fuse.active then
         local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, true, end_point, hit_data.pointWorld)
         if not is_alive then
-            return false, start_point, explosion_point, nil
+            return false, false, start_point, explosion_point, nil
         end
     end
 
     local shell_direction = shell.velocity:normalize()
+    local is_world_surface = is_world_surface(hit_data.type)
+    if is_world_surface then
+        return false, false, start_point, end_point,shell_direction
+    end
 
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
     local armor_thickness = calculate_armor_thickness(hit_shape, start_point, shell_direction)
@@ -112,7 +116,7 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         shell_direction = ricochet_dir
         new_start_point = hit_data.pointWorld
         new_end_point = new_start_point + shell.velocity * dt
-        return true, new_start_point, new_end_point, shell_direction
+        return true, false, new_start_point, new_end_point, shell_direction
     end
 
     local shell_penetration = shell.max_pen

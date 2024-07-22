@@ -23,8 +23,13 @@ local function get_spall_amount(shell, hit_shape)
 end
 
 function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
-
     local shell_direction = shell.velocity:normalize()
+    local is_world_surface = is_world_surface(hit_data.type)
+    if is_world_surface then
+        return false, false, start_point, end_point,shell_direction
+    end
+
+
 
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
     local armor_thickness = calculate_armor_thickness(hit_shape, start_point, shell_direction)

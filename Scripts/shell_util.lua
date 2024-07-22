@@ -3,6 +3,10 @@ function is_exititing_body(position, direction, hit_shape)
     return not hit or hit_data.type == "joint"
 end
 
+function is_world_surface(object_type)
+    return object_type == "terrainSurface" or object_type == "terrainAsset" or object_type == "limiter" or object_type == "harvestable" or object_type == "lift" or object_type == "character"
+end
+
 function voxel_trace(sx, sy, sz, dx, dy, dz)
     local steps = math.max(math.abs(sx - dx), math.abs(sy - dy),
                            math.abs(sz - dz))
