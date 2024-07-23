@@ -54,7 +54,7 @@ function process_shell_collision (shell, dt, net, client)
 
 
         is_alive, is_exiting, start_point, end_point, shell_direction = penetration_function (shell, hit_shape, hit_data,
-                                                                                    start_point, end_point, dt)
+                                                                                    start_point, end_point, dt, net)
 
         is_ricochet = last_direction ~= shell_direction
 

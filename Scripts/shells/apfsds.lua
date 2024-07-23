@@ -68,7 +68,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         local big_spall_amount = math.ceil(spall_amount / 10)
         local med_spall_amount = math.ceil(spall_amount / 5)
         local low_spall_amount = spall_amount
-        local spall_paths = process_multi_spall(exit_point, shell_direction, {{10, big_spall_amount, 70}, {20, med_spall_amount, 40}, {30, low_spall_amount, 20}}, hit_shape)
+        local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, {{10, big_spall_amount, 70}, {20, med_spall_amount, 40}, {30, low_spall_amount, 20}}, hit_shape)
 
         if shell.debug then
             for path_id = 1, #spall_paths do

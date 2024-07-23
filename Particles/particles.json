@@ -5,6 +5,7 @@
       "APFSDS_entry_ferrium.json",
       "APHE_willturn.json",
       "Small_caliber_smoke.json",
-      "Medium_caliber_fire.json"
+      "Medium_caliber_fire.json",
+      "Debris_impact.json"
    ]
 }

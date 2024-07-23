@@ -40,6 +40,43 @@ end
 function process_multi_spall(position, direction, angles_amounts, ignore_shape)
     local hit_shapes_blocks = {}
     local return_paths = {}
+    local return_effect_data = {}
+
+    local ground_colors = {
+        Default = {
+            sm.color.new(0.35,0.388,0.368)*1.2
+        },
+        Rock = {
+            sm.color.new(0.25,0.288,0.268)*1.2
+        },
+        Concrete = {
+            sm.color.new(0.35,0.388,0.368)*1.2
+        },
+        Sand = {
+            sm.color.new(0.76, 0.39, 0.04)*1.2
+        },
+        Stone = {
+            sm.color.new(0.4,0.4,0.4)*1.2
+        },
+        Dirt = {
+            sm.color.new(0.27,0.219,0.16)*1.2
+        },
+        Weeds = {
+            sm.color.new(1,0.74,0.3)*1.2
+        },
+        ["Rough Stone"] = {
+            sm.color.new(0.37,0.37,0.37)*1.2
+        },
+        Hay = {
+            sm.color.new(0.87,0.59,0.1)*1.2
+        },
+        ["Bright Grass"] = {
+            sm.color.new(0.83,1,0.18)*1.2
+        },
+        Grass = {
+            sm.color.new(0.57,0.67,0.16)*1.2
+        }
+    }
 
     for spall_cone_id = 1, #angles_amounts do
         local config = angles_amounts[spall_cone_id]
@@ -53,10 +90,10 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
             casts[i] = {
                 type        =  "ray",
                 startPoint  =   position,
-                endPoint    =   position + dir * 10,
+                endPoint    =   position + dir * 15,
                 direction   =   dir,
                 max_pen = spall_penetration,
-                mask = 1 + 2,
+
             }
         end
 
@@ -76,10 +113,15 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
 
                 local hit_shape = hit_result:getShape()
 
-                if not hit_shape then
+                if not hit_shape or is_world_surface(hit_result.type) then
                     return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                    return_effect_data[#return_effect_data + 1] = {hit_result.pointWorld, hit_result.normalWorld, ground_colors[sm.physics.getGroundMaterial(hit_result.pointWorld)][1]}
                     goto next
                 end
+
+
+
+
 
                 -- penetrate if possible
                 local armor_thickness = calculate_armor_thickness(hit_shape, ray.startPoint, ray.direction)
@@ -99,7 +141,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 if not is_penetrated then
                     -- color the hit block black or smth
                     return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
-
+                    --return_effect_data[#return_effect_data + 1] = {hit_result.pointWorld, hit_result.normalWorld, hit_shape:getColor()}
                     goto next
                 end
 
@@ -112,7 +154,8 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
             casts = new_casts
         end
     end
-    return return_paths
+    print("from spall:",#return_effect_data)
+    return return_paths, return_effect_data
 end
 
 function process_spall(position, direction, amount, ignore_shape)

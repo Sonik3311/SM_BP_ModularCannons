@@ -40,7 +40,7 @@ function Ammorack:server_onCreate()
         parameters = {
             propellant = 20,
             projectile_mass = 170,--mass,
-            explosive_mass = 30, -- mass,
+            explosive_mass = 20, -- mass,
             diameter = 380
         }
     }

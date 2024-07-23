@@ -44,3 +44,10 @@ function get_launch_effect(data)
     effect:setOffsetPosition(sm.vec3.new(0,-(muzzle_pos - breech_pos):length(),0))
     return effect
 end
+
+function get_spall_impact_effect(data)
+    local effect = sm.effect.createEffect("Debris_impact")
+    effect:setPosition(data.pointWorld)
+    effect:setRotation(get_rotation(sm.vec3.new(0,1,0), data.normalWorld))
+    return effect
+end

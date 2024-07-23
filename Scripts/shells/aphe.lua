@@ -163,7 +163,7 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
             spall_angles[3] and {spall_angles[3], big_spall_amount, 30} or nil,
         }
 
-        local spall_paths = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
+        local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
 
         if shell.debug then
             for path_id = 1, #spall_paths do

@@ -139,6 +139,25 @@ function SimTool:cl_play_entry_effect(data)
     self.effects[#self.effects + 1] = effect
 end
 
+function SimTool:cl_play_spall_effects(data)
+    if SimTool.cl_instance ~= self then
+        return
+    end
+    print(#data, "effects spall")
+    for effect_data_id = 1, #data do
+        local effect_data = data[effect_data_id]
+        local pos = effect_data[1]
+        local dir = effect_data[2]
+        local col = effect_data[3]
+        local effect = sm.effect.createEffect("Debris impact")
+        effect:setPosition(pos)
+        effect:setRotation(get_rotation(sm.vec3.new(0,1,0), -dir))
+        effect:setParameter("Color", col)
+        effect:start()
+        self.effects[#self.effects + 1] = effect
+    end
+end
+
 function SimTool:cl_save_path(data)
     dprint("recieved path with the length of "..tostring(#data.path.shell + #data.path.spall), "info", dprint_filename, nil, "cl_save_path")
     local spall_path = data.path.spall
