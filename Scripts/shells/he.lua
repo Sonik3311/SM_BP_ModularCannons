@@ -39,15 +39,12 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
     local shape = hit_data:getShape()
     --sm.physics.applyImpulse( shape, shell_direction * 10 * shape.body.mass, true )
     local f_amount, f_pen, f_angle = get_fragment_config(shell)
-    print(f_pen)
     local spall_paths, spall_effect_data = process_multi_spall(hit_data.pointWorld - shell_direction / 7, shell.velocity:normalize(), {{f_angle, f_amount, f_pen}}, nil, net)
 
-    local s = os.clock()
     local clamped_spall_data = {}
     for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5),1) do
         clamped_spall_data[#clamped_spall_data + 1] = spall_effect_data[i]
     end
-    print("non clamped:",#spall_effect_data, ", clamped:",#clamped_spall_data,"process took:",os.clock()-s)
     net:sendToClients("cl_play_spall_effects", clamped_spall_data)
 
     if shell.debug then
