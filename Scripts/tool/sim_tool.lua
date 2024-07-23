@@ -142,7 +142,7 @@ function SimTool:cl_play_spall_effects(data)
     if SimTool.cl_instance ~= self then
         return
     end
-    dprint("Creating "..tostring(#data).." effects for spall", "info", dprint_filename, "sv", "cl_play_spall_effects")
+    dprint("Creating "..tostring(#data).." effects for spall", "info", dprint_filename, nil, "cl_play_spall_effects")
     for effect_data_id = 1, #data do
         local effect_data = data[effect_data_id]
         local position = effect_data[1]
