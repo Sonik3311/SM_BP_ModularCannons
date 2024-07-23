@@ -27,7 +27,7 @@ function Ammorack:server_onCreate()
     --self.sv.stored_shell = {
     --    type = "APFSDS",
     --    parameters = {
-    --        propellant = 10,
+    --        propellant = 200,
     --        projectile_mass = 12,
     --        diameter = 27,
     --        penetrator_length = 700,
@@ -38,9 +38,9 @@ function Ammorack:server_onCreate()
     self.sv.stored_shell = {
         type = "HE",
         parameters = {
-            propellant = 20,
-            projectile_mass = 170,--mass,
-            explosive_mass = 20, -- mass,
+            propellant = 40,
+            projectile_mass = 250,--mass,
+            explosive_mass = 10, -- mass,
             diameter = 380
         }
     }

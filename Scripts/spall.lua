@@ -154,7 +154,6 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
             casts = new_casts
         end
     end
-    print("from spall:",#return_effect_data)
     return return_paths, return_effect_data
 end
 

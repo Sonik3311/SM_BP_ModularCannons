@@ -40,7 +40,7 @@ local function get_spall_cones(shell)
     return {hi_velocity_cone, nil, nil}
 end
 
-function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
+function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
 
     local shell_direction = shell.velocity:normalize()
     local is_world_surface = is_world_surface(hit_data.type)
@@ -94,7 +94,7 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
             spall_angles[2] and {spall_angles[2], big_spall_amount, 50} or nil,
             spall_angles[3] and {spall_angles[3], big_spall_amount, 30} or nil,
         }
-        print(#spall_cones, spall_cones)
+        --print(#spall_cones, spall_cones)
 
         local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
 

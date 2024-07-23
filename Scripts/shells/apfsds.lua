@@ -22,7 +22,7 @@ local function get_spall_amount(shell, hit_shape)
     return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
 end
 
-function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
+function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
     local shell_direction = shell.velocity:normalize()
     local is_world_surface = is_world_surface(hit_data.type)
     if is_world_surface then

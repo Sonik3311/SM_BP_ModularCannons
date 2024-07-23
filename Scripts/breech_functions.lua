@@ -40,6 +40,8 @@ function construct_cannon_new(shape, global_dir, last)
     return {}
 end
 
+-----------------------------------------------------------------------------------------------
+
 function create_barrel_effect(segments, diameter_mm, breech)
     local effect = sm.effect.createEffect("ShapeRenderable", breech.interactable)
     effect:setParameter("uuid", sm.uuid.new("084f7d27-576a-4728-9e1e-81b6fa9f6d59"))
@@ -56,6 +58,8 @@ function create_barrel_effect(segments, diameter_mm, breech)
     effect:setScale(sm.vec3.new(diameter/4,#segments/4,diameter/4))
     return effect
 end
+
+-----------------------------------------------------------------------------------------------
 
 function update_barrel_diameter(segments, diameter)
     for i=1, #segments do
@@ -86,4 +90,10 @@ function calculate_muzzle_velocity(barrel_length, barrel_diameter, shell)
     local k = 0.5 * 1.225 * A
     local v = math.sqrt((2 * 9.8 * barrel_length) / (1 + (2 * k * barrel_length / shell.parameters.projectile_mass)))
     return v
+end
+
+-----------------------------------------------------------------------------------------------
+
+function calculate_recoil_force(projectile_mass, projectile_velocity, powder_charge_mass, powder_charge_velocity)
+    return (projectile_mass * projectile_velocity + powder_charge_mass * powder_charge_velocity) ^0.98
 end

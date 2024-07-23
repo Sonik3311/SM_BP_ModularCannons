@@ -63,7 +63,7 @@ function Breech:server_onCreate()
     self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 380 --mm
+    self.barrel_diameter = 300 --mm
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fired_shells = {}
 
@@ -94,7 +94,7 @@ function Breech:server_onCreate()
     local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
     local mass = (volume_sphere + volume_cylinder) * 6000
-    print(mass)
+    --print(mass)
     self.loaded_shell = {
         type = "APHE",
         parameters = {
@@ -213,7 +213,7 @@ function Breech:sv_fire_shell(is_debug, dt)
     local high_pressure = math.min(self.barrel_length, propellant * 2.2)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
-    print(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell.parameters.projectile_mass)
+    --print(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell.parameters.projectile_mass)
     speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell) * propellant
 
     local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000)^0.4, 0.99), 1) --crude approximation
@@ -238,6 +238,9 @@ function Breech:sv_fire_shell(is_debug, dt)
     dprint("Firing shell ("..self.loaded_shell.type..") with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire_shell")
     dprint("Fired shell has "..tostring(self.loaded_shell.max_pen).." mm pen of RHA", "info", dprint_filename, nil, "sv_fire_shell")
 
+    local recoil_force = calculate_recoil_force(self.loaded_shell.parameters.projectile_mass, speed, 0, 0)
+    print(recoil_force, self.loaded_shell.parameters.projectile_mass, speed)
+    sm.physics.applyImpulse(self.muzzle_shape, -direction * recoil_force, true)
     self.muzzle_shape:setColor(sm.color.new("0000ff"))
     --self.fired_shells[#self.fired_shells] = self.loaded_shell
     local index = math.random(100000)

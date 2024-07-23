@@ -8,7 +8,6 @@ function Visualizer.server_onCreate( self )
 end
 
 function Visualizer.client_onCreate( self )
-    self.eff = sm.effect.createEffect("Debris impact")
 end
 
 function Visualizer.client_onRefresh( self )
@@ -68,11 +67,6 @@ function Visualizer.client_onEquippedUpdate( self, primaryState, secondaryState 
         sm.gui.displayAlertText( "Debug paths cleared", 1.5 )
     end
 
-    if not self.eff:isPlaying() then
-        self.eff:start()
-    end
-    self.eff:setPosition(sm.localPlayer.getPlayer().character.worldPosition)
-    self.eff:setRotation(get_rotation(sm.vec3.new(0,1,0), sm.localPlayer.getPlayer().character.direction))
 	return true, true
 end
 

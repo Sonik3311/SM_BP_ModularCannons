@@ -9,41 +9,42 @@
 
 dofile "$CONTENT_DATA/Scripts/shell_sim.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
+dofile "$CONTENT_DATA/Scripts/dprint.lua"
 
 SimTool = class()
 SimTool.sv_instance = nil
 SimTool.cl_instance = nil
 
 local tick_time = 0.025
+local dprint_filename = "SimTool"
 
 -------------------------------------------------------------------------------
 --[[                                Create                                 ]]--
 -------------------------------------------------------------------------------
 
 function SimTool:server_onCreate()
-    print("Trying to create Server")
+    dprint("Trying to create Server", "info", dprint_filename, "sv", "onCreate")
     if SimTool.sv_instance ~= nil then
         return
     end
     SimTool.sv_instance = self
     sm.ACC = {}
     sm.ACC.shells = {}
-    print("Server Created")
+    dprint("Server successfuly created", "info", dprint_filename, "sv", "onCreate")
 end
 
 function SimTool:client_onCreate()
-    print("Trying to create Client")
+    dprint("Trying to create Client", "info", dprint_filename, "cl", "onCreate")
     if SimTool.cl_instance ~= nil then
         return
     end
     SimTool.cl_instance = self
-
+    dprint("Client successfuly created", "info", dprint_filename, "cl", "onCreate")
     if not sm.ACC then
         sm.ACC = {}
     end
     sm.ACC.vis = {}
     sm.ACC.vis.paths = {}
-    print("Client Created")
     self.time_since_last_tick = 0
     self.effects = {}
     self.tracers_per_projectile = {}
@@ -79,7 +80,6 @@ function SimTool:client_onFixedUpdate(dt)
 
     for tracer_id, tracer in pairs(self.tracers_per_projectile) do
         if not sm.ACC.shells[tracer_id] then
-            print("destroy")
             tracer:stopImmediate()
             tracer:destroy()
             self.tracers_per_projectile[tracer_id] = nil
@@ -104,7 +104,6 @@ function SimTool:client_onUpdate(dt)
     for shell_id, shell in pairs(sm.ACC.shells) do
 
         if self.tracers_per_projectile[shell_id] == nil then
-            print("add")
             self.tracers_per_projectile[shell_id] = sm.effect.createEffect("ShapeRenderable")
             self.tracers_per_projectile[shell_id]:setParameter("uuid", sm.uuid.new("01246ab4-e30c-4d77-a15a-8fc110a29723"))
             local diameter_factor = (shell.barrel_diameter / 150)
@@ -143,17 +142,19 @@ function SimTool:cl_play_spall_effects(data)
     if SimTool.cl_instance ~= self then
         return
     end
-    print(#data, "effects spall")
+    dprint("Creating "..tostring(#data).." effects for spall", "info", dprint_filename, "sv", "cl_play_spall_effects")
     for effect_data_id = 1, #data do
         local effect_data = data[effect_data_id]
-        local pos = effect_data[1]
-        local dir = effect_data[2]
-        local col = effect_data[3]
+        local position = effect_data[1]
+        local direction = effect_data[2]
+        local color = effect_data[3]
         local effect = sm.effect.createEffect("Debris impact")
-        effect:setPosition(pos)
-        effect:setRotation(get_rotation(sm.vec3.new(0,1,0), -dir))
-        effect:setParameter("Color", col)
+
+        effect:setPosition(position)
+        effect:setRotation(get_rotation(sm.vec3.new(0,1,0), -direction))
+        effect:setParameter("Color", color)
         effect:start()
+
         self.effects[#self.effects + 1] = effect
     end
 end
@@ -166,7 +167,6 @@ function SimTool:cl_save_path(data)
     local ACC_index = #sm.ACC.vis.paths + 1
     sm.ACC.vis.paths[ACC_index] = {}
     sm.ACC.vis.paths[ACC_index].lines = {}
-
 
     local is_spall = true
     for _,path in pairs({spall_path, shell_path}) do

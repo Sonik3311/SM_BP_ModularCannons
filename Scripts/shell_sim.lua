@@ -63,13 +63,13 @@ function process_shell_collision (shell, dt, net, client)
                                                        position = hit_data.pointWorld,
                                                        direction = (-hit_data.normalWorld):normalize(),
                                                        velocity = sm.vec3.zero()}) --hit_shape:getVelocity()
-            print("play enter effect")
+            dprint("Sending request to play "..shell.type.." entry effect", "info", dprint_filename, "sv", "process_shell_collision")
             is_entering = false
         end
 
         is_entering = is_exiting
         if is_exiting then
-            print("play exit effect")
+            -- play exit effect here
         end
 
         if not is_alive then
@@ -109,7 +109,7 @@ function update_shells (shells, dt, net)
         end
 
         if not alive then
-            dprint("Shell (id: "..tostring(shell_id)..") has died", "info", dprint_filename, "sv", "update_shells")
+            dprint("Shell (id: "..tostring(shell_id)..", type: "..shell.type..") has died", "info", dprint_filename, "sv", "update_shells")
             if shell.debug then
                 net:sendToClients("cl_save_path", {path = shell.debug.path, type = "shell"})
             end

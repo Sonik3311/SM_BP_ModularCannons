@@ -90,7 +90,7 @@ function process_aphe_fuse(shell, start_point, end_point)
     return explosion_point
 end
 
-function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_point, dt)
+function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
 
     if shell.fuse.active then
         local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, true, end_point, hit_data.pointWorld)
