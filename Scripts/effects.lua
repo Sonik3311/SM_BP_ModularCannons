@@ -1,21 +1,3 @@
-function get_rotation(v1,v2)
-    local d = v1:dot(v2)
-    if d > 0.9999 then
-        return sm.quat.new(0,0,0,1)
-    end
-    if d < -0.9999 then
-        return sm.quat.new(1,0,0,0)
-    end
-
-    local q = sm.quat.angleAxis(math.acos(d), v1:cross(v2))
-    local l = math.sqrt(q.x^2 + q.y^2 + q.z^2 + q.w^2)
-    q.x = q.x / l
-    q.y = q.y / l
-    q.z = q.z / l
-    q.w = q.w / l
-    return q
-end
-
 function get_entry_effect(data)
     local entry_effects = {
         APFSDS = "APFSDS_entry_ferrium",
@@ -27,7 +9,7 @@ function get_entry_effect(data)
     local position = data.position
     local velocity = data.velocity
     local dir = data.direction
-    local rotation = get_rotation(sm.vec3.new(0,1,0), dir)
+    local rotation = sm.vec3.getRotation(sm.vec3.new(0,1,0), dir)
     local effect = sm.effect.createEffect(entry_effects[shell_type])
     effect:setPosition(position)
     effect:setRotation(rotation)
@@ -48,6 +30,6 @@ end
 function get_spall_impact_effect(data)
     local effect = sm.effect.createEffect("Debris_impact")
     effect:setPosition(data.pointWorld)
-    effect:setRotation(get_rotation(sm.vec3.new(0,1,0), data.normalWorld))
+    effect:setRotation(sm.vec3.getRotation(sm.vec3.new(0,1,0), data.normalWorld))
     return effect
 end

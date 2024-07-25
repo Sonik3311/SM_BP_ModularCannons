@@ -126,7 +126,7 @@ function SimTool:client_onUpdate(dt)
         if not effect:isPlaying() then
             effect:start()
         end
-        local rotation = get_rotation(sm.vec3.new(0,1,0), shell.velocity:normalize())
+        local rotation = sm.vec3.getRotation(sm.vec3.new(0,1,0), shell.velocity:normalize())
         effect:setRotation(rotation)
         effect:setPosition(sm.vec3.lerp(shell.position, shell.next_position, time_fraction))
     end
@@ -167,7 +167,7 @@ function SimTool:cl_play_spall_effects(data)
         local effect = sm.effect.createEffect("Debris impact")
 
         effect:setPosition(position)
-        effect:setRotation(get_rotation(sm.vec3.new(0,1,0), -direction))
+        effect:setRotation(sm.vec3.getRotation(sm.vec3.new(0,1,0), -direction))
         effect:setParameter("Color", color)
         effect:start()
 
