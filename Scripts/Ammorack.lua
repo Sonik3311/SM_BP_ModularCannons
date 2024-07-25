@@ -71,18 +71,18 @@ function Ammorack:server_onCreate()
     --}
     self.barrel_diameter = 100
 
-    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    local mass = (volume_sphere + volume_cylinder) * 7850
-    self.sv.stored_shell = {
-        type = "AP",
-        parameters = {
-            propellant = 130,
-            projectile_mass = mass,
-            diameter = self.barrel_diameter,
-            is_apcbc = true
-        }
-    }
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 7850
+    --self.sv.stored_shell = {
+    --    type = "AP",
+    --    parameters = {
+    --        propellant = 130,
+    --        projectile_mass = mass,
+    --        diameter = self.barrel_diameter,
+    --        is_apcbc = true
+    --    }
+    --}
 
     --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
@@ -105,15 +105,15 @@ function Ammorack:server_onCreate()
     --    }
     --}
 
-    --self.sv.stored_shell = {
-    --    type = "HE",
-    --    parameters = {
-    --        propellant = 40,
-    --        projectile_mass = 15,--mass,
-    --        explosive_mass = 2, -- mass,
-    --        diameter = 100
-    --    }
-    --}
+    self.sv.stored_shell = {
+        type = "HE",
+        parameters = {
+            propellant = 40,
+            projectile_mass = 15,--mass,
+            explosive_mass = 0.365, -- mass,
+            diameter = 100
+        }
+    }
 
     sm.container.beginTransaction()
     sm.container.collect( container, obj_generic_apfsds, 1, true )

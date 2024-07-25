@@ -1,22 +1,17 @@
 dofile "$CONTENT_DATA/Scripts/armor_calc.lua"
 dofile "$CONTENT_DATA/Scripts/shell_util.lua"
 
-local function is_soft_shape(hit_shape)
-    local materials = {
-        Plastic = true,
-        Rock = false,
-        Metal = false,
-        Mechanical = false,
-        Wood = false,
-        Sand = true,
-        Glass = true,
-        Grass = true,
-        Cardboard = true,
-        Steering = false,
-        Fruit = true,
-        Default = false,
-    }
-    return materials[hit_shape.material]
+local function sv_color_hit_block(shape, hit_point)
+    local new_color = shape.color / 4
+    if not shape.isBlock then
+        shape:setColor(new_color)
+        return
+    end
+
+    local hit_block = shape:getClosestBlockLocalPosition(hit_point)
+    shape:destroyBlock( hit_block )
+    local new_block = shape.body:createBlock(shape.uuid, sm.vec3.one(), hit_block)
+    new_block:setColor(new_color)
 end
 
 function random_vector_in_cone(dir, angle)
@@ -83,6 +78,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
         local cone_angle = config[1] * math.pi / 180
         local spall_amount = config[2]
         local spall_penetration = config[3]
+        local should_color = config[4]
 
         local casts = {}
         for i = 1, spall_amount do
@@ -93,6 +89,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 endPoint    =   position + dir * 15,
                 direction   =   dir,
                 max_pen = spall_penetration,
+                should_color = should_color
 
             }
         end
@@ -119,10 +116,6 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                     goto next
                 end
 
-
-
-
-
                 -- penetrate if possible
                 local armor_thickness = calculate_armor_thickness(hit_shape, ray.startPoint, ray.direction)
                 local RHA_multiplier = material_to_RHA(hit_shape)
@@ -140,7 +133,12 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
 
                 if not is_penetrated then
                     -- color the hit block black or smth
+
                     return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                    if ray.should_color then
+                        print("color")
+                        sv_color_hit_block(hit_shape, hit_result.pointWorld)
+                    end
                     --return_effect_data[#return_effect_data + 1] = {hit_result.pointWorld, hit_result.normalWorld, hit_shape:getColor()}
                     goto next
                 end
@@ -157,7 +155,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
     return return_paths, return_effect_data
 end
 
-function process_spall(position, direction, amount, ignore_shape)
+function process_singular_spall(position, direction, amount, ignore_shape)
     local end_point = position + direction * 20
     local hit, hit_data = sm.physics.raycast(position, end_point, ignore_shape)
     local hit_shape = hit_data:getShape()

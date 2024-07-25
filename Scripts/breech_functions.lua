@@ -95,5 +95,5 @@ end
 -----------------------------------------------------------------------------------------------
 
 function calculate_recoil_force(projectile_mass, projectile_velocity, powder_charge_mass, powder_charge_velocity)
-    return (projectile_mass * projectile_velocity + powder_charge_mass * powder_charge_velocity) ^0.98
+    return (projectile_mass * projectile_velocity + powder_charge_mass * powder_charge_velocity) ^0.985
 end

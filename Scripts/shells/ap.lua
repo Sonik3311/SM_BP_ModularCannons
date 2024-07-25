@@ -69,9 +69,6 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
     local exit_point = hit_data.pointWorld + shell_direction * armor_penetrated
     shell.max_pen = math.max(0, shell.max_pen - RHA_thickness)
 
-
-    hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
-
     local new_end_point = not is_penetrated and exit_point or end_point
     local new_start_point = hit_data.pointWorld - shell_direction * 0.01
 
@@ -84,15 +81,15 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
     if is_penetrated and (not is_seat(hit_shape)) and is_exiting then
         local spall_amount = get_spall_amount(shell, hit_shape)
         local big_spall_amount = math.ceil(spall_amount / 10)
-        local med_spall_amount = math.ceil(spall_amount / 5)
-        local low_spall_amount = spall_amount
+        local med_spall_amount = math.ceil(spall_amount / 9)
+        local low_spall_amount = math.ceil(spall_amount / 8)
 
         local spall_angles = get_spall_cones(shell)
 
         local spall_cones = {
             spall_angles[1] and {spall_angles[1], big_spall_amount, 70} or nil,
-            spall_angles[2] and {spall_angles[2], big_spall_amount, 50} or nil,
-            spall_angles[3] and {spall_angles[3], big_spall_amount, 30} or nil,
+            spall_angles[2] and {spall_angles[2], med_spall_amount, 50} or nil,
+            spall_angles[3] and {spall_angles[3], low_spall_amount, 30} or nil,
         }
         --print(#spall_cones, spall_cones)
 
