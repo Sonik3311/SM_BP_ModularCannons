@@ -5,8 +5,12 @@
          "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_APFSDS_carry.fbx",
          "subMeshList" : [
             {
-               "material" : "Dif",
-               "textureList" : [ "", "", "" ]
+               "material" : "DifAsgNor",
+               "textureList" : [
+                  "$CONTENT_DATA/Objects/Texture/obj_generic_ammo_shell_dif.tga",
+                  "$CONTENT_DATA/Objects/Texture/obj_generic_ammo_shell_asg.tga",
+                  "$CONTENT_DATA/Objects/Texture/obj_generic_ammo_shell_nor.tga"
+               ]
             }
          ]
       }

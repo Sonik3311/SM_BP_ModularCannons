@@ -113,6 +113,7 @@ function update_shells (shells, dt, net)
             if shell.debug then
                 net:sendToClients("cl_save_path", {path = shell.debug.path, type = "shell"})
             end
+            net:sendToClients("cl_kill_client_shell", shell_id)
             shells[shell_id] = nil
             goto next
         end

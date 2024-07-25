@@ -28,15 +28,6 @@ local genericAPFSDSrenderables = {
     "$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/generic_APFSDS_carry.rend"
 }
 
-local harvestItems =
-{
-	obj_harvest_wood,
-	obj_harvest_wood2,
-	obj_harvest_metal,
-	obj_harvest_metal2,
-	obj_harvest_stone
-}
-
 local heavyRenderables = {
 	"$SURVIVAL_DATA/Character/Char_Tools/char_heavytool/char_heavytool.rend"
 }
@@ -59,6 +50,16 @@ local obj_generic_apfsds = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")
 local obj_generic_breech = sm.uuid.new("ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb")
 local obj_generic_ammorack = sm.uuid.new("2d93cd84-6690-4eb0-8058-9c239dde0fbe")
 
+local harvestItems =
+{
+	obj_harvest_wood,
+	obj_harvest_wood2,
+	obj_harvest_metal,
+	obj_harvest_metal2,
+	obj_harvest_stone,
+	obj_generic_apfsds
+}
+
 
 CarryTool.emptyTpRenderables = {}
 CarryTool.emptyFpRenderables = {}
@@ -80,14 +81,6 @@ sm.tool.preloadRenderables( genericAPFSDSrenderables )
 
 
 function repl_cl_loadAnimations( self, activeUid )
-    local harvestItems = {
-        obj_harvest_wood,
-        obj_harvest_wood2,
-        obj_harvest_metal,
-        obj_harvest_metal2,
-        obj_harvest_stone,
-        obj_generic_apfsds
-    }
 
 	if isAnyOf( activeUid, harvestItems ) then
 		self.tpAnimations = createTpAnimations(
@@ -405,7 +398,7 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
 
 		params.shapePlacement = sm.visualization.getShapePlacementVisualization()
 		params.character = self.tool:getOwner().character
-		params.color = sm.color.new("ffffff")
+		--params.color = sm.color.new("ffffff")
 		self.network:sendToServer( "sv_n_dropCarry", params )
 		return false, true
 	end

@@ -63,7 +63,7 @@ function Breech:server_onCreate()
     self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[#self.barrel_shapes] or nil
-    self.barrel_diameter = 300 --mm
+    self.barrel_diameter = 100 --mm
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fired_shells = {}
 
@@ -214,7 +214,7 @@ function Breech:sv_fire_shell(is_debug, dt)
     local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
     --print(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell.parameters.projectile_mass)
-    speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell) * propellant
+    speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.3333, self.barrel_diameter / 1000, self.loaded_shell) * propellant
 
     local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000)^0.4, 0.99), 1) --crude approximation
     local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(), accuracy_factor):normalize()
@@ -247,7 +247,8 @@ function Breech:sv_fire_shell(is_debug, dt)
     while sm.ACC.shells[index] do
         index = math.random(100000)
     end
-    sm.ACC.shells[index] = deep_copy(self.loaded_shell)
+    --sm.ACC.shells[index] = deep_copy(self.loaded_shell)
+    self.network:sendToClients("cl_add_shell_to_sim", self.loaded_shell)
     self.loaded_shell = nil
     sm.container.beginTransaction()
     sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
@@ -255,6 +256,13 @@ function Breech:sv_fire_shell(is_debug, dt)
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 end
 
+function Breech:cl_add_shell_to_sim(shell)
+    local index = math.random(100000)
+    while sm.ACC.shells[index] do
+        index = math.random(100000)
+    end
+    sm.ACC.shells[#sm.ACC.shells + 1] = deep_copy(shell)
+end
 
 function Breech:cl_play_launch_effect(data)
     local effect = get_launch_effect(data)

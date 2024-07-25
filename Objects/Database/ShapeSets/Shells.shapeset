@@ -2,7 +2,6 @@
    "partList" : [
       {
          "carryItem" : true,
-         "color" : "FFFFFF",
          "cylinder" : {
             "axis" : "Z",
             "depth" : 5,

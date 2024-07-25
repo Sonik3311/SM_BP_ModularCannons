@@ -11,6 +11,41 @@ local dprint_filename = "Ammorack"
 
 Ammorack = class()
 
+local function is_container_created(shape)
+    if not shape.interactable then
+        return false
+    end
+
+    if not shape.interactable:getContainer(0) then
+       return false
+    end
+
+    return true
+end
+
+local function deep_copy( tbl )
+    local copy = {}
+    for key, value in pairs( tbl ) do
+        local var_type = type(value)
+        if var_type ~= 'table' then
+            if var_type == "Vec3" then
+				copy[key] = sm.vec3.new(value.x, value.y, value.z)
+			elseif var_type == "Quat" then
+				copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
+			elseif var_type == "Color" then
+				copy[key] = sm.color.new(value.r, value.g, value.b)
+			elseif var_type == "Uuid" then
+				copy[key] = sm.uuid.new(tostring(value))
+            else
+                copy[key] = value
+            end
+        else
+            copy[key] = deep_copy( value )
+        end
+    end
+    return copy
+end
+
 -------------------------------------------------------------------------------
 --[[                                Create                                 ]]--
 -------------------------------------------------------------------------------
@@ -34,16 +69,51 @@ function Ammorack:server_onCreate()
     --        penetrator_density = 17800
     --    }
     --}
+    self.barrel_diameter = 100
 
+    local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    local mass = (volume_sphere + volume_cylinder) * 7850
     self.sv.stored_shell = {
-        type = "HE",
+        type = "AP",
         parameters = {
-            propellant = 40,
-            projectile_mass = 250,--mass,
-            explosive_mass = 10, -- mass,
-            diameter = 380
+            propellant = 130,
+            projectile_mass = mass,
+            diameter = self.barrel_diameter,
+            is_apcbc = true
         }
     }
+
+    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
+    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local mass = (volume_sphere + volume_cylinder) * 6000
+    --print(mass)
+    --self.sv.stored_shell = {
+    --    type = "APHE",
+    --    parameters = {
+    --        propellant = 100,
+    --        projectile_mass = mass,
+    --        diameter = self.barrel_diameter,
+    --        is_apcbc = true,
+
+    --        explosive_mass = 0.365, --kg
+    --    },
+    --    fuse = {
+    --        active = false,
+    --        delay = 0.001, --seconds
+    --        trigger_depth = 10 --mm
+    --    }
+    --}
+
+    --self.sv.stored_shell = {
+    --    type = "HE",
+    --    parameters = {
+    --        propellant = 40,
+    --        projectile_mass = 15,--mass,
+    --        explosive_mass = 2, -- mass,
+    --        diameter = 100
+    --    }
+    --}
 
     sm.container.beginTransaction()
     sm.container.collect( container, obj_generic_apfsds, 1, true )
@@ -79,6 +149,11 @@ function Ammorack:server_onUpdate(dt)
 end
 
 function Ammorack:client_onUpdate(dt)
+
+    if not is_container_created(self.shape) then
+        return
+    end
+
     if not self.cl.loaded_shell_effect:isPlaying() and self.shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil() then
         self.cl.loaded_shell_effect:start()
     elseif self.cl.loaded_shell_effect:isPlaying() and self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() then
@@ -115,6 +190,9 @@ end
 function Ammorack.client_canInteract( self, character )
     self:cl_update_loadedState()
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
+    if not is_container_created(self.shape) then
+        return false
+    end
     local can_unload = self.shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil() and carried_uuid == sm.uuid.getNil()
 	return can_unload
 end
@@ -133,7 +211,7 @@ function Ammorack:sv_giveShell(params)
     if sm.container.endTransaction() then
         print("Ammorack -> Carry [success]")
         local pd = params.character:getPublicData()
-        pd.carried_shell = self.sv.stored_shell
+        pd.carried_shell = deep_copy(self.sv.stored_shell)
         params.character:setPublicData(pd)
         self.sv.stored_shell = nil
         sm.container.beginTransaction()
@@ -174,4 +252,5 @@ end
 function Ammorack:cl_update_visualization(data)
     self.cl.loaded_shell_effect:setParameter("uuid", sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188"))
     self.cl.loaded_shell_effect:setScale(sm.vec3.one() / 4)
+
 end

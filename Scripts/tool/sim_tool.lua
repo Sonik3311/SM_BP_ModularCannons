@@ -23,25 +23,26 @@ local dprint_filename = "SimTool"
 -------------------------------------------------------------------------------
 
 function SimTool:server_onCreate()
-    dprint("Trying to create Server", "info", dprint_filename, "sv", "onCreate")
+    dprint("Trying to create Server", "warning", dprint_filename, "sv", "onCreate")
     if SimTool.sv_instance ~= nil then
         return
     end
     SimTool.sv_instance = self
     sm.ACC = {}
     sm.ACC.shells = {}
-    dprint("Server successfuly created", "info", dprint_filename, "sv", "onCreate")
+    dprint("Server successfuly created", "warning", dprint_filename, "sv", "onCreate")
 end
 
 function SimTool:client_onCreate()
-    dprint("Trying to create Client", "info", dprint_filename, "cl", "onCreate")
+    dprint("Trying to create Client", "warning", dprint_filename, "cl", "onCreate")
     if SimTool.cl_instance ~= nil then
         return
     end
     SimTool.cl_instance = self
-    dprint("Client successfuly created", "info", dprint_filename, "cl", "onCreate")
+    dprint("Client successfuly created", "warning", dprint_filename, "cl", "onCreate")
     if not sm.ACC then
         sm.ACC = {}
+        sm.ACC.shells = {}
     end
     sm.ACC.vis = {}
     sm.ACC.vis.paths = {}
@@ -71,6 +72,14 @@ function SimTool:client_onFixedUpdate(dt)
         return
     end
 
+    if not sm.isHost then
+        for shell_id, shell in pairs(sm.ACC.shells) do
+            shell.velocity = shell.velocity - sm.vec3.new(0, 0, 20 * dt)
+            shell.position = shell.next_position
+            shell.next_position = shell.position + shell.velocity * dt
+        end
+    end
+
     for key, effect in pairs(self.effects) do
         if effect:isDone() then
             effect:destroy()
@@ -95,6 +104,9 @@ function SimTool:server_onUpdate(dt)
 end
 
 function SimTool:client_onUpdate(dt)
+    if SimTool.cl_instance ~= self then
+        return
+    end
     self.time_since_last_tick = self.time_since_last_tick + dt
     if self.time_since_last_tick >= tick_time then
        self.time_since_last_tick = self.time_since_last_tick % tick_time
@@ -128,6 +140,10 @@ end
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
 
+function SimTool:cl_kill_client_shell(shell_id)
+    sm.ACC.shells[shell_id] = nil
+end
+
 function SimTool:cl_play_entry_effect(data)
     if SimTool.cl_instance ~= self then
         return
@@ -160,6 +176,9 @@ function SimTool:cl_play_spall_effects(data)
 end
 
 function SimTool:cl_save_path(data)
+    if SimTool.cl_instance ~= self then
+        return
+    end
     dprint("recieved path with the length of "..tostring(#data.path.shell + #data.path.spall), "info", dprint_filename, nil, "cl_save_path")
     local spall_path = data.path.spall
     local shell_path = data.path.shell
