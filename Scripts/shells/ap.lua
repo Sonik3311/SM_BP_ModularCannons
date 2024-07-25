@@ -49,7 +49,7 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
     end
 
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
-    local armor_thickness = calculate_armor_thickness(hit_shape, start_point, shell_direction)
+    local armor_thickness = calculate_armor_thickness(hit_shape, hit_data.pointWorld, shell_direction)
     local RHA_multiplier = material_to_RHA(hit_shape)
     local RHA_thickness = armor_thickness * 1000 * RHA_multiplier
 
@@ -73,7 +73,7 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
     hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
 
     local new_end_point = not is_penetrated and exit_point or end_point
-    local new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
+    local new_start_point = hit_data.pointWorld - shell_direction * 0.01
 
     penetrate_shape(hit_shape, hit_data.pointWorld, exit_point)
     if hit_shape.isBlock and is_penetrated then

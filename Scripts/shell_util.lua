@@ -46,6 +46,7 @@ function penetrate_shape(hit_shape, p1, p2)
         local p1 = hit_shape:getClosestBlockLocalPosition( p1 )
         local p2 = hit_shape:getClosestBlockLocalPosition( p2 )
         hit_shape:destroyBlock(p1)
+        hit_shape:destroyBlock(p2)
 
         for _,block in pairs(voxel_trace(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z)) do
             hit_shape:destroyBlock(block)

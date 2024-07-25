@@ -146,7 +146,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 end
 
                 return_paths[#return_paths + 1] = {ray.startPoint, exit_point}
-                ray.startPoint = exit_point
+                ray.startPoint = hit_result.pointWorld - ray.direction * 0.01
                 new_casts[#new_casts + 1] = ray
                 ::next::
             end

@@ -55,7 +55,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     hit_shape:setColor(sm.color.new(math.random(), math.random(), math.random()))
 
     local new_end_point = not is_penetrated and exit_point or end_point
-    local new_start_point = hit_data.pointWorld + shell_direction * armor_thickness / 2
+    local new_start_point = hit_data.pointWorld - shell_direction * 0.01
 
     penetrate_shape(hit_shape, hit_data.pointWorld, exit_point)
     if hit_shape.isBlock and is_penetrated then
