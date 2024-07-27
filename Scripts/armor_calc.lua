@@ -77,6 +77,12 @@ function calculate_ricochet (direction, normal, shell)
             local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
             return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
+    elseif shell.type == "ray" then
+        local armor = shell.to_pen
+        local max_pen = shell.max_pen
+        local can_ricochet = (armor > max_pen / 1.5) and math.random() <= clamp(1,0, 0.0666*angle-60*0.0666)
+        local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+        return can_ricochet and reflect(direction:normalize(), (normal + random_dir):normalize()) or nil
     end
 end
 

@@ -59,16 +59,16 @@ function Ammorack:server_onCreate()
 	container:setFilters( { obj_generic_apfsds } )
 
     self.sv = {}
-    --self.sv.stored_shell = {
-    --    type = "APFSDS",
-    --    parameters = {
-    --        propellant = 200,
-    --        projectile_mass = 12,
-    --        diameter = 27,
-    --        penetrator_length = 700,
-    --        penetrator_density = 17800
-    --    }
-    --}
+    self.sv.stored_shell = {
+        type = "APFSDS",
+        parameters = {
+            propellant = 250,
+            projectile_mass = 12,
+            diameter = 27,
+            penetrator_length = 700,
+            penetrator_density = 17800
+        }
+    }
     self.barrel_diameter = 100
 
     --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
@@ -105,15 +105,15 @@ function Ammorack:server_onCreate()
     --    }
     --}
 
-    self.sv.stored_shell = {
-        type = "HE",
-        parameters = {
-            propellant = 40,
-            projectile_mass = 15,--mass,
-            explosive_mass = 0.365, -- mass,
-            diameter = 100
-        }
-    }
+    --self.sv.stored_shell = {
+    --    type = "HE",
+    --    parameters = {
+    --        propellant = 50,
+    --        projectile_mass = 15,--mass,
+    --        explosive_mass = 0.5, -- mass,
+    --        diameter = 100
+    --    }
+    --}
 
     sm.container.beginTransaction()
     sm.container.collect( container, obj_generic_apfsds, 1, true )

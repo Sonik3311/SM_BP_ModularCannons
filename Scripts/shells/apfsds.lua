@@ -71,7 +71,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, {{10, big_spall_amount, 70}, {20, med_spall_amount, 40}, {30, low_spall_amount, 20}}, hit_shape)
 
         local clamped_spall_data = {}
-        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5),1) do
+        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 170 + 0.5),1) do
             clamped_spall_data[#clamped_spall_data + 1] = spall_effect_data[i]
         end
         net:sendToClients("cl_play_spall_effects", clamped_spall_data)

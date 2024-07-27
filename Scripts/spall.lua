@@ -37,6 +37,8 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
     local return_paths = {}
     local return_effect_data = {}
 
+    local start_time = os.clock()
+
     local ground_colors = {
         Default = {
             sm.color.new(0.35,0.388,0.368)*1.2
@@ -84,11 +86,11 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
         for i = 1, spall_amount do
             local dir = random_vector_in_cone(direction, cone_angle)
             casts[i] = {
-                type        =  "ray",
-                startPoint  =   position,
-                endPoint    =   position + dir * 15,
-                direction   =   dir,
-                max_pen = spall_penetration,
+                type         = "ray",
+                startPoint   = position,
+                endPoint     = position + dir * 15,
+                direction    = dir,
+                max_pen      = spall_penetration,
                 should_color = should_color
 
             }
@@ -116,10 +118,28 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                     goto next
                 end
 
-                -- penetrate if possible
                 local armor_thickness = calculate_armor_thickness(hit_shape, ray.startPoint, ray.direction)
                 local RHA_multiplier = material_to_RHA(hit_shape)
                 local RHA_thickness = armor_thickness * 1000 * RHA_multiplier
+
+                -- ricochet
+                ray.to_pen = RHA_thickness
+                local ricochet_dir = calculate_ricochet(ray.direction, hit_result.normalWorld, ray)
+                if ricochet_dir then
+                    ray.max_pen = ray.max_pen / 2
+                    if ray.max_pen < 10 then
+                        return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                        goto next
+                    end
+                    return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                    ray.direction = ricochet_dir
+                    ray.endPoint = hit_result.pointWorld + ricochet_dir * (ray.endPoint - hit_result.pointWorld):length()
+                    ray.startPoint = hit_result.pointWorld
+                    new_casts[#new_casts + 1] = ray
+                    goto next
+                end
+
+                -- penetrate if possible
                 local is_penetrated = (RHA_thickness - ray.max_pen) < 0
                 ray.max_pen = math.max(0, ray.max_pen - RHA_thickness)
 
@@ -139,7 +159,6 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                         print("color")
                         sv_color_hit_block(hit_shape, hit_result.pointWorld)
                     end
-                    --return_effect_data[#return_effect_data + 1] = {hit_result.pointWorld, hit_result.normalWorld, hit_shape:getColor()}
                     goto next
                 end
 
@@ -152,6 +171,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
             casts = new_casts
         end
     end
+    print("Spall process took",os.clock()-start_time)
     return return_paths, return_effect_data
 end
 
