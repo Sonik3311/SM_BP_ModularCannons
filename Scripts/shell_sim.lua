@@ -33,14 +33,17 @@ function process_shell_collision (shell, dt, net, client)
 
     local is_hit, hit_data = raycast(start_point, end_point)
     local is_entering = true
-
+    local warn_count = 0
     while is_hit do
+        if shell.debug then
+            local l = (start_point - end_point):length()
+            if l < 0.1 then
+                dprint("Dangerously small raycast {"..tostring(l).."}, may lead to freeze", "warning", dprint_filename, "sv", "process_shell_collision")
+            end
+        end
         local hit_shape = hit_data:getShape()
         local is_alive = true
 
-        --if is_world_surface(hit_data.type) then
-        --    return false, end_point
-        --end
 
         local penetration_function = get_penetration_function(shell)
         local last_direction = shell_direction

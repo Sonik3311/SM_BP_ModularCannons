@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Widget" skin="BackgroundLiftImport" position_real="0.099609375 0.099609375 0.7998046875 0.7998046875">
+        <Widget type="TextBox" skin="SMTextBox_Small_NoBackground" position_real="0.21978021978021978 0.036630036630036632 0.50915750915750912 0.042735042735042736">
+            <Property key="FontHeight" value="40"/>
+            <Property key="FontName" value="SM_ItemTitle"/>
+            <Property key="Caption" value="SHELL REDACTOR (APFSDS)"/>
+            <Property key="TextAlign" value="Center"/>
+        </Widget>
+        <Widget type="Widget" skin="DropDownBackground" position_real="0.20146520146520147 0.02442002442002442 0.53724053724053722 0.073260073260073263"/>
+    </Widget>
+    <CodeGeneratorSettings/>
+</MyGUI>
