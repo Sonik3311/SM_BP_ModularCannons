@@ -21,6 +21,28 @@
          },
          "sticky" : "+Z",
          "uuid" : "f8353f82-d9ae-4dc3-bc98-2517337ee188"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "carryItem" : true,
+         "name" : "Autocannon ammo",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_acammo.rend",
+         "restrictions" : {
+            "liftable" : false,
+            "paintable" : false
+         },
+         "rotationSet" : "PropNegZ",
+         "scripted" : {
+            "classname" : "Shell",
+            "filename" : "$CONTENT_DATA/Scripts/shells/shell_shape_base.lua"
+         },
+         "sticky" : "+Z",
+         "uuid" : "2c7363a7-0246-42f0-a95a-9b41ef55ca6b"
       }
    ]
 }

@@ -1,0 +1,219 @@
+--[[
+    Class responsible for launching the projectile and
+    for adjusting Cbreech's properties based on the connected modules
+]]
+
+-------------------------------------------------------------------------------
+--[[                                Setup                                  ]]--
+-------------------------------------------------------------------------------
+
+
+Cbreech = class()
+Cbreech.maxParentCount = 1
+Cbreech.maxChildCount = 0
+Cbreech.connectionInput = sm.interactable.connectionType.logic
+Cbreech.connectionOutput = sm.interactable.connectionType.none
+
+dofile "$CONTENT_DATA/Scripts/dprint.lua"
+dofile "$CONTENT_DATA/Scripts/breech_functions.lua"
+dofile "$CONTENT_DATA/Scripts/pen_calc.lua"
+dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
+dofile "$CONTENT_DATA/Scripts/effects.lua"
+
+local dprint_filename = "Cbreech"
+
+-------------------------------------------------------------------------------
+--[[                                Create                                 ]]--
+-------------------------------------------------------------------------------
+
+
+function Cbreech:server_onCreate()
+    local container = self.shape.interactable:getContainer( 0 )
+	if not container then
+		container = self.shape:getInteractable():addContainer( 0, 1, 1 )
+	end
+
+	if self.data.is_autocannon then
+	   container:setFilters( cannon_shells )
+	else
+	   container:setFilters( cannon_shells )
+	end
+
+	container:setFilters( cannon_shells )
+	print(self.interactable:getContainer(0):getItem(0).uuid)
+
+	self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
+	self.barrel_length = #self.barrel_shapes
+	self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
+	self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 2
+	update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+
+	self.loaded_projectile = nil
+end
+
+function Cbreech:client_onCreate()
+    self.effects = {}
+end
+
+-------------------------------------------------------------------------------
+--[[                             Fixed Update                              ]]--
+-------------------------------------------------------------------------------
+
+function Cbreech:server_onFixedUpdate(dt)
+    if body_has_changed(self.shape) then
+        self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
+        self.barrel_length = #self.barrel_shapes
+        self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
+        update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+    end
+
+    if input_active(self.interactable) and self.muzzle_shape then
+        self:sv_fire_shell(true, dt)
+    end
+end
+
+function Cbreech:client_onFixedUpdate(dt)
+    for key, effect in pairs(self.effects) do
+        if effect:isDone() then
+            effect:destroy()
+            self.effects[key] = nil
+        end
+    end
+end
+
+-------------------------------------------------------------------------------
+--[[                                Update                                 ]]--
+-------------------------------------------------------------------------------
+
+function Cbreech:server_onUpdate(dt)
+end
+
+function Cbreech:client_onUpdate(dt)
+end
+
+-------------------------------------------------------------------------------
+--[[                               Destroy                                 ]]--
+-------------------------------------------------------------------------------
+
+function Cbreech:server_onDestroy()
+end
+
+function Cbreech:client_onDestroy()
+end
+
+-------------------------------------------------------------------------------
+--[[                            Network Server                             ]]--
+-------------------------------------------------------------------------------
+
+function Cbreech:sv_e_receiveItem(data)
+    local character = data.character
+    print("Carry -> Cbreech:", ammo)
+    -- check for autocannon ammo
+    local is_ac = self.data.is_autocannon
+    local is_shell = isAnyOf(data.itemUuid, cannon_shells)
+    if is_ac and is_shell then
+        print("Autocannon rejected shell")
+        return
+    end
+
+    if not is_ac and not is_shell then
+        print("Cannon rejected clip")
+        return
+    end
+    local ammo = character:getPublicData().carried_shell
+    sm.container.beginTransaction()
+    sm.container.spend( data.playerCarry, data.itemUuid, 1, true )
+    if sm.container.endTransaction() then
+        print("Cbreech Loaded")
+        self.loaded_projectile = ammo
+        local pd = character:getPublicData()
+        pd.carried_shell = {}
+        character:setPublicData(pd)
+        sm.container.beginTransaction()
+        sm.container.collect( self.shape.interactable:getContainer(0), data.itemUuid, 1, true )
+        sm.container.endTransaction()
+    end
+end
+
+function Cbreech:sv_fire_shell(is_debug, dt)
+    if #self.loaded_projectile == 0 then
+        return false
+    end
+
+    local shell = self.loaded_projectile[#self.loaded_projectile]
+
+    local projectile_mass = shell.parameters.projectile_mass
+
+    local propellant = shell.parameters.propellant
+    --local propellant_power = propellant * self.barrel_diameter / (projectile_mass/2)
+    --local high_pressure = math.min(self.barrel_length, propellant * 2.2)
+    --local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
+    --local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
+    --print(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell.parameters.projectile_mass)
+    local speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.3333, self.barrel_diameter / 1000, shell) * propellant
+
+    local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000)^0.4, 0.99), 1) --crude approximation
+    local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(), accuracy_factor):normalize()
+
+    shell.position = self.muzzle_shape:getWorldPosition() - self.shape:getAt() * 0.126
+    shell.velocity = direction * speed
+    shell.next_position = shell.position + shell.velocity * dt
+    shell.max_pen = shell.type ~= "HE" and calculate_shell_penetration(shell) or 1
+    shell.barrel_diameter = self.barrel_diameter
+
+    if is_debug then
+        shell.debug = {
+            path = {
+                shell = {{shell.position, shell.position + direction}},
+                spall = {},
+                creations = {}
+            }
+        }
+    end
+
+    dprint("Firing shell ("..shell.type..") with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire_shell")
+    dprint("Fired shell has "..tostring(shell.max_pen).." mm pen of RHA", "info", dprint_filename, nil, "sv_fire_shell")
+
+    local recoil_force = calculate_recoil_force(shell.parameters.projectile_mass, speed, 0, 0)
+    print(recoil_force, shell.parameters.projectile_mass, speed)
+    sm.physics.applyImpulse(self.muzzle_shape, -direction * recoil_force, true)
+    self.muzzle_shape:setColor(sm.color.new("0000ff"))
+    --self.fired_shells[#self.fired_shells] = self.loaded_shell
+    local index = math.random(100000)
+    while sm.ACC.shells[index] do
+        index = math.random(100000)
+    end
+    --sm.ACC.shells[index] = deep_copy(self.loaded_shell)
+    self.network:sendToClients("cl_add_shell_to_sim", shell)
+    self.loaded_projectile[#self.loaded_projectile] = nil
+    self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
+    if #self.loaded_projectile == 0 then
+        sm.container.beginTransaction()
+        sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+        sm.container.endTransaction()
+    end
+end
+
+-------------------------------------------------------------------------------
+--[[                            Network Client                             ]]--
+-------------------------------------------------------------------------------
+
+function Cbreech:cl_add_shell_to_sim(shell)
+    local index = math.random(100000)
+    while sm.ACC.shells[index] do
+        index = math.random(100000)
+    end
+    sm.ACC.shells[#sm.ACC.shells + 1] = deep_copy(shell)
+end
+
+function Cbreech:cl_play_launch_effect(data)
+    local effect = get_launch_effect(data)
+    effect:start()
+    self.effects[#self.effects + 1] = effect
+end
+
+function Cbreech:cl_play_entry_effect(data)
+    local effect = get_entry_effect(data)
+    effect:start()
+    self.effects[#self.effects + 1] = effect
+end

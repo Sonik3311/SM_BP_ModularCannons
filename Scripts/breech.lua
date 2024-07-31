@@ -95,7 +95,7 @@ function Breech:server_onCreate()
     local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
     local mass = (volume_sphere + volume_cylinder) * 6000
     --print(mass)
-    self.loaded_shell = {
+    self.loaded_shell = {{
         type = "APHE",
         parameters = {
             propellant = 6,
@@ -110,6 +110,23 @@ function Breech:server_onCreate()
             delay = 0.001, --seconds
             trigger_depth = 10 --mm
         }
+    },
+    {
+        type = "APHE",
+        parameters = {
+            propellant = 6,
+            projectile_mass = mass,
+            diameter = self.barrel_diameter,
+            is_apcbc = true,
+
+            explosive_mass = 5, --kg
+        },
+        fuse = {
+            active = false,
+            delay = 0.001, --seconds
+            trigger_depth = 10 --mm
+        }
+    }
     }
 
     --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
@@ -255,6 +272,10 @@ function Breech:sv_fire_shell(is_debug, dt)
     sm.container.endTransaction()
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 end
+
+-------------------------------------------------------------------------------
+--[[                            Network Client                             ]]--
+-------------------------------------------------------------------------------
 
 function Breech:cl_add_shell_to_sim(shell)
     local index = math.random(100000)

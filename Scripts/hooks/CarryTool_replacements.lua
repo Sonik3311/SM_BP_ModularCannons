@@ -28,6 +28,10 @@ local genericAPFSDSrenderables = {
     "$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/generic_APFSDS_carry.rend"
 }
 
+local genericACAMMOrenderables = {
+    "$CONTENT_c1518670-9e34-4dbc-84d3-86ccbcd50a25/Objects/Renderables/generic_acammo_carry.rend"
+}
+
 local heavyRenderables = {
 	"$SURVIVAL_DATA/Character/Char_Tools/char_heavytool/char_heavytool.rend"
 }
@@ -47,7 +51,9 @@ local renderablesWormFp = { "$SURVIVAL_DATA/Character/Char_Male/Animations/char_
 
 
 local obj_generic_apfsds = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")
+local obj_generic_acammo = sm.uuid.new("2c7363a7-0246-42f0-a95a-9b41ef55ca6b")
 local obj_generic_breech = sm.uuid.new("ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb")
+local obj_generic_acbreech = sm.uuid.new("f4a8b564-52b3-4ecb-8068-976be2f9c62d")
 local obj_generic_ammorack = sm.uuid.new("2d93cd84-6690-4eb0-8058-9c239dde0fbe")
 
 local harvestItems =
@@ -78,6 +84,7 @@ sm.tool.preloadRenderables( renderablesHeavyFp )
 sm.tool.preloadRenderables( renderablesWormTp )
 sm.tool.preloadRenderables( renderablesWormFp )
 sm.tool.preloadRenderables( genericAPFSDSrenderables )
+sm.tool.preloadRenderables( genericACAMMOrenderables )
 
 
 function repl_cl_loadAnimations( self, activeUid )
@@ -289,6 +296,10 @@ function repl_cl_updateCarryRenderables( self, activeUid, activeColor )
 		carryRenderables = wormRenderables
 		animationRenderablesTp = renderablesWormTp
 		animationRenderablesFp = renderablesWormFp
+	elseif activeUid == obj_generic_acammo then
+	    carryRenderables = genericACAMMOrenderables
+		animationRenderablesTp = renderablesWormTp
+		animationRenderablesFp = renderablesWormFp
 	elseif activeUid == obj_generic_apfsds then
         carryRenderables = genericAPFSDSrenderables
 		animationRenderablesTp = renderablesItemTp
@@ -326,7 +337,7 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
 	local carryUuid = sm.container.itemUuid( playerCarry )[1]
 	local characterShape = sm.item.getCharacterShape( carryUuid )
 	local isHarvest = sm.shape.getIsHarvest( carryUuid )
-	local isACCshell = isAnyOf(carryUuid, {obj_generic_apfsds})
+	local isACCshell = isAnyOf(carryUuid, {obj_generic_apfsds, obj_generic_acammo})
 	if (isHarvest or isACCshell) and secondaryState ~= sm.tool.interactState.start then
         local aimRange = isHarvest and 7.5 or 3
 		local success, result = sm.localPlayer.getRaycast( aimRange )
@@ -356,18 +367,21 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
     				end
     			end
 			elseif isACCshell then
-    			if isAnyOf(shape:getShapeUuid(), {obj_generic_breech, obj_generic_ammorack}) then
+			    --print("checking")
+    			if isAnyOf(shape:getShapeUuid(), {obj_generic_breech, obj_generic_acbreech, obj_generic_ammorack}) then
                     local is_loaded = shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil()
+                    --print(is_loaded, shape.interactable:getContainer(0):getItem(0))
                     if not is_loaded then
+                        --print("ready to load")
                         sm.gui.setCenterIcon( "Use" )
         				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
         				sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
                         if primaryState == sm.tool.interactState.start then
-                            if not self.is_shape_loaded then
+                            --if not self.is_shape_loaded then
                                 local character = self.tool:getOwner().character
                                 local params = {targetShape = shape, character = character, playerCarry = playerCarry, itemUuid = carryUuid}
                                 self.network:sendToServer( "sv_n_sendItem", params )
-                            end
+                                --end
                         end
                     end
                     return true, true
@@ -463,7 +477,7 @@ function repl_sv_n_dropCarry( self, params )
 					end
 				end
 				assert(shape)
-				local isACCshell = isAnyOf(params.itemA, {obj_generic_apfsds})
+				local isACCshell = isAnyOf(params.itemA, {obj_generic_apfsds, obj_generic_acammo})
 				if isACCshell then
 					local public_data = params.character:getPublicData()
 					print("Carry -> World")

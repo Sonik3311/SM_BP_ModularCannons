@@ -1,0 +1,18 @@
+{
+   "lodList" : [
+      {
+         "includes" : [ "POSITION", "NORMAL", "UV0", "TANGENTS" ],
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_acammo_carry.fbx",
+         "subMeshList" : [
+            {
+               "material" : "DifAsgNor",
+               "textureList" : [
+                  "$CONTENT_DATA/Objects/Texture/obj_generic_ammo_shell_dif.tga",
+                  "$CONTENT_DATA/Objects/Texture/obj_generic_ammo_shell_asg.tga",
+                  "$CONTENT_DATA/Objects/Texture/obj_generic_ammo_shell_nor.tga"
+               ]
+            }
+         ]
+      }
+   ]
+}

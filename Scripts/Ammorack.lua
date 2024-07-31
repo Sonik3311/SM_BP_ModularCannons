@@ -60,14 +60,26 @@ function Ammorack:server_onCreate()
 
     self.sv = {}
     self.sv.stored_shell = {
-        type = "APFSDS",
-        parameters = {
-            propellant = 250,
-            projectile_mass = 12,
-            diameter = 27,
-            penetrator_length = 700,
-            penetrator_density = 17800
+        {
+            type = "APFSDS",
+            parameters = {
+                propellant = 250,
+                projectile_mass = 12,
+                diameter = 27,
+                penetrator_length = 700,
+                penetrator_density = 17800
+            }
         }
+        --{
+        --    type = "APFSDS",
+        --    parameters = {
+        --        propellant = 250,
+        --        projectile_mass = 12,
+        --        diameter = 27,
+        --        penetrator_length = 700,
+        --        penetrator_density = 17800
+        --    }
+        --}
     }
     self.barrel_diameter = 100
 
@@ -179,10 +191,10 @@ end
 
 function Ammorack.client_onInteract( self, character, state )
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
-    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() and carried_uuid ~= sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")) then
+    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() and carried_uuid ~= obj_generic_apfsds) then
         return
     end
-    self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")})
+    self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_apfsds})
     --self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end
@@ -212,6 +224,7 @@ function Ammorack:sv_giveShell(params)
         print("Ammorack -> Carry [success]")
         local pd = params.character:getPublicData()
         pd.carried_shell = deep_copy(self.sv.stored_shell)
+        print(self.sv.stored_shell)
         params.character:setPublicData(pd)
         self.sv.stored_shell = nil
         sm.container.beginTransaction()

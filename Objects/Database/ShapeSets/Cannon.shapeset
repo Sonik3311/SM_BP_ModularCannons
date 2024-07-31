@@ -40,10 +40,39 @@
          "renderable" : "$CONTENT_DATA/Objects/Renderables/Breech_template.rend",
          "rotationSet" : "PropFull",
          "scripted" : {
-            "classname" : "Breech",
-            "filename" : "$CONTENT_DATA/Scripts/breech.lua"
+            "classname" : "Cbreech",
+            "data" : {
+               "fire_delay" : 0.0,
+               "is_autocannon" : false,
+               "max_caliber" : 1000,
+               "min_caliber" : 3
+            },
+            "filename" : "$CONTENT_DATA/Scripts/cbreech.lua"
          },
          "uuid" : "ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 2,
+            "z" : 1
+         },
+         "color" : "FF0000",
+         "name" : "Autocannon Breech",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/Breech_template.rend",
+         "rotationSet" : "PropFull",
+         "scripted" : {
+            "classname" : "Cbreech",
+            "data" : {
+               "fire_delay" : 0.10,
+               "is_autocannon" : true,
+               "max_caliber" : 50,
+               "min_caliber" : 3
+            },
+            "filename" : "$CONTENT_DATA/Scripts/cbreech.lua"
+         },
+         "uuid" : "f4a8b564-52b3-4ecb-8068-976be2f9c62d"
       }
    ]
 }

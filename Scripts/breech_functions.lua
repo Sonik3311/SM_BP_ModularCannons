@@ -3,6 +3,44 @@ function body_has_changed(shape)
 end
 
 -----------------------------------------------------------------------------------------------
+
+function isAnyOf(target, pool)
+    for _, object in pairs(pool) do
+        if object == target then
+           return true
+        end
+    end
+
+    return false
+end
+
+-----------------------------------------------------------------------------------------------
+
+function deep_copy( tbl )
+    local copy = {}
+    for key, value in pairs( tbl ) do
+        local var_type = type(value)
+        if var_type ~= 'table' then
+            if var_type == "Vec3" then
+				copy[key] = sm.vec3.new(value.x, value.y, value.z)
+			elseif var_type == "Quat" then
+				copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
+			elseif var_type == "Color" then
+				copy[key] = sm.color.new(value.r, value.g, value.b)
+			elseif var_type == "Uuid" then
+				copy[key] = sm.uuid.new(tostring(value))
+            else
+                copy[key] = value
+            end
+        else
+            copy[key] = deep_copy( value )
+        end
+    end
+    return copy
+end
+
+-----------------------------------------------------------------------------------------------
+
 local barrel_shape = sm.uuid.new("90e6714d-e105-476f-875b-4b69b8c7802e")
 local muzzle_shape = sm.uuid.new("98212a7d-eac1-45a9-8e5b-3e36319b9b29")
 function construct_cannon_new(shape, global_dir, last)
