@@ -368,10 +368,19 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
     			end
 			elseif isACCshell then
 			    --print("checking")
-    			if isAnyOf(shape:getShapeUuid(), {obj_generic_breech, obj_generic_acbreech, obj_generic_ammorack}) then
+				local shape_uuid = shape:getShapeUuid()
+				local is_breech = shape_uuid == obj_generic_breech
+				local is_acbreech = shape_uuid == obj_generic_acbreech
+				local is_ammorack = shape_uuid == obj_generic_ammorack
+    			if is_breech or is_acbreech or is_ammorack then
+                    print("pass1")
                     local is_loaded = shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil()
                     --print(is_loaded, shape.interactable:getContainer(0):getItem(0))
-                    if not is_loaded then
+                    local is_right_type = is_acbreech and carryUuid == obj_generic_acammo
+                    is_right_type = is_right_type or (is_breech and carryUuid ~= obj_generic_acammo)
+                    is_right_type = is_right_type or (is_ammorack and carryUuid ~= obj_generic_acammo)
+                    print(is_right_type, is_loaded, shape.interactable:getContainer(0):getItem(0).uuid)
+                    if not is_loaded and is_right_type then
                         --print("ready to load")
                         sm.gui.setCenterIcon( "Use" )
         				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )

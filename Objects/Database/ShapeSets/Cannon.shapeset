@@ -42,7 +42,7 @@
          "scripted" : {
             "classname" : "Cbreech",
             "data" : {
-               "fire_delay" : 0.0,
+               "fire_delay" : 1.0,
                "is_autocannon" : false,
                "max_caliber" : 1000,
                "min_caliber" : 3
@@ -65,7 +65,7 @@
          "scripted" : {
             "classname" : "Cbreech",
             "data" : {
-               "fire_delay" : 0.10,
+               "fire_delay" : 0.080,
                "is_autocannon" : true,
                "max_caliber" : 50,
                "min_caliber" : 3

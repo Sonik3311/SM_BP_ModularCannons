@@ -34,21 +34,19 @@ function Cbreech:server_onCreate()
 	end
 
 	if self.data.is_autocannon then
-	   container:setFilters( cannon_shells )
+	   container:setFilters( {obj_generic_acammo} )
 	else
 	   container:setFilters( cannon_shells )
 	end
 
-	container:setFilters( cannon_shells )
-	print(self.interactable:getContainer(0):getItem(0).uuid)
-
 	self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
 	self.barrel_length = #self.barrel_shapes
 	self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
-	self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 2
+	self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 4
 	update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
 
-	self.loaded_projectile = nil
+	self.loaded_projectile = {}
+	self.fire_time_delay = 0
 end
 
 function Cbreech:client_onCreate()
@@ -67,7 +65,9 @@ function Cbreech:server_onFixedUpdate(dt)
         update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     end
 
-    if input_active(self.interactable) and self.muzzle_shape then
+    self.fire_time_delay = self.fire_time_delay - dt
+
+    if input_active(self.interactable) and self.muzzle_shape and self.fire_time_delay <= 0 then
         self:sv_fire_shell(true, dt)
     end
 end
@@ -174,7 +174,12 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     dprint("Firing shell ("..shell.type..") with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire_shell")
     dprint("Fired shell has "..tostring(shell.max_pen).." mm pen of RHA", "info", dprint_filename, nil, "sv_fire_shell")
 
+
     local recoil_force = calculate_recoil_force(shell.parameters.projectile_mass, speed, 0, 0)
+    if self.data.is_autocannon then
+        recoil_force = recoil_force / 3
+    end
+
     print(recoil_force, shell.parameters.projectile_mass, speed)
     sm.physics.applyImpulse(self.muzzle_shape, -direction * recoil_force, true)
     self.muzzle_shape:setColor(sm.color.new("0000ff"))
@@ -185,8 +190,9 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     end
     --sm.ACC.shells[index] = deep_copy(self.loaded_shell)
     self.network:sendToClients("cl_add_shell_to_sim", shell)
-    self.loaded_projectile[#self.loaded_projectile] = nil
+    --self.loaded_projectile[#self.loaded_projectile] = nil
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
+    self.fire_time_delay = self.data.fire_delay
     if #self.loaded_projectile == 0 then
         sm.container.beginTransaction()
         sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )

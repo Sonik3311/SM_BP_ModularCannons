@@ -80,25 +80,6 @@ end
 
 -----------------------------------------------------------------------------------------------
 
-function create_barrel_effect(segments, diameter_mm, breech)
-    local effect = sm.effect.createEffect("ShapeRenderable", breech.interactable)
-    effect:setParameter("uuid", sm.uuid.new("084f7d27-576a-4728-9e1e-81b6fa9f6d59"))
-
-    local middle_pos = sm.vec3.zero()
-    for i=1,#segments do
-        middle_pos = middle_pos + segments[i]:getWorldPosition()
-    end
-    middle_pos = middle_pos / #segments
-    dist = (middle_pos - breech:getWorldPosition()):length()
-    local diameter = diameter_mm / 100
-
-    effect:setOffsetPosition(sm.vec3.new(0,-dist,0))
-    effect:setScale(sm.vec3.new(diameter/4,#segments/4,diameter/4))
-    return effect
-end
-
------------------------------------------------------------------------------------------------
-
 function update_barrel_diameter(segments, diameter)
     for i=1, #segments do
         segments[i].interactable:setPublicData({diameter = diameter})

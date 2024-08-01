@@ -194,7 +194,7 @@ function Ammorack.client_onInteract( self, character, state )
     if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() and carried_uuid ~= obj_generic_apfsds) then
         return
     end
-    self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_apfsds})
+    self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_acammo})
     --self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end

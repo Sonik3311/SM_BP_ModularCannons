@@ -22,7 +22,12 @@ function get_launch_effect(data)
     local muzzle_pos = data.muzzle:getWorldPosition()
     local caliber = data.diameter
     local is_with_fire = data.is_short
-    local effect = sm.effect.createEffect("Medium_caliber_fire", data.breech.interactable)
+    local effect
+    if caliber <= 50 then
+        effect = sm.effect.createEffect("Small_caliber_smoke", data.breech.interactable)
+    else
+        effect = sm.effect.createEffect("Medium_caliber_fire", data.breech.interactable)
+    end
     effect:setOffsetPosition(sm.vec3.new(0,-(muzzle_pos - breech_pos):length(),0))
     return effect
 end
