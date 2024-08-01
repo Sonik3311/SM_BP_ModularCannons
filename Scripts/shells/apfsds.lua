@@ -57,9 +57,11 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
     local new_end_point = not is_penetrated and exit_point or end_point
     local new_start_point = hit_data.pointWorld - shell_direction * 0.01
 
-    penetrate_shape(hit_shape, hit_data.pointWorld, exit_point)
-    if hit_shape.isBlock and is_penetrated then
-        hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
+    if RHA_thickness / shell_penetration < 1.5 then
+        penetrate_shape(hit_shape, hit_data.pointWorld, exit_point)
+        if hit_shape.isBlock and is_penetrated then
+            hit_shape:destroyBlock(hit_shape:getClosestBlockLocalPosition(new_start_point))
+        end
     end
 
     local is_exiting = is_exititing_body(new_start_point, shell_direction, hit_shape)

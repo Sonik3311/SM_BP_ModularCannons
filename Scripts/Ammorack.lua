@@ -63,10 +63,10 @@ function Ammorack:server_onCreate()
         {
             type = "APFSDS",
             parameters = {
-                propellant = 250,
-                projectile_mass = 12,
-                diameter = 27,
-                penetrator_length = 700,
+                propellant = 100,
+                projectile_mass = 0.6,
+                diameter = 12.7,
+                penetrator_length = 25,
                 penetrator_density = 17800
             }
         }
