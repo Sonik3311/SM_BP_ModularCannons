@@ -122,7 +122,6 @@ function Cbreech:client_onTinker(character, state)
         while ind == self.last_splash_index or ind == self.l1 or ind == self.l2 or ind == self.l3 do
             ind = math.random(#splashes)
         end
-        print(ind)
         self.l3 = self.l2
         self.l2 = self.l1
         self.l1 = self.last_splash_index
@@ -240,6 +239,11 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     end
 end
 
+function Cbreech:change_barrel_diameter(diameter)
+    self.barrel_diameter = diameter
+	update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+end
+
 -------------------------------------------------------------------------------
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
@@ -255,6 +259,7 @@ function Cbreech:cl_onCaliberChange(name, position)
         print("set")
         self.gui:setSliderData( "CaliberSlider", 50, converted_pos )
     end
+    self.network:sendToServer("change_barrel_diameter", converted_pos)
     print(name,position, converted_pos)
 end
 
