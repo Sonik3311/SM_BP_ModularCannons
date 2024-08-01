@@ -19,6 +19,7 @@ dofile "$CONTENT_DATA/Scripts/breech_functions.lua"
 dofile "$CONTENT_DATA/Scripts/pen_calc.lua"
 dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
+dofile "$CONTENT_DATA/Scripts/splashes.lua"
 
 local dprint_filename = "Cbreech"
 
@@ -51,6 +52,16 @@ end
 
 function Cbreech:client_onCreate()
     self.effects = {}
+
+    self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/breech_customizer.layout", false)
+    self.gui:setOnCloseCallback( "cl_onGuiClosed" )
+    self.gui:setSliderCallback( "CaliberSlider", "cl_onCaliberChange" )
+    self.gui:setTextAcceptedCallback( "CaliberEditBox", "cl_onCaliberChange" )
+    self.last_splash_index = 3
+    self.l1 = 3
+    self.l2 = 3
+    self.l3 = 3
+    self.gui:setText("Splash", splashes[self.last_splash_index])
 end
 
 -------------------------------------------------------------------------------
@@ -79,6 +90,10 @@ function Cbreech:client_onFixedUpdate(dt)
             self.effects[key] = nil
         end
     end
+
+    if self.gui:isActive() then
+
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -89,6 +104,31 @@ function Cbreech:server_onUpdate(dt)
 end
 
 function Cbreech:client_onUpdate(dt)
+end
+
+-------------------------------------------------------------------------------
+--[[                                Tinker                                 ]]--
+-------------------------------------------------------------------------------
+
+function Cbreech:client_canTinker(character)
+    return true
+end
+
+function Cbreech:client_onTinker(character, state)
+    if state == true then
+        self.gui:open()
+        -- update splash text
+        local ind = math.random(#splashes)
+        while ind == self.last_splash_index or ind == self.l1 or ind == self.l2 or ind == self.l3 do
+            ind = math.random(#splashes)
+        end
+        print(ind)
+        self.l3 = self.l2
+        self.l2 = self.l1
+        self.l1 = self.last_splash_index
+        self.last_splash_index = ind
+        self.gui:setText("Splash", splashes[self.last_splash_index])
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -203,6 +243,20 @@ end
 -------------------------------------------------------------------------------
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
+
+function Cbreech:cl_onGuiClosed()
+end
+
+function Cbreech:cl_onCaliberChange(name, position)
+    local converted_pos = tonumber(position) + 4
+    if name ~= "CaliberEditBox" then
+        self.gui:setText( "CaliberEditBox", tostring(converted_pos) )
+    else
+        print("set")
+        self.gui:setSliderData( "CaliberSlider", 50, converted_pos )
+    end
+    print(name,position, converted_pos)
+end
 
 function Cbreech:cl_add_shell_to_sim(shell)
     local index = math.random(100000)

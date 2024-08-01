@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Widget" skin="BackgroundEngine" position_real="0.2783203125 0.263671875 0.4443359375 0.3974609375" align="HCenter VCenter">
+        <Widget type="TextBox" skin="SMTextBox_Small_NoBackground" position_real="0.24175824175824176 0.063882063882063883 0.52747252747252749 0.098280098280098274" name="TopName">
+            <Property key="FontHeight" value="40"/>
+            <Property key="FontName" value="SM_ItemTitle"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="Caption" value="Cannon breech"/>
+        </Widget>
+        <Widget type="Widget" skin="DropDownBackground" position_real="0.23076923076923078 0.049140049140049137 0.5494505494505495 0.14742014742014742"/>
+        <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.16043956043956045 0.38083538083538082 0.67472527472527477 0.12530712530712532" name="CaliberSlider">
+            <Property key="Range" value="47"/>
+            <Property key="RangePosition" value="20"/>
+            <Property key="Depth" value="0"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.33406593406593404 0.601965601965602 0.33626373626373629 0.12530712530712532" name="CaliberEditBox">
+            <Property key="FontName" value="SM_NumberHuge"/>
+            <Property key="Caption" value="1234"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="TextShadow" value="false"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position_real="0.02197802197802198 0.37346437346437344 0.19780219780219779 0.13513513513513514" name="CaliberMin">
+            <Property key="ReadOnly" value="true"/>
+            <Property key="Caption" value="4"/>
+            <Property key="FontName" value="SM_NumberHuge"/>
+            <Property key="TextAlign" value="Center"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position_real="0.78021978021978022 0.37346437346437344 0.19780219780219779 0.13513513513513514" name="MaxCaliber">
+            <Property key="Caption" value="50"/>
+            <Property key="FontName" value="SM_NumberHuge"/>
+            <Property key="TextAlign" value="Center"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position_real="0.23076923076923078 0.25798525798525801 0.5494505494505495 0.11056511056511056">
+            <Property key="FontName" value="SM_ItemTitle"/>
+            <Property key="Caption" value="Barrel diameter (mm)"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="FontHeight" value="25"/>
+        </Widget>
+        <Widget type="Widget" skin="LiftInput" position_real="0.032967032967032968 0.35626535626535627 0.93406593406593408 0.171990171990172">
+            <Property key="Depth" value="1"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position_real="0.054945054945054944 0.81081081081081086 0.89010989010989006 0.171990171990172" name="Splash">
+            <Property key="FontName" value="SM_Label"/>
+            <Property key="Caption" value="Well done. Here are the test results:\nYou are a horrible person.\nI&apos;m serious, that&apos;s what it says: A horrible person."/>
+            <Property key="FontHeight" value="20"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="TextColour" value="0.397661 0.397661 0.397661"/>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings/>
+</MyGUI>
