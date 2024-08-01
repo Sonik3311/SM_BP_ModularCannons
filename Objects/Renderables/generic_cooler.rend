@@ -1,0 +1,13 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_coolant.fbx",
+         "subMeshList" : [
+            {
+               "material" : "Dif",
+               "textureList" : [ "", "", "" ]
+            }
+         ]
+      }
+   ]
+}

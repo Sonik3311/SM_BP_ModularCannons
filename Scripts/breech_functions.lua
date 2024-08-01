@@ -79,6 +79,34 @@ function construct_cannon_new(shape, global_dir, last)
 end
 
 -----------------------------------------------------------------------------------------------
+local cooler_shape = sm.uuid.new("5efb3348-ce62-4f26-9e28-a728d8527360")
+function get_connected_modules(shape)
+    local neighbours = shape:getNeighbours()
+    local modules = {}
+    for neighbour_id=1, #neighbours do
+        local neighbour = neighbours[neighbour_id]
+        if neighbour.uuid ~= cooler_shape then
+            goto next
+        end
+
+        --bruh
+        local dir = shape:transformPoint( neighbour:getWorldPosition() ):normalize()
+        if math.abs(dir.x) < 0.001 then dir.x = 0 end
+        if math.abs(dir.y) < 0.001 then dir.y = 0 end
+        if math.abs(dir.z) < 0.001 then dir.z = 0 end
+        if (dir.x ~= 0 and dir.y == 0 and dir.z == 0) or (dir.y ~= 0 and dir.x == 0 and dir.z == 0) or (dir.z ~= 0 and dir.y == 0 and dir.x == 0) or dir == sm.vec3.zero() then
+            --print("dirlocalpass", neighbour:getRight(), (neighbour:getWorldPosition() - shape:getWorldPosition()):normalize())
+            if neighbour:getRight():dot((neighbour:getWorldPosition() - shape:getWorldPosition()):normalize()) > 0.99 then
+                modules[#modules + 1] = neighbour
+            end
+        end
+
+        ::next::
+    end
+    return modules
+end
+
+-----------------------------------------------------------------------------------------------
 
 function update_barrel_diameter(segments, diameter)
     for i=1, #segments do
@@ -114,5 +142,5 @@ end
 -----------------------------------------------------------------------------------------------
 
 function calculate_recoil_force(projectile_mass, projectile_velocity, powder_charge_mass, powder_charge_velocity)
-    return (projectile_mass * projectile_velocity + powder_charge_mass * powder_charge_velocity) ^0.985
+    return (projectile_mass * projectile_velocity + powder_charge_mass * powder_charge_velocity)-- ^0.985
 end

@@ -23,6 +23,8 @@ dofile "$CONTENT_DATA/Scripts/splashes.lua"
 
 local dprint_filename = "Cbreech"
 
+local obj_generic_cooler = sm.uuid.new("5efb3348-ce62-4f26-9e28-a728d8527360")
+
 -------------------------------------------------------------------------------
 --[[                                Create                                 ]]--
 -------------------------------------------------------------------------------
@@ -46,8 +48,18 @@ function Cbreech:server_onCreate()
 	self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 4
 	update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
 
+	self.modules = get_connected_modules(self.shape)
+	self.coolers_amount = 0
+	for _,module in pairs(self.modules) do
+	    if module == obj_generic_cooler then
+			self.coolers_amount = self.coolers_amount + 1
+		end
+	end
+
 	self.loaded_projectile = {}
 	self.fire_time_delay = 0
+	self.heat = 0
+	self.overheated = false
 end
 
 function Cbreech:client_onCreate()
@@ -62,6 +74,10 @@ function Cbreech:client_onCreate()
     self.l2 = 3
     self.l3 = 3
     self.gui:setText("Splash", splashes[self.last_splash_index])
+    self.gui:setText("MinCaliber", tostring(self.data.min_caliber))
+    self.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
+    self.gui:setText( "CaliberEditBox", tostring(20) )
+    print(self.data)
 end
 
 -------------------------------------------------------------------------------
@@ -74,11 +90,28 @@ function Cbreech:server_onFixedUpdate(dt)
         self.barrel_length = #self.barrel_shapes
         self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
         update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+
+        self.modules = get_connected_modules(self.shape)
+	    self.coolers_amount = 0
+	    for _,module in pairs(self.modules) do
+	        if module.uuid == obj_generic_cooler then
+	    		self.coolers_amount = self.coolers_amount + 1
+	    	end
+	    end
+        print(self.modules, self.coolers_amount)
     end
 
     self.fire_time_delay = self.fire_time_delay - dt
+    self.heat = math.max(0, self.heat - 10 * dt)
+    if self.overheated then
+       print(self.heat)
+    end
+    if self.heat <= 0.1 and self.overheated then
+        self.overheated = false
+        print("ready to fire")
+    end
 
-    if input_active(self.interactable) and self.muzzle_shape and self.fire_time_delay <= 0 then
+    if input_active(self.interactable) and self.muzzle_shape and self.fire_time_delay <= 0 and not self.overheated then
         self:sv_fire_shell(true, dt)
     end
 end
@@ -231,7 +264,15 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     self.network:sendToClients("cl_add_shell_to_sim", shell)
     --self.loaded_projectile[#self.loaded_projectile] = nil
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
+
     self.fire_time_delay = self.data.fire_delay
+    self.heat = self.heat + self.barrel_diameter / (7 * (self.coolers_amount + 1))
+    print(self.heat)
+    if self.heat >= 100 then
+       self.overheated = true
+       print("overheated")
+    end
+
     if #self.loaded_projectile == 0 then
         sm.container.beginTransaction()
         sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
@@ -256,7 +297,6 @@ function Cbreech:cl_onCaliberChange(name, position)
     if name ~= "CaliberEditBox" then
         self.gui:setText( "CaliberEditBox", tostring(converted_pos) )
     else
-        print("set")
         self.gui:setSliderData( "CaliberSlider", 50, converted_pos )
     end
     self.network:sendToServer("change_barrel_diameter", converted_pos)

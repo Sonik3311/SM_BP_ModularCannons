@@ -69,17 +69,17 @@ function Ammorack:server_onCreate()
                 penetrator_length = 25,
                 penetrator_density = 17800
             }
+        },
+        {
+            type = "APFSDS",
+            parameters = {
+                propellant = 250,
+                projectile_mass = 12,
+                diameter = 27,
+                penetrator_length = 700,
+                penetrator_density = 17800
+            }
         }
-        --{
-        --    type = "APFSDS",
-        --    parameters = {
-        --        propellant = 250,
-        --        projectile_mass = 12,
-        --        diameter = 27,
-        --        penetrator_length = 700,
-        --        penetrator_density = 17800
-        --    }
-        --}
     }
     self.barrel_diameter = 100
 
