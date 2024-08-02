@@ -86,6 +86,23 @@
          "rotationSet" : "PropX",
          "sticky" : "-X",
          "uuid" : "5efb3348-ce62-4f26-9e28-a728d8527360"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 2
+         },
+         "name" : "Autocannon Additional Magazine",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_acammo_extension.rend",
+         "rotationSet" : "PropX",
+         "scripted" : {
+            "classname" : "ACammo_module",
+            "filename" : "$CONTENT_DATA/Scripts/acammo_module.lua"
+         },
+         "sticky" : "-X",
+         "uuid" : "3ff64b8c-a7c1-4814-8453-fbc862a46726"
       }
    ]
 }

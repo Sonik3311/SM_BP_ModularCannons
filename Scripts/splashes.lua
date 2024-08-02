@@ -173,7 +173,7 @@ splashes = {
     "mmm cheezeburger",
     "Coca-Cola or Pepsi?",
     "Tank, Ship or Plane\n- Doesn't matter -\nBreech's still the same!",
-    "Horrifying reality of tank warfare\nneatly packaged into a mod\nfor a toony game."
+    "Horrifying reality of tank warfare\nneatly packaged into a mod\nfor a toony game.",
     "I'm hungry for some tungsten!",
     "Tungsten cube or APFSDS?\nChoice is yours."
 }

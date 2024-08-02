@@ -1,15 +1,16 @@
 --[[
-    Class responsible for storing/customizing shell
+    Class responsible for storing/giving additional ammo to Auto cannon breech
 ]]
 
 -------------------------------------------------------------------------------
 --[[                                Setup                                  ]]--
 -------------------------------------------------------------------------------
+
 dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 
-local dprint_filename = "Ammorack"
+local dprint_filename = "ACammo module"
 
-Ammorack = class()
+ACammo_module = class()
 
 local function is_container_created(shape)
     if not shape.interactable then
@@ -50,116 +51,50 @@ end
 --[[                                Create                                 ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack:server_onCreate()
-
+function ACammo_module:server_onCreate()
     local container = self.shape.interactable:getContainer( 0 )
 	if not container then
 		container = self.shape:getInteractable():addContainer( 0, 1, 1 )
 	end
-	container:setFilters( { obj_generic_apfsds } )
+	container:setFilters( { obj_generic_acammo } )
 
-    self.sv = {}
-    self.sv.stored_shell = {
-        {
-            type = "APFSDS",
-            parameters = {
-                propellant = 100,
-                projectile_mass = 0.6,
-                diameter = 12.7,
-                penetrator_length = 25,
-                penetrator_density = 17800
-            }
-        },
-        {
-            type = "APFSDS",
-            parameters = {
-                propellant = 250,
-                projectile_mass = 12,
-                diameter = 27,
-                penetrator_length = 700,
-                penetrator_density = 17800
-            }
-        }
-    }
-    self.barrel_diameter = 100
-
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 7850
-    --self.sv.stored_shell = {
-    --    type = "AP",
-    --    parameters = {
-    --        propellant = 130,
-    --        projectile_mass = mass,
-    --        diameter = self.barrel_diameter,
-    --        is_apcbc = true
-    --    }
-    --}
-
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
-    --local mass = (volume_sphere + volume_cylinder) * 6000
-    --print(mass)
-    --self.sv.stored_shell = {
-    --    type = "APHE",
-    --    parameters = {
-    --        propellant = 100,
-    --        projectile_mass = mass,
-    --        diameter = self.barrel_diameter,
-    --        is_apcbc = true,
-
-    --        explosive_mass = 0.365, --kg
-    --    },
-    --    fuse = {
-    --        active = false,
-    --        delay = 0.001, --seconds
-    --        trigger_depth = 10 --mm
-    --    }
-    --}
-
-    --self.sv.stored_shell = {
-    --    type = "HE",
-    --    parameters = {
-    --        propellant = 50,
-    --        projectile_mass = 15,--mass,
-    --        explosive_mass = 0.5, -- mass,
-    --        diameter = 100
-    --    }
-    --}
-
-    sm.container.beginTransaction()
-    sm.container.collect( container, obj_generic_apfsds, 1, true )
-    sm.container.endTransaction()
-
-
+	self.shape.interactable:setPublicData({})
+	--self.sv.stored_shell = {}
 end
 
-function Ammorack:client_onCreate()
+function ACammo_module:client_onCreate()
     self.cl = {}
-    --self.cl.is_loaded = true
+    self.cl.is_loaded = false
+
     self.cl.loaded_shell_effect = sm.effect.createEffect("ShapeRenderable", self.shape.interactable)
-    self:cl_update_loadedState()
-    self:cl_update_visualization()
+    self.cl.loaded_shell_effect:setParameter("uuid", obj_generic_acammo)
+    self.cl.loaded_shell_effect:setScale(sm.vec3.one() / 4)
 end
 
 -------------------------------------------------------------------------------
 --[[                             Fixed Update                              ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack:server_onFixedUpdate(dt)
+function ACammo_module:server_onFixedUpdate(dt)
+    if #self.shape.interactable:getPublicData() == 0 then
+        self.network:sendToClients("cl_recieve_isLoaded", {false})
+        sm.container.beginTransaction()
+        sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_acammo, 1, true )
+        sm.container.endTransaction()
+    end
 end
 
-function Ammorack:client_onFixedUpdate(dt)
+function ACammo_module:client_onFixedUpdate(dt)
 end
 
 -------------------------------------------------------------------------------
 --[[                                Update                                 ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack:server_onUpdate(dt)
+function ACammo_module:server_onUpdate(dt)
 end
 
-function Ammorack:client_onUpdate(dt)
+function ACammo_module:client_onUpdate(dt)
 
     if not is_container_created(self.shape) then
         return
@@ -176,10 +111,10 @@ end
 --[[                               Destroy                                 ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack:server_onDestroy(dt)
+function ACammo_module:server_onDestroy(dt)
 end
 
-function Ammorack:client_onDestroy(dt)
+function ACammo_module:client_onDestroy(dt)
     self.cl.loaded_shell_effect:stopImmediate()
     self.cl.loaded_shell_effect:destroy()
 end
@@ -188,17 +123,18 @@ end
 --[[                                 Misc                                  ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack.client_onInteract( self, character, state )
+function ACammo_module.client_onInteract( self, character, state )
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
-    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() and carried_uuid ~= obj_generic_apfsds) then
+    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() or carried_uuid ~= sm.uuid.getNil()) then
+        print("bad return", self.shape.interactable:getContainer(0):getItem(0).uuid, carried_uuid)
         return
     end
     self.network:sendToServer("sv_giveShell", {character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_acammo})
-    --self.cl.is_loaded = false
+    self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end
 
-function Ammorack.client_canInteract( self, character )
+function ACammo_module.client_canInteract( self, character )
     self:cl_update_loadedState()
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
     if not is_container_created(self.shape) then
@@ -212,39 +148,41 @@ end
 --[[                            Network Server                             ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack:sv_sendTCL_isLoaded(data, client)
+function ACammo_module:sv_sendTCL_isLoaded(data, client)
     self.network:sendToClient(client, "cl_recieve_isLoaded", {self.shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil()})
 end
 
-function Ammorack:sv_giveShell(params)
+function ACammo_module:sv_giveShell(params)
     sm.container.beginTransaction()
     sm.container.collect( params.carryContainer, params.uuid, 1, true )
     if sm.container.endTransaction() then
-        print("Ammorack -> Carry [success]")
+        print("ACammo module -> Carry")
         local pd = params.character:getPublicData()
-        pd.carried_shell = deep_copy(self.sv.stored_shell)
-        print(self.sv.stored_shell)
+        pd.carried_shell = deep_copy(self.shape.interactable:getPublicData())
+        print(self.shape.interactable:getPublicData())
         params.character:setPublicData(pd)
-        self.sv.stored_shell = nil
+        self.shape.interactable:setPublicData({})
+        --self.sv.stored_shell = nil
         sm.container.beginTransaction()
-        sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+        sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_acammo, 1, true )
         sm.container.endTransaction()
     end
 end
 
-function Ammorack:sv_e_receiveItem(data)
+function ACammo_module:sv_e_receiveItem(data)
     local character = data.character
     local ammo = character:getPublicData().carried_shell
     sm.container.beginTransaction()
     sm.container.spend( data.playerCarry, data.itemUuid, 1, true )
     if sm.container.endTransaction() then
-        print("Carry -> Ammorack:")
-        self.sv.stored_shell = ammo
+        print("Carry -> Acammo module:")
+        self.shape.interactable:setPublicData(ammo)
+        print(self.shape.interactable:getPublicData())
         local pd = character:getPublicData()
         pd.carried_shell = {}
         character:setPublicData(pd)
         sm.container.beginTransaction()
-        sm.container.collect( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
+        sm.container.collect( self.shape.interactable:getContainer(0), obj_generic_acammo, 1, true )
         sm.container.endTransaction()
     end
 end
@@ -253,16 +191,10 @@ end
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
 
-function Ammorack:cl_update_loadedState()
+function ACammo_module:cl_update_loadedState()
     self.network:sendToServer("sv_sendTCL_isLoaded", nil)
 end
 
-function Ammorack:cl_recieve_isLoaded(data)
+function ACammo_module:cl_recieve_isLoaded(data)
     self.cl.is_loaded = data[1]
-end
-
-function Ammorack:cl_update_visualization(data)
-    self.cl.loaded_shell_effect:setParameter("uuid", sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188"))
-    self.cl.loaded_shell_effect:setScale(sm.vec3.one() / 4)
-
 end

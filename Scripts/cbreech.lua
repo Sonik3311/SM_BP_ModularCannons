@@ -24,6 +24,33 @@ dofile "$CONTENT_DATA/Scripts/splashes.lua"
 local dprint_filename = "Cbreech"
 
 local obj_generic_cooler = sm.uuid.new("5efb3348-ce62-4f26-9e28-a728d8527360")
+local obj_generic_acammo_module = sm.uuid.new("3ff64b8c-a7c1-4814-8453-fbc862a46726")
+
+local function deep_copy( tbl )
+    if tbl == nil then
+       return nil
+    end
+    local copy = {}
+    for key, value in pairs( tbl ) do
+        local var_type = type(value)
+        if var_type ~= 'table' then
+            if var_type == "Vec3" then
+				copy[key] = sm.vec3.new(value.x, value.y, value.z)
+			elseif var_type == "Quat" then
+				copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
+			elseif var_type == "Color" then
+				copy[key] = sm.color.new(value.r, value.g, value.b)
+			elseif var_type == "Uuid" then
+				copy[key] = sm.uuid.new(tostring(value))
+            else
+                copy[key] = value
+            end
+        else
+            copy[key] = deep_copy( value )
+        end
+    end
+    return copy
+end
 
 -------------------------------------------------------------------------------
 --[[                                Create                                 ]]--
@@ -50,9 +77,12 @@ function Cbreech:server_onCreate()
 
 	self.modules = get_connected_modules(self.shape)
 	self.coolers_amount = 0
+	self.additional_mags = {}
 	for _,module in pairs(self.modules) do
 	    if module == obj_generic_cooler then
 			self.coolers_amount = self.coolers_amount + 1
+		elseif module.uuid == obj_generic_acammo_module then
+			self.additional_mags[#self.additional_mags + 1] = module
 		end
 	end
 
@@ -93,12 +123,15 @@ function Cbreech:server_onFixedUpdate(dt)
 
         self.modules = get_connected_modules(self.shape)
 	    self.coolers_amount = 0
+		self.additional_mags = {}
 	    for _,module in pairs(self.modules) do
 	        if module.uuid == obj_generic_cooler then
 	    		self.coolers_amount = self.coolers_amount + 1
-	    	end
+	    	elseif module.uuid == obj_generic_acammo_module then
+				self.additional_mags[#self.additional_mags + 1] = module
+			end
 	    end
-        print(self.modules, self.coolers_amount)
+        print(self.modules, self.coolers_amount, #self.additional_mags)
     end
 
     self.fire_time_delay = self.fire_time_delay - dt
@@ -208,11 +241,42 @@ function Cbreech:sv_e_receiveItem(data)
 end
 
 function Cbreech:sv_fire_shell(is_debug, dt)
-    if #self.loaded_projectile == 0 then
+
+    local shell
+    local ammo
+    local is_taking_from_addmag = false
+    if self.data.is_autocannon then --get ammo from additional mags first
+        for _,mag in pairs(self.additional_mags) do
+            local mag_ammo = mag.interactable:getPublicData() or {}
+            if #mag_ammo > 0 then
+                print("add")
+                ammo = deep_copy(mag_ammo[#mag_ammo])
+                mag_ammo[#mag_ammo] = nil
+                mag.interactable:setPublicData(mag_ammo)
+                is_taking_from_addmag = true
+                break
+            end
+        end
+    end
+
+    shell = ammo or deep_copy(self.loaded_projectile[#self.loaded_projectile])
+
+
+    if shell == nil then
         return false
     end
 
-    local shell = self.loaded_projectile[#self.loaded_projectile]
+    if not is_taking_from_addmag then
+        print("del")
+        self.loaded_projectile[#self.loaded_projectile] = nil
+        if #self.loaded_projectile == 0 then
+            print("spend")
+            sm.container.beginTransaction()
+            local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
+            sm.container.spend( self.shape.interactable:getContainer(0), uuid, 1, true )
+            sm.container.endTransaction()
+        end
+    end
 
     local projectile_mass = shell.parameters.projectile_mass
 
@@ -262,7 +326,6 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     end
     --sm.ACC.shells[index] = deep_copy(self.loaded_shell)
     self.network:sendToClients("cl_add_shell_to_sim", shell)
-    --self.loaded_projectile[#self.loaded_projectile] = nil
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 
     self.fire_time_delay = self.data.fire_delay
@@ -271,12 +334,6 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     if self.heat >= 100 then
        self.overheated = true
        print("overheated")
-    end
-
-    if #self.loaded_projectile == 0 then
-        sm.container.beginTransaction()
-        sm.container.spend( self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true )
-        sm.container.endTransaction()
     end
 end
 

@@ -19,6 +19,7 @@
             "classname" : "Shell",
             "filename" : "$CONTENT_DATA/Scripts/shells/shell_shape_base.lua"
          },
+         "showInInventory" : false,
          "sticky" : "+Z",
          "uuid" : "f8353f82-d9ae-4dc3-bc98-2517337ee188"
       },
@@ -41,6 +42,7 @@
             "classname" : "Shell",
             "filename" : "$CONTENT_DATA/Scripts/shells/shell_shape_base.lua"
          },
+         "showInInventory" : false,
          "sticky" : "+Z",
          "uuid" : "2c7363a7-0246-42f0-a95a-9b41ef55ca6b"
       }

@@ -55,6 +55,7 @@ local obj_generic_acammo = sm.uuid.new("2c7363a7-0246-42f0-a95a-9b41ef55ca6b")
 local obj_generic_breech = sm.uuid.new("ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb")
 local obj_generic_acbreech = sm.uuid.new("f4a8b564-52b3-4ecb-8068-976be2f9c62d")
 local obj_generic_ammorack = sm.uuid.new("2d93cd84-6690-4eb0-8058-9c239dde0fbe")
+local obj_generic_acammo_module = sm.uuid.new("3ff64b8c-a7c1-4814-8453-fbc862a46726")
 
 local harvestItems =
 {
@@ -372,13 +373,14 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
 				local is_breech = shape_uuid == obj_generic_breech
 				local is_acbreech = shape_uuid == obj_generic_acbreech
 				local is_ammorack = shape_uuid == obj_generic_ammorack
-    			if is_breech or is_acbreech or is_ammorack then
-                    print("pass1")
+				local is_acammo_module = shape_uuid == obj_generic_acammo_module
+    			if is_breech or is_acbreech or is_ammorack or is_acammo_module then
                     local is_loaded = shape.interactable:getContainer(0):getItem(0).uuid ~= sm.uuid.getNil()
                     --print(is_loaded, shape.interactable:getContainer(0):getItem(0))
                     local is_right_type = is_acbreech and carryUuid == obj_generic_acammo
                     is_right_type = is_right_type or (is_breech and carryUuid ~= obj_generic_acammo)
                     is_right_type = is_right_type or (is_ammorack and carryUuid ~= obj_generic_acammo)
+                    is_right_type = is_right_type or (is_acammo_module and carryUuid == obj_generic_acammo)
                     print(is_right_type, is_loaded, shape.interactable:getContainer(0):getItem(0).uuid)
                     if not is_loaded and is_right_type then
                         --print("ready to load")
@@ -386,11 +388,9 @@ function repl_client_onEquippedUpdate( self, primaryState, secondaryState )
         				local keyBindingText =  sm.gui.getKeyBinding( "Create", true )
         				sm.gui.setInteractionText( "", keyBindingText, "#{INTERACTION_INSERT}" )
                         if primaryState == sm.tool.interactState.start then
-                            --if not self.is_shape_loaded then
-                                local character = self.tool:getOwner().character
-                                local params = {targetShape = shape, character = character, playerCarry = playerCarry, itemUuid = carryUuid}
-                                self.network:sendToServer( "sv_n_sendItem", params )
-                                --end
+                            local character = self.tool:getOwner().character
+                            local params = {targetShape = shape, character = character, playerCarry = playerCarry, itemUuid = carryUuid}
+                            self.network:sendToServer( "sv_n_sendItem", params )
                         end
                     end
                     return true, true
