@@ -13,6 +13,8 @@ Cbreech.maxParentCount = 1
 Cbreech.maxChildCount = 0
 Cbreech.connectionInput = sm.interactable.connectionType.logic
 Cbreech.connectionOutput = sm.interactable.connectionType.none
+Cbreech.poseWeightCount = 1
+
 
 dofile "$CONTENT_DATA/Scripts/dprint.lua"
 dofile "$CONTENT_DATA/Scripts/breech_functions.lua"
@@ -107,7 +109,8 @@ function Cbreech:client_onCreate()
     self.gui:setText("MinCaliber", tostring(self.data.min_caliber))
     self.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
     self.gui:setText( "CaliberEditBox", tostring(20) )
-    print(self.data)
+    self.animation_state = 0
+    self:cl_updateModel(0)
 end
 
 -------------------------------------------------------------------------------
@@ -173,6 +176,14 @@ function Cbreech:server_onUpdate(dt)
 end
 
 function Cbreech:client_onUpdate(dt)
+    if self.wants_to_be ~= self.animation_state then
+        local m = 5
+        if self.wants_to_be == 0 then
+            m = -5
+        end
+        self.animation_state = clamp(self.animation_state + dt * m, 0,1)
+        self.interactable:setPoseWeight( 0, self.animation_state )
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -240,6 +251,7 @@ function Cbreech:sv_e_receiveItem(data)
         sm.container.beginTransaction()
         sm.container.collect( self.shape.interactable:getContainer(0), data.itemUuid, 1, true )
         sm.container.endTransaction()
+        self.network:sendToClients("cl_updateModel", 1)
     end
 end
 
@@ -254,8 +266,8 @@ function Cbreech:sv_fire_shell(is_debug, dt)
             if #mag_ammo > 0 then
                 print("add")
                 ammo = deep_copy(mag_ammo[#mag_ammo])
-                --mag_ammo[#mag_ammo] = nil
-                --mag.interactable:setPublicData(mag_ammo)
+                mag_ammo[#mag_ammo] = nil
+                mag.interactable:setPublicData(mag_ammo)
                 is_taking_from_addmag = true
                 break
             end
@@ -271,13 +283,14 @@ function Cbreech:sv_fire_shell(is_debug, dt)
 
     if not is_taking_from_addmag then
         print("del")
-        --self.loaded_projectile[#self.loaded_projectile] = nil
+        self.loaded_projectile[#self.loaded_projectile] = nil
         if #self.loaded_projectile == 0 then
             print("spend")
             sm.container.beginTransaction()
             local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
             sm.container.spend( self.shape.interactable:getContainer(0), uuid, 1, true )
             sm.container.endTransaction()
+            self.network:sendToClients("cl_updateModel", 0)
         end
     end
 
@@ -348,6 +361,10 @@ end
 -------------------------------------------------------------------------------
 --[[                            Network Client                             ]]--
 -------------------------------------------------------------------------------
+
+function Cbreech:cl_updateModel(data)
+    self.wants_to_be = data
+end
 
 function Cbreech:cl_onGuiClosed()
 end

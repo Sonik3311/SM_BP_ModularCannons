@@ -4,6 +4,10 @@ function body_has_changed(shape)
     return shape:getBody():hasChanged(sm.game.getCurrentTick() - 1)
 end
 
+function clamp(x, min, max)
+    return math.max(min, math.min(max, x))
+end
+
 -----------------------------------------------------------------------------------------------
 
 function isAnyOf(target, pool)
@@ -88,7 +92,6 @@ function get_connected_modules(shape)
     for neighbour_id=1, #neighbours do
         local neighbour = neighbours[neighbour_id]
         local nuid = neighbour.uuid
-
         if not isAnyOf(nuid, g_modules) then
             print("not any")
             goto next
