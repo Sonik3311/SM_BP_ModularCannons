@@ -1,3 +1,5 @@
+dofile "$CONTENT_DATA/Scripts/modules_uuid.lua"
+
 function body_has_changed(shape)
     return shape:getBody():hasChanged(sm.game.getCurrentTick() - 1)
 end
@@ -79,14 +81,16 @@ function construct_cannon_new(shape, global_dir, last)
 end
 
 -----------------------------------------------------------------------------------------------
-local cooler_shape = sm.uuid.new("5efb3348-ce62-4f26-9e28-a728d8527360")
-local acammo_module_shape = sm.uuid.new("3ff64b8c-a7c1-4814-8453-fbc862a46726")
+
 function get_connected_modules(shape)
     local neighbours = shape:getNeighbours()
     local modules = {}
     for neighbour_id=1, #neighbours do
         local neighbour = neighbours[neighbour_id]
-        if neighbour.uuid ~= cooler_shape and neighbour.uuid ~= acammo_module_shape then
+        local nuid = neighbour.uuid
+
+        if not isAnyOf(nuid, g_modules) then
+            print("not any")
             goto next
         end
 

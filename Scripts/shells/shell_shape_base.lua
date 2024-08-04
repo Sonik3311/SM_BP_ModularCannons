@@ -7,7 +7,7 @@ end
 
 function Shell:client_onCreate()
     self.cl = {}
-    self.cl.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/shell_customizer.layout", false)
+    self.cl.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_aphe.layout", false)
     self.cl.gui:setOnCloseCallback( "cl_onGuiClosed" )
 end
 
@@ -17,7 +17,7 @@ end
 
 function Shell:sv_transfer_to_carry(data, player)
     local character = player.character
-    local uuid = #self.interactable:getPublicData() > 100 and sm.uuid.new("2c7363a7-0246-42f0-a95a-9b41ef55ca6b") or sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")
+    local uuid = #self.interactable:getPublicData() > 1 and sm.uuid.new("2c7363a7-0246-42f0-a95a-9b41ef55ca6b") or sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188")
     sm.container.beginTransaction()
     sm.container.collect( player:getCarry(), uuid, 1, true )
     if sm.container.endTransaction() then
@@ -27,7 +27,6 @@ function Shell:sv_transfer_to_carry(data, player)
         character:setPublicData(pd)
         self.shape:destroyShape()
     end
-
 end
 
 function Shell.client_canTinker(self,character)

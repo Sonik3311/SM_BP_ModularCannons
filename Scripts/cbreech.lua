@@ -20,11 +20,9 @@ dofile "$CONTENT_DATA/Scripts/pen_calc.lua"
 dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 dofile "$CONTENT_DATA/Scripts/effects.lua"
 dofile "$CONTENT_DATA/Scripts/splashes.lua"
+dofile "$CONTENT_DATA/Scripts/modules_uuid.lua"
 
 local dprint_filename = "Cbreech"
-
-local obj_generic_cooler = sm.uuid.new("5efb3348-ce62-4f26-9e28-a728d8527360")
-local obj_generic_acammo_module = sm.uuid.new("3ff64b8c-a7c1-4814-8453-fbc862a46726")
 
 local function deep_copy( tbl )
     if tbl == nil then
@@ -68,7 +66,7 @@ function Cbreech:server_onCreate()
 	else
 	   container:setFilters( cannon_shells )
 	end
-
+	self.fire_delay = self.data.fire_delay
 	self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
 	self.barrel_length = #self.barrel_shapes
 	self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
@@ -79,10 +77,12 @@ function Cbreech:server_onCreate()
 	self.coolers_amount = 0
 	self.additional_mags = {}
 	for _,module in pairs(self.modules) do
-	    if module == obj_generic_cooler then
+	    if module == obj_small_cooler then
 			self.coolers_amount = self.coolers_amount + 1
-		elseif module.uuid == obj_generic_acammo_module then
+		elseif module.uuid == obj_acammo_module then
 			self.additional_mags[#self.additional_mags + 1] = module
+		elseif module.uuid == obj_small_speeder then
+		    self.fire_delay = self.fire_delay / 1.5
 		end
 	end
 
@@ -123,14 +123,17 @@ function Cbreech:server_onFixedUpdate(dt)
 
         self.modules = get_connected_modules(self.shape)
 	    self.coolers_amount = 0
+		self.fire_delay = self.data.fire_delay
 		self.additional_mags = {}
-	    for _,module in pairs(self.modules) do
-	        if module.uuid == obj_generic_cooler then
-	    		self.coolers_amount = self.coolers_amount + 1
-	    	elseif module.uuid == obj_generic_acammo_module then
+        for _,module in pairs(self.modules) do
+			if module == obj_small_cooler then
+				self.coolers_amount = self.coolers_amount + 1
+			elseif module.uuid == obj_acammo_module then
 				self.additional_mags[#self.additional_mags + 1] = module
+			elseif module.uuid == obj_small_speeder then
+			    self.fire_delay = self.fire_delay / 1.5
 			end
-	    end
+		end
         print(self.modules, self.coolers_amount, #self.additional_mags)
     end
 
@@ -251,8 +254,8 @@ function Cbreech:sv_fire_shell(is_debug, dt)
             if #mag_ammo > 0 then
                 print("add")
                 ammo = deep_copy(mag_ammo[#mag_ammo])
-                mag_ammo[#mag_ammo] = nil
-                mag.interactable:setPublicData(mag_ammo)
+                --mag_ammo[#mag_ammo] = nil
+                --mag.interactable:setPublicData(mag_ammo)
                 is_taking_from_addmag = true
                 break
             end
@@ -268,7 +271,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
 
     if not is_taking_from_addmag then
         print("del")
-        self.loaded_projectile[#self.loaded_projectile] = nil
+        --self.loaded_projectile[#self.loaded_projectile] = nil
         if #self.loaded_projectile == 0 then
             print("spend")
             sm.container.beginTransaction()
@@ -328,7 +331,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     self.network:sendToClients("cl_add_shell_to_sim", shell)
     self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
 
-    self.fire_time_delay = self.data.fire_delay
+    self.fire_time_delay = self.fire_delay
     self.heat = self.heat + self.barrel_diameter / (7 * (self.coolers_amount + 1))
     print(self.heat)
     if self.heat >= 100 then

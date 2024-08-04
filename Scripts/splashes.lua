@@ -175,5 +175,10 @@ splashes = {
     "Tank, Ship or Plane\n- Doesn't matter -\nBreech's still the same!",
     "Horrifying reality of tank warfare\nneatly packaged into a mod\nfor a toony game.",
     "I'm hungry for some tungsten!",
-    "Tungsten cube or APFSDS?\nChoice is yours."
+    "Tungsten cube or APFSDS?\nChoice is yours.",
+    "Tanmk or Tonk?",
+    "Yoda speak I do mHMHMhmM",
+    "There might be some easter eggs hidden in the gui.",
+    "^ ^ ⌄ ⌄\n< > < > B A\nstart",
+    "Team cannon or autocannon?"
 }

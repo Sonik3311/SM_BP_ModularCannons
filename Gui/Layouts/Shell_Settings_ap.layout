@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Widget" skin="PanelEmpty" position_real="0 0 0.54947916666666663 0.53240740740740744" name="BackPanel">
+        <Widget type="Widget" skin="BackgroundPopup" position_real="0 0 0.37345971563981045 0.74782608695652175">
+            <Widget type="Button" skin="SettingsButton" position_real="0.073604060913705582 0.2558139534883721 0.82741116751269039 0.13953488372093023" name="Button_APFSDS">
+                <Property key="TextAlign" value="Center"/>
+                <Property key="FontName" value="SM_Button"/>
+                <Property key="Caption" value="APFSDS"/>
+            </Widget>
+            <Widget type="Button" skin="ActiveButton" position_real="0.073604060913705582 0.43023255813953487 0.82741116751269039 0.13953488372093023" name="Button_AP">
+                <Property key="TextAlign" value="Center"/>
+                <Property key="FontName" value="SM_Button"/>
+                <Property key="Caption" value="Armor-Piercing (AP)"/>
+            </Widget>
+            <Widget type="Button" skin="SettingsButton" position_real="0.073604060913705582 0.60465116279069764 0.82741116751269039 0.13953488372093023" name="Button_HE">
+                <Property key="TextAlign" value="Center"/>
+                <Property key="FontName" value="SM_Button"/>
+                <Property key="Caption" value="High-Explosive (HE)"/>
+            </Widget>
+            <Widget type="Button" skin="SettingsButton" position_real="0.073604060913705582 0.77906976744186052 0.82741116751269039 0.13953488372093023" name="Button_APHE">
+                <Property key="TextAlign" value="Center"/>
+                <Property key="FontName" value="SM_Button"/>
+                <Property key="Caption" value="AP High-Explosive (APHE)"/>
+            </Widget>
+            <Widget type="Widget" skin="PanelEmpty" position_real="0.076142131979695438 0.43023255813953487 0.82741116751269039 0.13953488372093023"/>
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.048223350253807105 0 0.87817258883248728 0.2558139534883721">
+                <Property key="Caption" value="Tank shell type"/>
+                <Property key="FontName" value="SM_HeaderLarge_Medium"/>
+                <Property key="Enabled" value="false"/>
+                <Property key="TextAlign" value="Center"/>
+            </Widget>
+        </Widget>
+        <Widget type="Widget" skin="BackgroundPopup" position_real="0.41137440758293836 0 0.58862559241706158 1">
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.21739130434782608 0.38808373590982287 0.045217391304347827" name="Slider_Amount">
+                <Property key="Range" value="100"/>
+                <Property key="RangePosition" value="0"/>
+            </Widget>
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.19130434782608696 0.19162640901771336 0.10608695652173913">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_Amount">
+                    <Property key="TextAlign" value="Left VCenter"/>
+                    <Property key="FontName" value="SM_TextLabel"/>
+                    <Property key="MaxTextLength" value="9"/>
+                </Widget>
+            </Widget>
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.32000000000000001 0.19162640901771336 0.10608695652173913">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_Diameter">
+                    <Property key="TextAlign" value="Left VCenter"/>
+                    <Property key="FontName" value="SM_TextLabel"/>
+                    <Property key="MaxTextLength" value="9"/>
+                </Widget>
+            </Widget>
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.19130434782608696 0.28824476650563607 0.10434782608695652">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="Caption" value="Propellant amount"/>
+                <Property key="ReadOnly" value="true"/>
+                <Property key="WordWrap" value="true"/>
+            </Widget>
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.32000000000000001 0.28824476650563607 0.10434782608695652">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Shell diameter (mm)"/>
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="ReadOnly" value="true"/>
+                <Property key="WordWrap" value="true"/>
+            </Widget>
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.45217391304347826 0.28824476650563607 0.12173913043478261">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Armour-Piercing, Capped, Ballistic Capped (APCBC)"/>
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="ReadOnly" value="true"/>
+                <Property key="WordWrap" value="true"/>
+            </Widget>
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.34782608695652173 0.38808373590982287 0.045217391304347827" name="Slider_Diameter">
+                <Property key="Range" value="100"/>
+                <Property key="RangePosition" value="0"/>
+            </Widget>
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.060869565217391307 0.86956521739130432 0.11304347826086956">
+                <Property key="ReadOnly" value="true"/>
+                <Property key="Caption" value="Armor-Piercing (AP)"/>
+                <Property key="FontName" value="SM_Header"/>
+                <Property key="Static" value="false"/>
+                <Property key="WordWrap" value="true"/>
+            </Widget>
+            <Widget type="Button" skin="ActiveButton" position_real="0.35426731078904994 0.46956521739130436 0.080515297906602251 0.086956521739130432" name="CheckBox_AP_APCBC">
+                <Property key="Caption" value="X"/>
+                <Property key="FontName" value="SM_ButtonLarge"/>
+                <Property key="TextAlign" value="Center"/>
+            </Widget>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings/>
+</MyGUI>
