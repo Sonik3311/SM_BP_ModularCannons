@@ -119,7 +119,9 @@ function SimTool:client_onUpdate(dt)
             self.tracers_per_projectile[shell_id] = sm.effect.createEffect("ShapeRenderable")
             self.tracers_per_projectile[shell_id]:setParameter("uuid", sm.uuid.new("01246ab4-e30c-4d77-a15a-8fc110a29723"))
             local diameter_factor = (shell.barrel_diameter / 150)
-            self.tracers_per_projectile[shell_id]:setScale(sm.vec3.new(diameter_factor,4 * diameter_factor,diameter_factor))
+            local sp = math.max(1, shell.velocity:length() / 100)
+            print(sp)
+            self.tracers_per_projectile[shell_id]:setScale(sm.vec3.new(diameter_factor,4 * diameter_factor * sp,diameter_factor))
             self.tracers_per_projectile[shell_id]:start()
         end
         local effect = self.tracers_per_projectile[shell_id]
