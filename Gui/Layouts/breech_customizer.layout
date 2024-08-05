@@ -9,7 +9,7 @@
         </Widget>
         <Widget type="Widget" skin="DropDownBackground" position_real="0.23076923076923078 0.049140049140049137 0.5494505494505495 0.14742014742014742"/>
         <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.16043956043956045 0.38083538083538082 0.67472527472527477 0.12530712530712532" name="CaliberSlider">
-            <Property key="Range" value="47"/>
+            <Property key="Range" value="100"/>
             <Property key="RangePosition" value="20"/>
             <Property key="Depth" value="0"/>
         </Widget>

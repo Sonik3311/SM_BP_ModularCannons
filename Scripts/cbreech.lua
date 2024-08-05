@@ -106,7 +106,7 @@ function Cbreech:client_onCreate()
     self.l2 = 3
     self.l3 = 3
     self.gui:setText("Splash", splashes[self.last_splash_index])
-    self.gui:setText("MinCaliber", tostring(self.data.min_caliber))
+    self.gui:setText("CaliberMin", tostring(self.data.min_caliber))
     self.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
     self.gui:setText( "CaliberEditBox", tostring(20) )
     self.animation_state = 0
@@ -378,14 +378,14 @@ function Cbreech:cl_onGuiClosed()
 end
 
 function Cbreech:cl_onCaliberChange(name, position)
-    local converted_pos = tonumber(position) + 4
+    local converted_pos = math.floor(sm.util.lerp(self.data.min_caliber, self.data.max_caliber, ((position*1.0101010101) / 100))+0.5)
     if name ~= "CaliberEditBox" then
         self.gui:setText( "CaliberEditBox", tostring(converted_pos) )
     else
-        self.gui:setSliderData( "CaliberSlider", 50, converted_pos )
+        self.gui:setSliderData( "CaliberSlider", 100, converted_pos ) -- jafkdjkdsnjklondsjonaj
     end
     self.network:sendToServer("change_barrel_diameter", converted_pos)
-    print(name,position, converted_pos)
+    print(name,position, converted_pos, tonumber(position) / 100,self.data.min_caliber, self.data.max_caliber, tostring(math.ceil(self.data.min_caliber)))
 end
 
 function Cbreech:cl_add_shell_to_sim(shell)
