@@ -2,7 +2,7 @@
    "particleSystemList" : [
       "HE_willturn.json",
       "HE_fixed.json",
-      "APFSDS_entry_ferrium.json",
+      "APFSDS_entry_ferrium_new.json",
       "APHE_willturn.json",
       "Small_caliber_smoke.json",
       "Medium_caliber_fire.json",
