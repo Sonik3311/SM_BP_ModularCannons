@@ -110,7 +110,7 @@ function Cbreech:client_onCreate()
     self.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
     self.gui:setText( "CaliberEditBox", tostring(20) )
     self.animation_state = 0
-    self:cl_updateModel(0)
+    self.network:sendToServer("getLoadState")
 end
 
 -------------------------------------------------------------------------------
@@ -177,9 +177,13 @@ end
 
 function Cbreech:client_onUpdate(dt)
     if self.wants_to_be ~= self.animation_state then
-        local m = 5
+        local delta = math.abs(self.wants_to_be - self.animation_state)
+        if delta < 0.01 then
+            self.animation_state = self.wants_to_be
+        end
+        local m = 10 * delta
         if self.wants_to_be == 0 then
-            m = -5
+            m = -10 * delta
         end
         self.animation_state = clamp(self.animation_state + dt * m, 0,1)
         self.interactable:setPoseWeight( 0, self.animation_state )
@@ -223,6 +227,10 @@ end
 -------------------------------------------------------------------------------
 --[[                            Network Server                             ]]--
 -------------------------------------------------------------------------------
+
+function Cbreech:getLoadState(data, player)
+    self.network:sendToClient(player, "cl_updateModel", #self.loaded_projectile > 0 and 1 or 0)
+end
 
 function Cbreech:sv_e_receiveItem(data)
     local character = data.character
