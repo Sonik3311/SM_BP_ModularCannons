@@ -4,7 +4,7 @@
 ]]
 
 -------------------------------------------------------------------------------
---[[                                Setup                                  ]]--
+--[[                                Setup                                  ]] --
 -------------------------------------------------------------------------------
 
 
@@ -26,81 +26,81 @@ dofile "$CONTENT_DATA/Scripts/modules_uuid.lua"
 
 local dprint_filename = "Cbreech"
 
-local function deep_copy( tbl )
+local function deep_copy(tbl)
     if tbl == nil then
-       return nil
+        return nil
     end
     local copy = {}
-    for key, value in pairs( tbl ) do
+    for key, value in pairs(tbl) do
         local var_type = type(value)
         if var_type ~= 'table' then
             if var_type == "Vec3" then
-				copy[key] = sm.vec3.new(value.x, value.y, value.z)
-			elseif var_type == "Quat" then
-				copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
-			elseif var_type == "Color" then
-				copy[key] = sm.color.new(value.r, value.g, value.b)
-			elseif var_type == "Uuid" then
-				copy[key] = sm.uuid.new(tostring(value))
+                copy[key] = sm.vec3.new(value.x, value.y, value.z)
+            elseif var_type == "Quat" then
+                copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
+            elseif var_type == "Color" then
+                copy[key] = sm.color.new(value.r, value.g, value.b)
+            elseif var_type == "Uuid" then
+                copy[key] = sm.uuid.new(tostring(value))
             else
                 copy[key] = value
             end
         else
-            copy[key] = deep_copy( value )
+            copy[key] = deep_copy(value)
         end
     end
     return copy
 end
 
 -------------------------------------------------------------------------------
---[[                                Create                                 ]]--
+--[[                                Create                                 ]] --
 -------------------------------------------------------------------------------
 
 
 function Cbreech:server_onCreate()
-    local container = self.shape.interactable:getContainer( 0 )
-	if not container then
-		container = self.shape:getInteractable():addContainer( 0, 1, 1 )
-	end
+    local container = self.shape.interactable:getContainer(0)
+    if not container then
+        container = self.shape:getInteractable():addContainer(0, 1, 1)
+    end
 
-	if self.data.is_autocannon then
-	   container:setFilters( {obj_generic_acammo} )
-	else
-	   container:setFilters( cannon_shells )
-	end
-	self.fire_delay = self.data.fire_delay
-	self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
-	self.barrel_length = #self.barrel_shapes
-	self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
-	self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 4
-	update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+    if self.data.is_autocannon then
+        container:setFilters({ obj_generic_acammo })
+    else
+        container:setFilters(cannon_shells)
+    end
+    self.fire_delay = self.data.fire_delay
+    self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
+    self.barrel_length = #self.barrel_shapes
+    self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
+    self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 4
+    update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
 
-	self.modules = get_connected_modules(self.shape)
-	self.coolers_amount = 0
-	self.additional_mags = {}
-	for _,module in pairs(self.modules) do
-	    if module == obj_small_cooler then
-			self.coolers_amount = self.coolers_amount + 1
-		elseif module.uuid == obj_acammo_module then
-			self.additional_mags[#self.additional_mags + 1] = module
-		elseif module.uuid == obj_small_speeder then
-		    self.fire_delay = self.fire_delay / 1.5
-		end
-	end
+    self.modules = get_connected_modules(self.shape)
+    self.coolers_amount = 0
+    self.additional_mags = {}
+    for _, module in pairs(self.modules) do
+        if module == obj_small_cooler then
+            self.coolers_amount = self.coolers_amount + 1
+        elseif module.uuid == obj_acammo_module then
+            self.additional_mags[#self.additional_mags + 1] = module
+        elseif module.uuid == obj_small_speeder then
+            self.fire_delay = self.fire_delay / 1.5
+        end
+    end
 
-	self.loaded_projectile = {}
-	self.fire_time_delay = 0
-	self.heat = 0
-	self.overheated = false
+    self.loaded_projectile = {}
+    self.fire_time_delay = 0
+    self.heat = 0
+    self.overheated = false
 end
 
 function Cbreech:client_onCreate()
     self.effects = {}
 
     self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/breech_customizer.layout", false)
-    self.gui:setOnCloseCallback( "cl_onGuiClosed" )
-    self.gui:setSliderCallback( "CaliberSlider", "cl_onCaliberChange" )
-    self.gui:setTextAcceptedCallback( "CaliberEditBox", "cl_onCaliberChange" )
+    self.gui:setOnCloseCallback("cl_onGuiClosed")
+    self.gui:setSliderCallback("CaliberSlider", "cl_onCaliberChange")
+    self.gui:setTextAcceptedCallback("CaliberEditBox", "cl_onCaliberChange")
     self.last_splash_index = 3
     self.l1 = 3
     self.l2 = 3
@@ -108,13 +108,13 @@ function Cbreech:client_onCreate()
     self.gui:setText("Splash", splashes[self.last_splash_index])
     self.gui:setText("CaliberMin", tostring(self.data.min_caliber))
     self.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
-    self.gui:setText( "CaliberEditBox", tostring(20) )
+    self.gui:setText("CaliberEditBox", tostring(20))
     self.animation_state = 0
     self.network:sendToServer("getLoadState")
 end
 
 -------------------------------------------------------------------------------
---[[                             Fixed Update                              ]]--
+--[[                             Fixed Update                              ]] --
 -------------------------------------------------------------------------------
 
 function Cbreech:server_onFixedUpdate(dt)
@@ -125,25 +125,25 @@ function Cbreech:server_onFixedUpdate(dt)
         update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
 
         self.modules = get_connected_modules(self.shape)
-	    self.coolers_amount = 0
-		self.fire_delay = self.data.fire_delay
-		self.additional_mags = {}
-        for _,module in pairs(self.modules) do
-			if module == obj_small_cooler then
-				self.coolers_amount = self.coolers_amount + 1
-			elseif module.uuid == obj_acammo_module then
-				self.additional_mags[#self.additional_mags + 1] = module
-			elseif module.uuid == obj_small_speeder then
-			    self.fire_delay = self.fire_delay / 1.5
-			end
-		end
+        self.coolers_amount = 0
+        self.fire_delay = self.data.fire_delay
+        self.additional_mags = {}
+        for _, module in pairs(self.modules) do
+            if module == obj_small_cooler then
+                self.coolers_amount = self.coolers_amount + 1
+            elseif module.uuid == obj_acammo_module then
+                self.additional_mags[#self.additional_mags + 1] = module
+            elseif module.uuid == obj_small_speeder then
+                self.fire_delay = self.fire_delay / 1.5
+            end
+        end
         print(self.modules, self.coolers_amount, #self.additional_mags)
     end
 
     self.fire_time_delay = self.fire_time_delay - dt
     self.heat = math.max(0, self.heat - 10 * dt)
     if self.overheated then
-       print(self.heat)
+        print(self.heat)
     end
     if self.heat <= 0.1 and self.overheated then
         self.overheated = false
@@ -169,7 +169,7 @@ function Cbreech:client_onFixedUpdate(dt)
 end
 
 -------------------------------------------------------------------------------
---[[                                Update                                 ]]--
+--[[                                Update                                 ]] --
 -------------------------------------------------------------------------------
 
 function Cbreech:server_onUpdate(dt)
@@ -185,13 +185,13 @@ function Cbreech:client_onUpdate(dt)
         if self.wants_to_be == 0 then
             m = -10 * delta
         end
-        self.animation_state = clamp(self.animation_state + dt * m, 0,1)
-        self.interactable:setPoseWeight( 0, self.animation_state )
+        self.animation_state = clamp(self.animation_state + dt * m, 0, 1)
+        self.interactable:setPoseWeight(0, self.animation_state)
     end
 end
 
 -------------------------------------------------------------------------------
---[[                                Tinker                                 ]]--
+--[[                                Tinker                                 ]] --
 -------------------------------------------------------------------------------
 
 function Cbreech:client_canTinker(character)
@@ -215,7 +215,7 @@ function Cbreech:client_onTinker(character, state)
 end
 
 -------------------------------------------------------------------------------
---[[                               Destroy                                 ]]--
+--[[                               Destroy                                 ]] --
 -------------------------------------------------------------------------------
 
 function Cbreech:server_onDestroy()
@@ -225,7 +225,7 @@ function Cbreech:client_onDestroy()
 end
 
 -------------------------------------------------------------------------------
---[[                            Network Server                             ]]--
+--[[                            Network Server                             ]] --
 -------------------------------------------------------------------------------
 
 function Cbreech:getLoadState(data, player)
@@ -249,7 +249,7 @@ function Cbreech:sv_e_receiveItem(data)
     end
     local ammo = character:getPublicData().carried_shell
     sm.container.beginTransaction()
-    sm.container.spend( data.playerCarry, data.itemUuid, 1, true )
+    sm.container.spend(data.playerCarry, data.itemUuid, 1, true)
     if sm.container.endTransaction() then
         print("Cbreech Loaded")
         self.loaded_projectile = ammo
@@ -257,19 +257,18 @@ function Cbreech:sv_e_receiveItem(data)
         pd.carried_shell = {}
         character:setPublicData(pd)
         sm.container.beginTransaction()
-        sm.container.collect( self.shape.interactable:getContainer(0), data.itemUuid, 1, true )
+        sm.container.collect(self.shape.interactable:getContainer(0), data.itemUuid, 1, true)
         sm.container.endTransaction()
         self.network:sendToClients("cl_updateModel", 1)
     end
 end
 
 function Cbreech:sv_fire_shell(is_debug, dt)
-
     local shell
     local ammo
     local is_taking_from_addmag = false
     if self.data.is_autocannon then --get ammo from additional mags first
-        for _,mag in pairs(self.additional_mags) do
+        for _, mag in pairs(self.additional_mags) do
             local mag_ammo = mag.interactable:getPublicData() or {}
             if #mag_ammo > 0 then
                 print("add")
@@ -296,7 +295,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
             print("spend")
             sm.container.beginTransaction()
             local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
-            sm.container.spend( self.shape.interactable:getContainer(0), uuid, 1, true )
+            sm.container.spend(self.shape.interactable:getContainer(0), uuid, 1, true)
             sm.container.endTransaction()
             self.network:sendToClients("cl_updateModel", 0)
         end
@@ -310,10 +309,12 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     --local low_pressure = math.max(0, self.barrel_length - propellant * 2.2)
     --local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
     --print(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell.parameters.projectile_mass)
-    local speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.3333, self.barrel_diameter / 1000, shell) * propellant
+    local speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.3333, self.barrel_diameter / 1000, shell) *
+    propellant
 
-    local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000)^0.4, 0.99), 1) --crude approximation
-    local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(), accuracy_factor):normalize()
+    local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000) ^ 0.4, 0.99), 1) --crude approximation
+    local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(),
+        accuracy_factor):normalize()
 
     shell.position = self.muzzle_shape:getWorldPosition() - self.shape:getAt() * 0.126
     shell.velocity = direction * speed
@@ -324,15 +325,17 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     if is_debug then
         shell.debug = {
             path = {
-                shell = {{shell.position, shell.position + direction}},
+                shell = { { shell.position, shell.position + direction } },
                 spall = {},
                 creations = {}
             }
         }
     end
 
-    dprint("Firing shell ("..shell.type..") with the speed of "..tostring(speed), "info", dprint_filename, nil, "sv_fire_shell")
-    dprint("Fired shell has "..tostring(shell.max_pen).." mm pen of RHA", "info", dprint_filename, nil, "sv_fire_shell")
+    dprint("Firing shell (" .. shell.type .. ") with the speed of " .. tostring(speed), "info", dprint_filename, nil,
+        "sv_fire_shell")
+    dprint("Fired shell has " .. tostring(shell.max_pen) .. " mm pen of RHA", "info", dprint_filename, nil,
+        "sv_fire_shell")
 
 
     local recoil_force = calculate_recoil_force(shell.parameters.projectile_mass, speed, 0, 0)
@@ -350,24 +353,25 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     end
     --sm.ACC.shells[index] = deep_copy(self.loaded_shell)
     self.network:sendToClients("cl_add_shell_to_sim", shell)
-    self.network:sendToClients("cl_play_launch_effect", {breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0})
+    self.network:sendToClients("cl_play_launch_effect",
+        { breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0 })
 
     self.fire_time_delay = self.fire_delay
     self.heat = self.heat + self.barrel_diameter / (7 * (self.coolers_amount + 1))
     print(self.heat)
     if self.heat >= 100 then
-       self.overheated = true
-       print("overheated")
+        self.overheated = true
+        print("overheated")
     end
 end
 
 function Cbreech:change_barrel_diameter(diameter)
     self.barrel_diameter = diameter
-	update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+    update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
 end
 
 -------------------------------------------------------------------------------
---[[                            Network Client                             ]]--
+--[[                            Network Client                             ]] --
 -------------------------------------------------------------------------------
 
 function Cbreech:cl_updateModel(data)
@@ -378,14 +382,16 @@ function Cbreech:cl_onGuiClosed()
 end
 
 function Cbreech:cl_onCaliberChange(name, position)
-    local converted_pos = math.floor(sm.util.lerp(self.data.min_caliber, self.data.max_caliber, ((position*1.0101010101) / 100))+0.5)
+    local converted_pos = math.floor(sm.util.lerp(self.data.min_caliber, self.data.max_caliber,
+        ((position * 1.0101010101) / 100)) + 0.5)
     if name ~= "CaliberEditBox" then
-        self.gui:setText( "CaliberEditBox", tostring(converted_pos) )
+        self.gui:setText("CaliberEditBox", tostring(converted_pos))
     else
-        self.gui:setSliderData( "CaliberSlider", 100, converted_pos ) -- jafkdjkdsnjklondsjonaj
+        self.gui:setSliderData("CaliberSlider", 100, converted_pos)   -- jafkdjkdsnjklondsjonaj
     end
     self.network:sendToServer("change_barrel_diameter", converted_pos)
-    print(name,position, converted_pos, tonumber(position) / 100,self.data.min_caliber, self.data.max_caliber, tostring(math.ceil(self.data.min_caliber)))
+    print(name, position, converted_pos, tonumber(position) / 100, self.data.min_caliber, self.data.max_caliber,
+        tostring(math.ceil(self.data.min_caliber)))
 end
 
 function Cbreech:cl_add_shell_to_sim(shell)

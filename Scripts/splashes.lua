@@ -180,5 +180,5 @@ splashes = {
     "Yoda speak I do mHMHMhmM",
     "There might be some easter eggs hidden in the gui.",
     "^ ^ ⌄ ⌄\n< > < > B A\nstart",
-    "Team cannon or autocannon?"
+    "Team cannon or autocannon?",
 }

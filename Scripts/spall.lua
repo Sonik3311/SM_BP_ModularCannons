@@ -174,17 +174,3 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
     print("Spall process took",os.clock()-start_time)
     return return_paths, return_effect_data
 end
-
-function process_singular_spall(position, direction, amount, ignore_shape)
-    local end_point = position + direction * 20
-    local hit, hit_data = sm.physics.raycast(position, end_point, ignore_shape)
-    local hit_shape = hit_data:getShape()
-    if hit and hit_shape and hit_shape.isBlock then
-        local voxel = hit_shape:getClosestBlockLocalPosition( hit_data.pointWorld )
-        hit_shape:destroyBlock(voxel)
-    elseif hit and hit_shape then
-        hit_shape:destroyShape()
-    end
-
-    return position, hit_data.pointWorld:length2() ~= 0 and hit_data.pointWorld or end_point
-end
