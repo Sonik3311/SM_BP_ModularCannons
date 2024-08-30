@@ -6,6 +6,9 @@
       "APHE_willturn.json",
       "Small_caliber_smoke.json",
       "Medium_caliber_fire.json",
-      "Debris_impact.json"
+      "Debris_impact.json",
+      "Overheat_small_caliber.json",
+      "Overheat_medium_caliber.json",
+      "Overheat_big_caliber.json"
    ]
 }

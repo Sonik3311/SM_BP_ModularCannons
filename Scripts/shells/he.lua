@@ -10,14 +10,13 @@ local function get_fragment_config(shell)
 
     local fragment_pen = 0.1802 + 0.1607 * shell_diameter + 4.4103 * explosive_mass
 
-    local fragment_amount = math.max(math.min(shell_diameter^1.2, 800), 50)
+    local fragment_amount = math.max(math.min(shell_diameter ^ 1.2, 800), 50)
 
     local fragment_angle = 150
     return fragment_amount, fragment_pen, fragment_angle
 end
 
-function process_he_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
-
+function process_he_penetration(shell, hit_shape, hit_data, start_point, end_point, dt, net)
     local shell_direction = shell.velocity:normalize()
     local is_world_surface = is_world_surface(hit_data.type)
     local ricochet_dir
@@ -39,10 +38,11 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
     local shape = hit_data:getShape()
     --sm.physics.applyImpulse( shape, shell_direction * 10 * shape.body.mass, true )
     local f_amount, f_pen, f_angle = get_fragment_config(shell)
-    local spall_paths, spall_effect_data = process_multi_spall(hit_data.pointWorld - shell_direction / 7, shell.velocity:normalize(), {{f_angle, f_amount, f_pen, false}}, nil, net)
+    local spall_paths, spall_effect_data = process_multi_spall(hit_data.pointWorld - shell_direction / 7,
+        shell.velocity:normalize(), { { f_angle, f_amount, f_pen, false } }, nil, net)
 
     local clamped_spall_data = {}
-    for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5),1) do
+    for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5), 1) do
         clamped_spall_data[#clamped_spall_data + 1] = spall_effect_data[i]
     end
     net:sendToClients("cl_play_spall_effects", clamped_spall_data)
@@ -50,7 +50,7 @@ function process_he_penetration (shell, hit_shape, hit_data, start_point, end_po
     if shell.debug then
         for path_id = 1, #spall_paths do
             local path = spall_paths[path_id]
-            shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
+            shell.debug.path.spall[#shell.debug.path.spall + 1] = { path[1], path[2] }
         end
     end
 

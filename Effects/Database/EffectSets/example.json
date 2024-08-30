@@ -86,7 +86,23 @@
          }
       ]
    },
-   "Small_caliber_smoke" : {
+   "Overheat_medium_caliber" : {
+      "effectList" : [
+         {
+            "particles" : [ "Overheat_medium_caliber" ],
+            "type" : "particle"
+         }
+      ]
+   },
+   "Overheat_small_caliber" : {
+      "effectList" : [
+         {
+            "particles" : [ "Overheat_small_caliber" ],
+            "type" : "particle"
+         }
+      ]
+   },
+   "Small_caliber_fire" : {
       "effectList" : [
          {
             "particles" : [ "Small_caliber_smoke" ],

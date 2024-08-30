@@ -66,7 +66,7 @@ function Cbreech:server_onCreate()
     if self.data.is_autocannon then
         container:setFilters({ obj_generic_acammo })
     else
-        container:setFilters(cannon_shells)
+        container:setFilters(g_cannon_shells)
     end
     self.fire_delay = self.data.fire_delay
     self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
@@ -95,21 +95,23 @@ function Cbreech:server_onCreate()
 end
 
 function Cbreech:client_onCreate()
-    self.effects = {}
-
-    self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/breech_customizer.layout", false)
-    self.gui:setOnCloseCallback("cl_onGuiClosed")
-    self.gui:setSliderCallback("CaliberSlider", "cl_onCaliberChange")
-    self.gui:setTextAcceptedCallback("CaliberEditBox", "cl_onCaliberChange")
-    self.last_splash_index = 3
-    self.l1 = 3
-    self.l2 = 3
-    self.l3 = 3
-    self.gui:setText("Splash", splashes[self.last_splash_index])
-    self.gui:setText("CaliberMin", tostring(self.data.min_caliber))
-    self.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
-    self.gui:setText("CaliberEditBox", tostring(20))
-    self.animation_state = 0
+    self.cl = {}
+    self.cl.effects = {}
+    self.cl.overheat_effect = nil
+    self.cl.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/breech_customizer.layout", false)
+    self.cl.gui:setOnCloseCallback("cl_onGuiClosed")
+    self.cl.gui:setSliderCallback("CaliberSlider", "cl_onCaliberChange")
+    self.cl.gui:setTextAcceptedCallback("CaliberEditBox", "cl_onCaliberChange")
+    self.cl.last_splash_index = 3
+    self.cl.l1 = 3
+    self.cl.l2 = 3
+    self.cl.l3 = 3
+    self.cl.gui:setText("Splash", splashes[self.cl.last_splash_index])
+    self.cl.gui:setText("CaliberMin", tostring(self.data.min_caliber))
+    self.cl.gui:setText("MaxCaliber", tostring(self.data.max_caliber))
+    self.cl.gui:setText("CaliberEditBox", tostring(20))
+    self.cl.animation_state = 0
+    self.cl.play_overheat = false
     self.network:sendToServer("getLoadState")
 end
 
@@ -129,7 +131,7 @@ function Cbreech:server_onFixedUpdate(dt)
         self.fire_delay = self.data.fire_delay
         self.additional_mags = {}
         for _, module in pairs(self.modules) do
-            if module == obj_small_cooler then
+            if module.uuid == obj_small_cooler then
                 self.coolers_amount = self.coolers_amount + 1
             elseif module.uuid == obj_acammo_module then
                 self.additional_mags[#self.additional_mags + 1] = module
@@ -141,12 +143,14 @@ function Cbreech:server_onFixedUpdate(dt)
     end
 
     self.fire_time_delay = self.fire_time_delay - dt
-    self.heat = math.max(0, self.heat - 10 * dt)
+    self.heat = math.max(0, self.heat - 10 * math.max(self.coolers_amount, 1) * dt)
     if self.overheated then
         print(self.heat)
     end
     if self.heat <= 0.1 and self.overheated then
         self.overheated = false
+        self.network:sendToClients("cl_update_overheat",
+            { breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, state = false })
         print("ready to fire")
     end
 
@@ -156,14 +160,24 @@ function Cbreech:server_onFixedUpdate(dt)
 end
 
 function Cbreech:client_onFixedUpdate(dt)
-    for key, effect in pairs(self.effects) do
+    if self.cl.play_overheat then
+        if not self.cl.overheat_effect:isPlaying() then
+            self.cl.overheat_effect:start()
+        end
+    elseif self.cl.overheat_effect ~= nil and self.cl.overheat_effect:isPlaying() then
+        self.cl.overheat_effect:stop()
+    end
+
+
+
+    for key, effect in pairs(self.cl.effects) do
         if effect:isDone() then
             effect:destroy()
-            self.effects[key] = nil
+            self.cl.effects[key] = nil
         end
     end
 
-    if self.gui:isActive() then
+    if self.cl.gui:isActive() then
 
     end
 end
@@ -176,17 +190,17 @@ function Cbreech:server_onUpdate(dt)
 end
 
 function Cbreech:client_onUpdate(dt)
-    if self.wants_to_be ~= self.animation_state then
-        local delta = math.abs(self.wants_to_be - self.animation_state)
+    if self.wants_to_be ~= self.cl.animation_state then
+        local delta = math.abs(self.wants_to_be - self.cl.animation_state)
         if delta < 0.01 then
-            self.animation_state = self.wants_to_be
+            self.cl.animation_state = self.wants_to_be
         end
         local m = 10 * delta
         if self.wants_to_be == 0 then
             m = -10 * delta
         end
-        self.animation_state = clamp(self.animation_state + dt * m, 0, 1)
-        self.interactable:setPoseWeight(0, self.animation_state)
+        self.cl.animation_state = clamp(self.cl.animation_state + dt * m, 0, 1)
+        self.interactable:setPoseWeight(0, self.cl.animation_state)
     end
 end
 
@@ -200,17 +214,17 @@ end
 
 function Cbreech:client_onTinker(character, state)
     if state == true then
-        self.gui:open()
+        self.cl.gui:open()
         -- update splash text
         local ind = math.random(#splashes)
-        while ind == self.last_splash_index or ind == self.l1 or ind == self.l2 or ind == self.l3 do
+        while ind == self.cl.last_splash_index or ind == self.cl.l1 or ind == self.cl.l2 or ind == self.cl.l3 do
             ind = math.random(#splashes)
         end
-        self.l3 = self.l2
-        self.l2 = self.l1
-        self.l1 = self.last_splash_index
-        self.last_splash_index = ind
-        self.gui:setText("Splash", splashes[self.last_splash_index])
+        self.cl.l3 = self.cl.l2
+        self.cl.l2 = self.cl.l1
+        self.cl.l1 = self.cl.last_splash_index
+        self.cl.last_splash_index = ind
+        self.cl.gui:setText("Splash", splashes[self.cl.last_splash_index])
     end
 end
 
@@ -234,10 +248,11 @@ end
 
 function Cbreech:sv_e_receiveItem(data)
     local character = data.character
+    local ammo = character:getPublicData().carried_shell
     print("Carry -> Cbreech:", ammo)
     -- check for autocannon ammo
     local is_ac = self.data.is_autocannon
-    local is_shell = isAnyOf(data.itemUuid, cannon_shells)
+    local is_shell = isAnyOf(data.itemUuid, g_cannon_shells)
     if is_ac and is_shell then
         print("Autocannon rejected shell")
         return
@@ -247,7 +262,7 @@ function Cbreech:sv_e_receiveItem(data)
         print("Cannon rejected clip")
         return
     end
-    local ammo = character:getPublicData().carried_shell
+
     sm.container.beginTransaction()
     sm.container.spend(data.playerCarry, data.itemUuid, 1, true)
     if sm.container.endTransaction() then
@@ -290,15 +305,15 @@ function Cbreech:sv_fire_shell(is_debug, dt)
 
     if not is_taking_from_addmag then
         print("del")
-        self.loaded_projectile[#self.loaded_projectile] = nil
-        if #self.loaded_projectile == 0 then
-            print("spend")
-            sm.container.beginTransaction()
-            local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
-            sm.container.spend(self.shape.interactable:getContainer(0), uuid, 1, true)
-            sm.container.endTransaction()
-            self.network:sendToClients("cl_updateModel", 0)
-        end
+        --self.loaded_projectile[#self.loaded_projectile] = nil
+        --if #self.loaded_projectile == 0 then
+        --    print("spend")
+        --    sm.container.beginTransaction()
+        --    local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
+        --    sm.container.spend(self.shape.interactable:getContainer(0), uuid, 1, true)
+        --    sm.container.endTransaction()
+        --    self.network:sendToClients("cl_updateModel", 0)
+        --end
     end
 
     local projectile_mass = shell.parameters.projectile_mass
@@ -310,7 +325,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     --local speed = propellant_power * high_pressure - propellant_power / 10 * low_pressure
     --print(#self.barrel_shapes * 0.25, self.barrel_diameter / 1000, self.loaded_shell.parameters.projectile_mass)
     local speed = calculate_muzzle_velocity(#self.barrel_shapes * 0.3333, self.barrel_diameter / 1000, shell) *
-    propellant
+        propellant
 
     local accuracy_factor = math.min(math.max(((self.barrel_length / 10) + speed / 30000) ^ 0.4, 0.99), 1) --crude approximation
     local direction = sm.vec3.lerp(sm.vec3.new(math.random(), math.random(), math.random()), -self.shape:getAt(),
@@ -361,6 +376,8 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     print(self.heat)
     if self.heat >= 100 then
         self.overheated = true
+        self.network:sendToClients("cl_update_overheat",
+            { breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, state = true })
         print("overheated")
     end
 end
@@ -385,9 +402,9 @@ function Cbreech:cl_onCaliberChange(name, position)
     local converted_pos = math.floor(sm.util.lerp(self.data.min_caliber, self.data.max_caliber,
         ((position * 1.0101010101) / 100)) + 0.5)
     if name ~= "CaliberEditBox" then
-        self.gui:setText("CaliberEditBox", tostring(converted_pos))
+        self.cl.gui:setText("CaliberEditBox", tostring(converted_pos))
     else
-        self.gui:setSliderData("CaliberSlider", 100, converted_pos)   -- jafkdjkdsnjklondsjonaj
+        self.cl.gui:setSliderData("CaliberSlider", 100, converted_pos) -- jafkdjkdsnjklondsjonaj
     end
     self.network:sendToServer("change_barrel_diameter", converted_pos)
     print(name, position, converted_pos, tonumber(position) / 100, self.data.min_caliber, self.data.max_caliber,
@@ -405,11 +422,18 @@ end
 function Cbreech:cl_play_launch_effect(data)
     local effect = get_launch_effect(data)
     effect:start()
-    self.effects[#self.effects + 1] = effect
+    self.cl.effects[#self.cl.effects + 1] = effect
+end
+
+function Cbreech:cl_update_overheat(data)
+    if not self.cl.overheat_effect then
+        self.cl.overheat_effect = get_overheat_effect(data)
+    end
+    self.cl.play_overheat = data.state
 end
 
 function Cbreech:cl_play_entry_effect(data)
     local effect = get_entry_effect(data)
     effect:start()
-    self.effects[#self.effects + 1] = effect
+    self.cl.effects[#self.cl.effects + 1] = effect
 end

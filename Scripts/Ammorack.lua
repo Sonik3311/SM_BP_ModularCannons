@@ -69,17 +69,17 @@ function Ammorack:server_onCreate()
                 penetrator_length = 700,
                 penetrator_density = 17800
             }
+        },
+        {
+            type = "APFSDS",
+            parameters = {
+                propellant = 250,
+                projectile_mass = 12,
+                diameter = 27,
+                penetrator_length = 700,
+                penetrator_density = 17800
+            }
         }
-        --{
-        --    type = "APFSDS",
-        --    parameters = {
-        --        propellant = 250,
-        --        projectile_mass = 12,
-        --        diameter = 27,
-        --        penetrator_length = 700,
-        --        penetrator_density = 17800
-        --    }
-        --}
     }
     self.barrel_diameter = 100
 
@@ -96,11 +96,12 @@ function Ammorack:server_onCreate()
     --    }
     --}
 
-    --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
-    --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
+    --local volume_sphere = 0.5 * (4 / 3) * math.pi * (self.barrel_diameter / 2000) ^ 3
+    --local volume_cylinder = (self.barrel_diameter / 2000) ^ 2 * math.pi *
+    --    (2.5 * self.barrel_diameter / 1000 - self.barrel_diameter / 2000)
     --local mass = (volume_sphere + volume_cylinder) * 6000
     --print(mass)
-    --self.sv.stored_shell = {
+    --self.sv.stored_shell = { {
     --    type = "APHE",
     --    parameters = {
     --        propellant = 100,
@@ -112,19 +113,21 @@ function Ammorack:server_onCreate()
     --    },
     --    fuse = {
     --        active = false,
-    --        delay = 0.001, --seconds
+    --        delay = 0.001,     --seconds
     --        trigger_depth = 10 --mm
     --    }
     --}
+    --}
 
-    --self.sv.stored_shell = {
+    --self.sv.stored_shell = { {
     --    type = "HE",
     --    parameters = {
     --        propellant = 50,
-    --        projectile_mass = 15,--mass,
-    --        explosive_mass = 0.5, -- mass,
+    --        projectile_mass = 15,  --mass,
+    --        explosive_mass = 1000, -- mass,
     --        diameter = 100
     --    }
+    --}
     --}
 
     sm.container.beginTransaction()
@@ -198,7 +201,7 @@ function Ammorack.client_onInteract(self, character, state)
         return
     end
     self.network:sendToServer("sv_giveShell",
-        { character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_apfsds })
+        { character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_acammo })
     --self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end
