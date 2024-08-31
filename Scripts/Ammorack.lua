@@ -69,17 +69,17 @@ function Ammorack:server_onCreate()
                 penetrator_length = 700,
                 penetrator_density = 17800
             }
-        },
-        {
-            type = "APFSDS",
-            parameters = {
-                propellant = 250,
-                projectile_mass = 12,
-                diameter = 27,
-                penetrator_length = 700,
-                penetrator_density = 17800
-            }
         }
+        --{
+        --    type = "APFSDS",
+        --    parameters = {
+        --        propellant = 250,
+        --        projectile_mass = 12,
+        --        diameter = 27,
+        --        penetrator_length = 700,
+        --        penetrator_density = 17800
+        --    }
+        --}
     }
     self.barrel_diameter = 100
 
@@ -201,7 +201,7 @@ function Ammorack.client_onInteract(self, character, state)
         return
     end
     self.network:sendToServer("sv_giveShell",
-        { character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_acammo })
+        { character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_apfsds })
     --self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end

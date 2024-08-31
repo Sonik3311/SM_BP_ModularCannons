@@ -1,145 +1,176 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Widget" skin="PanelEmpty" position_real="0 0 0.54947916666666663 0.53240740740740744" name="BackPanel">
-        <Widget type="Widget" skin="BackgroundPopup" position_real="0 0 0.37345971563981045 0.74782608695652175">
-            <Widget type="Button" skin="SettingsButton" position_real="0.073604060913705582 0.2558139534883721 0.82741116751269039 0.13953488372093023" name="Button_APFSDS">
+    <Widget type="Widget" skin="PanelEmpty" position_real="0 0 0.7470703125 0.5322265625" name="BackPanel">
+        <Widget type="Widget" skin="BackgroundPopup" position_real="0 0 0.27189542483660128 0.74678899082568806">
+            <Widget type="Button" skin="SettingsButton" position_real="0.067307692307692304 0.25552825552825553 0.82211538461538458 0.13759213759213759" name="Button_APFSDS">
                 <Property key="TextAlign" value="Center"/>
                 <Property key="FontName" value="SM_Button"/>
                 <Property key="Caption" value="APFSDS"/>
             </Widget>
-            <Widget type="Button" skin="SettingsButton" position_real="0.073604060913705582 0.43023255813953487 0.82741116751269039 0.13953488372093023" name="Button_AP">
+            <Widget type="Button" skin="SettingsButton" position_real="0.067307692307692304 0.42997542997542998 0.82211538461538458 0.13759213759213759" name="Button_AP">
                 <Property key="TextAlign" value="Center"/>
                 <Property key="FontName" value="SM_Button"/>
                 <Property key="Caption" value="Armor-Piercing (AP)"/>
             </Widget>
-            <Widget type="Button" skin="SettingsButton" position_real="0.073604060913705582 0.60465116279069764 0.82741116751269039 0.13953488372093023" name="Button_HE">
+            <Widget type="Button" skin="SettingsButton" position_real="0.067307692307692304 0.60442260442260443 0.82211538461538458 0.13759213759213759" name="Button_HE">
                 <Property key="TextAlign" value="Center"/>
                 <Property key="FontName" value="SM_Button"/>
                 <Property key="Caption" value="High-Explosive (HE)"/>
             </Widget>
-            <Widget type="Button" skin="ActiveButton" position_real="0.073604060913705582 0.77906976744186052 0.82741116751269039 0.13953488372093023" name="Button_APHE">
+            <Widget type="Button" skin="ActiveButton" position_real="0.067307692307692304 0.77886977886977882 0.82211538461538458 0.13759213759213759" name="Button_APHE">
                 <Property key="TextAlign" value="Center"/>
                 <Property key="FontName" value="SM_Button"/>
                 <Property key="Caption" value="AP High-Explosive (APHE)"/>
             </Widget>
-            <Widget type="Widget" skin="PanelEmpty" position_real="0.076142131979695438 0.77906976744186052 0.82741116751269039 0.13953488372093023"/>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.048223350253807105 0 0.87817258883248728 0.2558139534883721">
+            <Widget type="Widget" skin="PanelEmpty" position_real="0.067307692307692304 0.77886977886977882 0.82211538461538458 0.13759213759213759"/>
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.043269230769230768 0 0.875 0.25552825552825553">
                 <Property key="Caption" value="Tank shell type"/>
                 <Property key="FontName" value="SM_HeaderLarge_Medium"/>
                 <Property key="Enabled" value="false"/>
                 <Property key="TextAlign" value="Center"/>
             </Widget>
         </Widget>
-        <Widget type="Widget" skin="BackgroundPopup" position_real="0.41137440758293836 0 0.58862559241706158 1">
-            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.21739130434782608 0.38808373590982287 0.045217391304347827" name="Slider_Amount">
+        <Widget type="Widget" skin="BackgroundPopup" position_real="0.30196078431372547 0 0.43137254901960786 1">
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.3515151515151515 0.21651376146788992 0.38787878787878788 0.044036697247706424" name="Slider_Amount">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>
             </Widget>
-            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.19130434782608696 0.19162640901771336 0.10608695652173913">
-                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_Amount">
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75454545454545452 0.19082568807339451 0.19090909090909092 0.10458715596330276">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.063492063492063489 0.15789473684210525 0.82539682539682535 0.64912280701754388" name="TextBox_Amount">
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="FontName" value="SM_TextLabel"/>
                     <Property key="MaxTextLength" value="9"/>
                 </Widget>
             </Widget>
-            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.32000000000000001 0.19162640901771336 0.10608695652173913">
-                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_Diameter">
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75454545454545452 0.31926605504587158 0.19090909090909092 0.10458715596330276">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.063492063492063489 0.15789473684210525 0.82539682539682535 0.64912280701754388" name="TextBox_Diameter">
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="FontName" value="SM_TextLabel"/>
                     <Property key="MaxTextLength" value="9"/>
                 </Widget>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.19130434782608696 0.28824476650563607 0.10434782608695652">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.19082568807339451 0.2878787878787879 0.10275229357798166">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="Caption" value="Propellant amount"/>
                 <Property key="ReadOnly" value="true"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.32000000000000001 0.28824476650563607 0.10434782608695652">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.31926605504587158 0.2878787878787879 0.10275229357798166">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="Caption" value="Shell diameter (mm)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="ReadOnly" value="true"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.84347826086956523 0.28824476650563607 0.12173913043478261">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.84220183486238531 0.2878787878787879 0.12110091743119267">
                 <Property key="TextAlign" value="Left VCenter"/>
-                <Property key="Caption" value="Armour-Piercing, Capped, Ballistic Capped (APCBC)"/>
+                <Property key="Caption" value="Is Capped, Ballistic Capped (APCBC)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="ReadOnly" value="true"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.34782608695652173 0.38808373590982287 0.045217391304347827" name="Slider_Diameter">
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.3515151515151515 0.34678899082568809 0.38787878787878788 0.044036697247706424" name="Slider_Diameter">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.060869565217391307 0.86956521739130432 0.11304347826086956">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.060550458715596334 0.8666666666666667 0.11192660550458716">
                 <Property key="ReadOnly" value="true"/>
                 <Property key="Caption" value="Armor-Piercing High-Explosive (APHE)"/>
                 <Property key="FontName" value="SM_Header"/>
                 <Property key="Static" value="false"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="Button" skin="ActiveButton" position_real="0.35426731078904994 0.86086956521739133 0.080515297906602251 0.086956521739130432" name="CheckBox_APHE_APCBC">
+            <Widget type="Button" skin="ActiveButton" position_real="0.3515151515151515 0.86055045871559632 0.07575757575757576 0.086238532110091748" name="CheckBox_APHE_APCBC">
                 <Property key="Caption" value="X"/>
                 <Property key="FontName" value="SM_ButtonLarge"/>
                 <Property key="TextAlign" value="Center"/>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.45217391304347826 0.28824476650563607 0.10434782608695652">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.45137614678899085 0.2878787878787879 0.10275229357798166">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="Caption" value="Explosive Mass (kg)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="ReadOnly" value="true"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.47826086956521741 0.38808373590982287 0.045217391304347827" name="Slider_APHE_Mass">
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.3515151515151515 0.47706422018348627 0.38787878787878788 0.044036697247706424" name="Slider_APHE_Mass">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>
             </Widget>
-            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.45217391304347826 0.19162640901771336 0.10608695652173913">
-                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_APHE_Mass">
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75454545454545452 0.45137614678899085 0.19090909090909092 0.10458715596330276">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.063492063492063489 0.15789473684210525 0.82539682539682535 0.64912280701754388" name="TextBox_APHE_Mass">
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="FontName" value="SM_TextLabel"/>
                     <Property key="MaxTextLength" value="9"/>
                 </Widget>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.58260869565217388 0.28824476650563607 0.10434782608695652">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.58165137614678897 0.2878787878787879 0.10275229357798166">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="Caption" value="Penetrator Diameter (mm)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="ReadOnly" value="true"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.064412238325281798 0.71304347826086956 0.28824476650563607 0.10434782608695652">
+            <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.060606060606060608 0.7119266055045872 0.2878787878787879 0.10275229357798166">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="Caption" value="Penetrator Density (kg/m³)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="ReadOnly" value="true"/>
                 <Property key="WordWrap" value="true"/>
             </Widget>
-            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.60521739130434782 0.38808373590982287 0.045217391304347827" name="Slider_APHE_Diameter">
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.3515151515151515 0.60366972477064218 0.38787878787878788 0.044036697247706424" name="Slider_APHE_Diameter">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>
             </Widget>
-            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.35426731078904994 0.73913043478260865 0.38808373590982287 0.045217391304347827" name="Slider_APHE_Density">
+            <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.3515151515151515 0.73761467889908261 0.38787878787878788 0.044036697247706424" name="Slider_APHE_Density">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>
             </Widget>
-            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.58260869565217388 0.19162640901771336 0.10608695652173913">
-                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_APHE_Diameter">
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75454545454545452 0.58165137614678897 0.19090909090909092 0.10458715596330276">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.063492063492063489 0.15789473684210525 0.82539682539682535 0.64912280701754388" name="TextBox_APHE_Diameter">
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="FontName" value="SM_TextLabel"/>
                     <Property key="MaxTextLength" value="9"/>
                 </Widget>
             </Widget>
-            <Widget type="Widget" skin="SettingsButton" position_real="0.75684380032206122 0.71304347826086956 0.19162640901771336 0.10608695652173913">
-                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.075630252100840331 0.16393442622950818 0.83193277310924374 0.65573770491803274" name="TextBox_APHE_Density">
+            <Widget type="Widget" skin="SettingsButton" position_real="0.75454545454545452 0.7119266055045872 0.19090909090909092 0.10458715596330276">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.063492063492063489 0.15789473684210525 0.82539682539682535 0.64912280701754388" name="TextBox_APHE_Density">
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="FontName" value="SM_TextLabel"/>
                     <Property key="MaxTextLength" value="9"/>
                 </Widget>
             </Widget>
+        </Widget>
+        <Widget type="Widget" skin="BackgroundPopup" position_real="0.75032679738562091 0.099082568807339455 0.24836601307189543 0.46055045871559636">
+            <Widget type="TextBox" skin="TextBox" position_real="0.078947368421052627 0.25896414342629481 0.44736842105263158 0.2788844621513944">
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="TextAlign" value="Center"/>
+                <Property key="Caption" value="Fuse activation\ndepth"/>
+            </Widget>
+            <Widget type="Widget" skin="SettingsButton" position_real="0.52631578947368418 0.2788844621513944 0.42105263157894735 0.21912350597609562">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.0625 0.090909090909090912 0.875 0.81818181818181823">
+                    <Property key="FontName" value="SM_TextLabel"/>
+                    <Property key="TextAlign" value="Left VCenter"/>
+                    <Property key="MaxTextLength" value="9"/>
+                </Widget>
+            </Widget>
+            <Widget type="TextBox" skin="TextBox" position_real="0.078947368421052627 0.59760956175298807 0.44736842105263158 0.25896414342629481">
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="TextAlign" value="Center"/>
+                <Property key="Caption" value="Fuse activation\ndelay"/>
+            </Widget>
+            <Widget type="Widget" skin="SettingsButton" position_real="0.52631578947368418 0.61752988047808766 0.42105263157894735 0.21912350597609562">
+                <Widget type="EditBox" skin="EditBoxEmpty" position_real="0.0625 0.090909090909090912 0.875 0.81818181818181823">
+                    <Property key="MaxTextLength" value="9"/>
+                    <Property key="FontName" value="SM_TextLabel"/>
+                    <Property key="TextAlign" value="Left VCenter"/>
+                </Widget>
+            </Widget>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position_real="0.75816993464052285 0.10091743119266056 0.22875816993464052 0.10091743119266056">
+            <Property key="FontName" value="SM_Header"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="Caption" value="Fuse settings"/>
         </Widget>
     </Widget>
     <CodeGeneratorSettings/>

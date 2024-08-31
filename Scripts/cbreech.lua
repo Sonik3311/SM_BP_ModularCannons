@@ -139,6 +139,16 @@ function Cbreech:server_onFixedUpdate(dt)
                 self.fire_delay = self.fire_delay / 1.5
             end
         end
+        if self.muzzle_shape then
+            self.network:sendToClients("cl_update_overheat",
+                {
+                    breech = self.shape,
+                    muzzle = self.muzzle_shape,
+                    diameter = self.barrel_diameter,
+                    state = self.overheated,
+                    reset_effect = true
+                })
+        end
         print(self.modules, self.coolers_amount, #self.additional_mags)
     end
 
@@ -426,7 +436,7 @@ function Cbreech:cl_play_launch_effect(data)
 end
 
 function Cbreech:cl_update_overheat(data)
-    if not self.cl.overheat_effect then
+    if not self.cl.overheat_effect or data.reset_effect then
         self.cl.overheat_effect = get_overheat_effect(data)
     end
     self.cl.play_overheat = data.state
