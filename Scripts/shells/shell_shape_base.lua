@@ -9,10 +9,14 @@ end
 
 function Shell:client_onCreate()
     self.cl = {}
+
+    self.cl.is_apcbc = false -- to avoid desync you must desync
+    -- help
     self.cl.gui_apfsds = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_apfsds.layout", false)
     self.cl.gui_he = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_he.layout", false)
     self.cl.gui_ap = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_ap.layout", false)
     self.cl.gui_aphe = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_aphe.layout", false)
+
     self.cl.gui_apfsds:setButtonCallback("Button_APHE", "gui_change_to_APHE")
     self.cl.gui_apfsds:setButtonCallback("Button_AP", "gui_change_to_AP")
     self.cl.gui_apfsds:setButtonCallback("Button_HE", "gui_change_to_HE")
@@ -25,6 +29,46 @@ function Shell:client_onCreate()
     self.cl.gui_he:setButtonCallback("Button_APHE", "gui_change_to_APHE")
     self.cl.gui_he:setButtonCallback("Button_AP", "gui_change_to_AP")
     self.cl.gui_he:setButtonCallback("Button_APFSDS", "gui_change_to_APFSDS")
+
+    self.cl.gui_apfsds:setSliderCallback("Slider_Amount", "gui_onChange_propellant")
+    self.cl.gui_apfsds:setTextChangedCallback("TextBox_Amount", "gui_onChange_propellant")
+    self.cl.gui_ap:setSliderCallback("Slider_Amount", "gui_onChange_propellant")
+    self.cl.gui_ap:setTextChangedCallback("TextBox_Amount", "gui_onChange_propellant")
+    self.cl.gui_aphe:setSliderCallback("Slider_Amount", "gui_onChange_propellant")
+    self.cl.gui_aphe:setTextChangedCallback("TextBox_Amount", "gui_onChange_propellant")
+    self.cl.gui_he:setSliderCallback("Slider_Amount", "gui_onChange_propellant")
+    self.cl.gui_he:setTextChangedCallback("TextBox_Amount", "gui_onChange_propellant")
+
+    self.cl.gui_apfsds:setSliderCallback("Slider_Diameter", "gui_onChange_caliber")
+    self.cl.gui_apfsds:setTextChangedCallback("TextBox_Diameter", "gui_onChange_caliber")
+    self.cl.gui_ap:setSliderCallback("Slider_Diameter", "gui_onChange_caliber")
+    self.cl.gui_ap:setTextChangedCallback("TextBox_Diameter", "gui_onChange_caliber")
+    self.cl.gui_aphe:setSliderCallback("Slider_Diameter", "gui_onChange_caliber")
+    self.cl.gui_aphe:setTextChangedCallback("TextBox_Diameter", "gui_onChange_caliber")
+    self.cl.gui_he:setSliderCallback("Slider_Diameter", "gui_onChange_caliber")
+    self.cl.gui_he:setTextChangedCallback("TextBox_Diameter", "gui_onChange_caliber")
+
+    --                                                  one job...
+    self.cl.gui_apfsds:setSliderCallback("Slider_APFSDS_Lenght", "gui_onChange_APFSDS_Length")
+    self.cl.gui_apfsds:setTextChangedCallback("TextBox_APFSDS_Lenght", "gui_onChange_APFSDS_Length")
+    self.cl.gui_apfsds:setSliderCallback("Slider_APFSDS_Diameter", "gui_onChange_APFSDS_Diameter")
+    self.cl.gui_apfsds:setTextChangedCallback("TextBox_APFSDS_Diameter", "gui_onChange_APFSDS_Diameter")
+    self.cl.gui_apfsds:setSliderCallback("Slider_APFSDS_Density", "gui_onChange_APFSDS_Density")
+    self.cl.gui_apfsds:setTextChangedCallback("TextBox_APFSDS_Density", "gui_onChange_APFSDS_Density")
+
+    self.cl.gui_ap:setButtonCallback("CheckBox_AP_APCBC", "gui_onChange_APCBC")
+    self.cl.gui_aphe:setButtonCallback("CheckBox_APHE_APCBC", "gui_onChange_APCBC")
+
+    self.cl.gui_aphe:setSliderCallback("Slider_APHE_Mass", "gui_onChange_APHE_explosive")
+    self.cl.gui_aphe:setTextChangedCallback("TextBox_APHE_Mass", "gui_onChange_APHE_explosive")
+    self.cl.gui_aphe:setTextChangedCallback("TextBox_APHE_FuseDepth", "gui_onChange_APHE_FuseDepth")
+    self.cl.gui_aphe:setTextChangedCallback("TextBox_APHE_FuseDelay", "gui_onChange_APHE_FuseDelay")
+
+    self.cl.gui_he:setSliderCallback("Slider_HE_Mass", "gui_onChange_HE_explosive")
+    self.cl.gui_he:setTextChangedCallback("TextBox_HE_Mass", "gui_onChange_HE_explosive")
+
+
+
     self.cl.gui = self.cl.gui_apfsds
 
     self.cl.gui_apfsds:setOnCloseCallback("cl_onGuiClosed")
@@ -92,6 +136,7 @@ end
 function Shell:sv_edit_ammo(data)
     local ammo_index = data.ammo_index
     local from_scratch = data.from_scratch
+    local is_fuse_setting = data.is_fuse
     local ammo_edits = data.edits
     local ammo = self.interactable:getPublicData()
 
@@ -103,7 +148,13 @@ function Shell:sv_edit_ammo(data)
     end
 
     for property, value in pairs(ammo_edits) do
-        ammo[ammo_index][property] = value
+        if is_fuse_setting then
+            ammo[ammo_index].fuse[property] = value
+        elseif property ~= "caliber" then
+            ammo[ammo_index].parameters[property] = value
+        else
+            ammo[ammo_index][property] = value
+        end
     end
     self.interactable:setPublicData(ammo)
 end
@@ -143,6 +194,7 @@ function Shell:gui_change_to_AP()
     self.cl.gui = self.cl.gui_ap
     self.cl.gui:open()
     self.cl.gui_changed = true
+    self.cl.is_apcbc = false
 
     local ammo_index = 1
     self.network:sendToServer("sv_edit_ammo", {
@@ -154,10 +206,13 @@ function Shell:gui_change_to_AP()
             parameters = {
                 propellant = 130,
                 projectile_mass = 10,
-                is_apcbc = true
+                is_apcbc = self.cl.is_apcbc
             }
         }
     })
+
+    self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
+    self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
 end
 
 function Shell:gui_change_to_APHE()
@@ -166,6 +221,8 @@ function Shell:gui_change_to_APHE()
     self.cl.gui = self.cl.gui_aphe
     self.cl.gui:open()
     self.cl.gui_changed = true
+    self.cl.is_apcbc = false
+
     local ammo_index = 1
     self.network:sendToServer("sv_edit_ammo", {
         ammo_index = ammo_index,
@@ -175,8 +232,8 @@ function Shell:gui_change_to_APHE()
             caliber = nil,
             parameters = {
                 propellant = 120,
-                projectile_mass = 100,
-                is_apcbc = true,
+                projectile_mass = 10,
+                is_apcbc = self.cl.is_apcbc,
                 explosive_mass = 0.365, --kg
             },
             fuse = {
@@ -186,6 +243,9 @@ function Shell:gui_change_to_APHE()
             }
         }
     })
+
+    self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
+    self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
 end
 
 function Shell:gui_change_to_HE()
@@ -207,5 +267,146 @@ function Shell:gui_change_to_HE()
                 explosive_mass = 1000
             }
         }
+    })
+end
+
+function Shell:gui_onChange_propellant(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_Amount" then
+        converted_value = math.floor(sm.util.lerp(10, 250,
+            ((value * 1.0101010101) / 100)) + 0.5)
+    end
+    self.cl.gui_apfsds:setText("TextBox_Amount", tostring(converted_value))
+    self.cl.gui_ap:setText("TextBox_Amount", tostring(converted_value))
+    self.cl.gui_aphe:setText("TextBox_Amount", tostring(converted_value))
+    self.cl.gui_he:setText("TextBox_Amount", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { propellant = converted_value }
+    })
+end
+
+function Shell:gui_onChange_caliber(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_Diameter" then
+        converted_value = math.floor(sm.util.lerp(10, 250,
+            ((value * 1.0101010101) / 100)) + 0.5)
+    end
+    self.cl.gui_apfsds:setText("TextBox_Diameter", tostring(converted_value))
+    self.cl.gui_ap:setText("TextBox_Diameter", tostring(converted_value))
+    self.cl.gui_aphe:setText("TextBox_Diameter", tostring(converted_value))
+    self.cl.gui_he:setText("TextBox_Diameter", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { caliber = converted_value }
+    })
+end
+
+function Shell:gui_onChange_APFSDS_Length(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_APFSDS_Lenght" then
+        converted_value = math.floor(sm.util.lerp(100, 1000,
+            ((value * 1.0101010101) / 100)) + 0.5)
+    end
+    self.cl.gui_apfsds:setText("TextBox_APFSDS_Lenght", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { penetrator_length = converted_value }
+    })
+end
+
+function Shell:gui_onChange_APFSDS_Diameter(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_APFSDS_Diameter" then
+        converted_value = math.floor(sm.util.lerp(2, 1000,
+            ((value * 1.0101010101) / 100)) + 0.5)
+    end
+    self.cl.gui_apfsds:setText("TextBox_APFSDS_Diameter", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { diameter = converted_value }
+    })
+end
+
+function Shell:gui_onChange_APFSDS_Density(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_Diameter" then
+        converted_value = math.floor(sm.util.lerp(7850, 20000,
+            ((value * 1.0101010101) / 100)) + 0.5)
+    end
+    self.cl.gui_apfsds:setText("TextBox_APFSDS_Density", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { penetrator_density = converted_value }
+    })
+end
+
+function Shell:gui_onChange_APCBC(name)
+    self.cl.is_apcbc = not self.cl.is_apcbc
+    self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
+    self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { is_apcbc = self.cl.is_apcbc }
+    })
+end
+
+function Shell:gui_onChange_APHE_explosive(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_APHE_Mass" then
+        converted_value = sm.util.lerp(0.01, 1,
+            ((value * 1.0101010101) / 100))
+    end
+    self.cl.gui_aphe:setText("TextBox_APHE_Mass", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { explosive_mass = converted_value }
+    })
+end
+
+function Shell:gui_onChange_APHE_FuseDepth(name, value)
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        is_fuse = true,
+        edits = { trigger_depth = tonumber(value) }
+    })
+end
+
+function Shell:gui_onChange_APHE_FuseDelay(name, value)
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        is_fuse = true,
+        edits = { delay = tonumber(value) }
+    })
+    print(tonumber(value))
+end
+
+function Shell:gui_onChange_HE_explosive(name, value)
+    local converted_value = tonumber(value)
+    if name == "Slider_HE_Mass" then
+        converted_value = math.floor(sm.util.lerp(0.1, 50,
+            ((value * 1.0101010101) / 100)) + 0.5)
+    end
+    self.cl.gui_he:setText("TextBox_HE_Mass", tostring(converted_value))
+
+    self.network:sendToServer("sv_edit_ammo", {
+        ammo_index = 1,
+        from_scratch = false,
+        edits = { explosive_mass = converted_value }
     })
 end
