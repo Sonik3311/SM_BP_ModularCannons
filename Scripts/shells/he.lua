@@ -5,7 +5,7 @@ dofile "$CONTENT_DATA/Scripts/shell_util.lua"
 local function get_fragment_config(shell)
     local shell_mass = shell.parameters.projectile_mass
     local explosive_mass = shell.parameters.explosive_mass
-    local shell_diameter = shell.parameters.diameter
+    local shell_diameter = shell.caliber
     local shell_velocity = shell.velocity:length()
 
     local fragment_pen = 0.1802 + 0.1607 * shell_diameter + 4.4103 * explosive_mass

@@ -62,6 +62,7 @@ function Ammorack:server_onCreate()
     self.sv.stored_shell = {
         {
             type = "APFSDS",
+            caliber = 100,
             parameters = {
                 propellant = 200,
                 projectile_mass = 12,

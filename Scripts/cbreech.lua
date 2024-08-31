@@ -315,15 +315,15 @@ function Cbreech:sv_fire_shell(is_debug, dt)
 
     if not is_taking_from_addmag then
         print("del")
-        --self.loaded_projectile[#self.loaded_projectile] = nil
-        --if #self.loaded_projectile == 0 then
-        --    print("spend")
-        --    sm.container.beginTransaction()
-        --    local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
-        --    sm.container.spend(self.shape.interactable:getContainer(0), uuid, 1, true)
-        --    sm.container.endTransaction()
-        --    self.network:sendToClients("cl_updateModel", 0)
-        --end
+        self.loaded_projectile[#self.loaded_projectile] = nil
+        if #self.loaded_projectile == 0 then
+            print("spend")
+            sm.container.beginTransaction()
+            local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
+            sm.container.spend(self.shape.interactable:getContainer(0), uuid, 1, true)
+            sm.container.endTransaction()
+            self.network:sendToClients("cl_updateModel", 0)
+        end
     end
 
     local projectile_mass = shell.parameters.projectile_mass
@@ -379,7 +379,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
     --sm.ACC.shells[index] = deep_copy(self.loaded_shell)
     self.network:sendToClients("cl_add_shell_to_sim", shell)
     self.network:sendToClients("cl_play_launch_effect",
-        { breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = low_pressure == 0 })
+        { breech = self.shape, muzzle = self.muzzle_shape, diameter = self.barrel_diameter, is_short = false })
 
     self.fire_time_delay = self.fire_delay
     self.heat = self.heat + self.barrel_diameter / (7 * (self.coolers_amount + 1))

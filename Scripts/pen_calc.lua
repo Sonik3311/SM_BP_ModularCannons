@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------
---[[                      Shell penetration calculation                        ]]--
+--[[                      Shell penetration calculation                        ]] --
 -----------------------------------------------------------------------------------
 
 function calculate_shell_penetration(shell)
@@ -7,27 +7,28 @@ function calculate_shell_penetration(shell)
         local penetrator_length = shell.parameters.penetrator_length
         local penetrator_diameter = shell.parameters.diameter
         local penetrator_density = shell.parameters.penetrator_density
-        local max_pen, min_velocity = calculate_rod_penetration(shell.velocity:length() / 1000, penetrator_length, penetrator_diameter, penetrator_density, 7850, 250)
+        local max_pen, min_velocity = calculate_rod_penetration(shell.velocity:length() / 1000, penetrator_length,
+            penetrator_diameter, penetrator_density, 7850, 250)
         return max_pen
     elseif shell.type == "AP" then
         local mass = shell.parameters.projectile_mass
-        local diameter = shell.parameters.diameter
+        local diameter = shell.caliber
         local is_apcbc = shell.parameters.is_apcbc
         local velocity = shell.velocity:length()
         return calculate_bullet_penetration(velocity, diameter, mass, 0, is_apcbc)
     elseif shell.type == "APHE" then
         local mass = shell.parameters.projectile_mass
         local ex_mass = shell.parameters.explosive_mass
-        local diameter = shell.parameters.diameter
+        local diameter = shell.caliber
         local is_apcbc = shell.parameters.is_apcbc
         local velocity = shell.velocity:length()
         return calculate_bullet_penetration(velocity, diameter, mass, ex_mass, is_apcbc)
     end
 end
 
-function calculate_rod_penetration (impact_velocity, penetrator_length,
-                                    penetrator_diameter, penetrator_density,
-                                    armor_density, armor_brinell_scale)
+function calculate_rod_penetration(impact_velocity, penetrator_length,
+                                   penetrator_diameter, penetrator_density,
+                                   armor_density, armor_brinell_scale)
     local L = penetrator_length
     local D = penetrator_diameter
     local V = impact_velocity
@@ -43,12 +44,12 @@ function calculate_rod_penetration (impact_velocity, penetrator_length,
 
     local s = ((c0 + c1 * B) * B) / Pp
 
-    local Vmin = math.sqrt(((c0 + c1 * B) * B)/(Pp*1.8))
-    local max_pen = a * (1/math.tanh(b0 + b1 * (L/D))) * math.sqrt(Pp/Pt) * 2.718281828 ^ (-s/(V*V)) * L
+    local Vmin = math.sqrt(((c0 + c1 * B) * B) / (Pp * 1.8))
+    local max_pen = a * (1 / math.tanh(b0 + b1 * (L / D))) * math.sqrt(Pp / Pt) * 2.718281828 ^ (-s / (V * V)) * L
     return max_pen, Vmin
 end
 
-function calculate_bullet_penetration (impact_velocity, shell_diameter, shell_mass, explosive_mass, is_apcbc)
+function calculate_bullet_penetration(impact_velocity, shell_diameter, shell_mass, explosive_mass, is_apcbc)
     local kfbr = 1900
     local kf_apcbc = is_apcbc and 1 or 0.9
     local tnt = (explosive_mass / 5 / shell_mass) * 100
@@ -69,12 +70,13 @@ function calculate_bullet_penetration (impact_velocity, shell_diameter, shell_ma
         knap = 0.75
     end
 
-    return ((impact_velocity^1.43) * (shell_mass^0.71)) / ((kfbr^1.43) * ((shell_diameter/100)^1.07)) * 100 * knap * kf_apcbc
+    return ((impact_velocity ^ 1.43) * (shell_mass ^ 0.71)) / ((kfbr ^ 1.43) * ((shell_diameter / 100) ^ 1.07)) * 100 *
+    knap * kf_apcbc
 end
 
 -- TODO: Replace this shit
-function calculate_heat_penetration (standoff_distance, shell_diameter, jet_density, armor_density)
-    local Kdistance = 1 / (1 + ((standoff_distance - 7 * shell_diameter) / (14 * shell_diameter))^2)
+function calculate_heat_penetration(standoff_distance, shell_diameter, jet_density, armor_density)
+    local Kdistance = 1 / (1 + ((standoff_distance - 7 * shell_diameter) / (14 * shell_diameter)) ^ 2)
     local k1 = 12
     local k2 = 0.3
 

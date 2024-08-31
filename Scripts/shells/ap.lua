@@ -18,34 +18,33 @@ local function get_spall_amount(shell, hit_shape)
         Default = 0.8,
     }
 
-    local max_spall_amount = math.max(7, math.min(shell.parameters.diameter, 90))
+    local max_spall_amount = math.max(7, math.min(shell.caliber, 90))
     return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
 end
 
 local function get_spall_cones(shell)
     local velocity = shell.velocity:length()
-    local diameter = shell.parameters.diameter
+    local diameter = shell.caliber
 
     local hi_velocity_cone = math.max(math.min(velocity, 30), 10)
     local me_velocity_cone = hi_velocity_cone * 2
     local lo_velocity_cone = hi_velocity_cone * 3
 
     if velocity > 400 and diameter >= 40 then
-        return {hi_velocity_cone, me_velocity_cone, lo_velocity_cone}
+        return { hi_velocity_cone, me_velocity_cone, lo_velocity_cone }
     end
     if velocity > 300 and diameter >= 20 then
-        return {hi_velocity_cone, me_velocity_cone, nil}
+        return { hi_velocity_cone, me_velocity_cone, nil }
     end
 
-    return {hi_velocity_cone, nil, nil}
+    return { hi_velocity_cone, nil, nil }
 end
 
-function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
-
+function process_ap_penetration(shell, hit_shape, hit_data, start_point, end_point, dt, net)
     local shell_direction = shell.velocity:normalize()
     local is_world_surface = is_world_surface(hit_data.type)
     if is_world_surface then
-        return false, false, start_point, end_point,shell_direction
+        return false, false, start_point, end_point, shell_direction
     end
 
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
@@ -87,16 +86,16 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
         local spall_angles = get_spall_cones(shell)
 
         local spall_cones = {
-            spall_angles[1] and {spall_angles[1], big_spall_amount, 70} or nil,
-            spall_angles[2] and {spall_angles[2], med_spall_amount, 50} or nil,
-            spall_angles[3] and {spall_angles[3], low_spall_amount, 30} or nil,
+            spall_angles[1] and { spall_angles[1], big_spall_amount, 70 } or nil,
+            spall_angles[2] and { spall_angles[2], med_spall_amount, 50 } or nil,
+            spall_angles[3] and { spall_angles[3], low_spall_amount, 30 } or nil,
         }
         --print(#spall_cones, spall_cones)
 
         local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
 
         local clamped_spall_data = {}
-        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5),1) do
+        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5), 1) do
             clamped_spall_data[#clamped_spall_data + 1] = spall_effect_data[i]
         end
         net:sendToClients("cl_play_spall_effects", clamped_spall_data)
@@ -104,7 +103,7 @@ function process_ap_penetration (shell, hit_shape, hit_data, start_point, end_po
         if shell.debug then
             for path_id = 1, #spall_paths do
                 local path = spall_paths[path_id]
-                shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
+                shell.debug.path.spall[#shell.debug.path.spall + 1] = { path[1], path[2] }
             end
         end
     end

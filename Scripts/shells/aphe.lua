@@ -18,14 +18,14 @@ local function get_spall_amount(shell, hit_shape)
         Default = 0.8,
     }
 
-    local max_spall_amount = math.max(7, math.min(shell.parameters.diameter, 90))
+    local max_spall_amount = math.max(7, math.min(shell.caliber, 90))
     return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
 end
 
 local function get_fragment_config(shell)
     local shell_mass = shell.parameters.projectile_mass
     local explosive_mass = shell.parameters.explosive_mass
-    local shell_diameter = shell.parameters.diameter
+    local shell_diameter = shell.caliber
     local shell_velocity = shell.velocity:length()
 
     local fragment_mass = (explosive_mass / shell_mass) * shell_diameter
@@ -35,26 +35,26 @@ local function get_fragment_config(shell)
 
     local min_angle = 70
     local max_angle = 135
-    local fragment_angle = math.max(math.min(max_angle - shell_velocity * (2/3/10), max_angle), min_angle)
+    local fragment_angle = math.max(math.min(max_angle - shell_velocity * (2 / 3 / 10), max_angle), min_angle)
     return fragment_amount, fragment_pen, fragment_angle
 end
 
 local function get_spall_cones(shell)
     local velocity = shell.velocity:length()
-    local diameter = shell.parameters.diameter
+    local diameter = shell.caliber
 
     local hi_velocity_cone = math.max(math.min(velocity, 30), 10)
     local me_velocity_cone = hi_velocity_cone * 2
     local lo_velocity_cone = hi_velocity_cone * 3
 
     if velocity > 400 and diameter >= 40 then
-        return {hi_velocity_cone, me_velocity_cone, lo_velocity_cone}
+        return { hi_velocity_cone, me_velocity_cone, lo_velocity_cone }
     end
     if velocity > 300 and diameter >= 20 then
-        return {hi_velocity_cone, me_velocity_cone, nil}
+        return { hi_velocity_cone, me_velocity_cone, nil }
     end
 
-    return {hi_velocity_cone, nil, nil}
+    return { hi_velocity_cone, nil, nil }
 end
 
 function process_collision_aphe_inject(shell, start_pos, is_hit, end_point, hit_point)
@@ -79,21 +79,22 @@ function process_aphe_fuse(shell, start_point, end_point)
 
     local explosion_point = start_point + shell.velocity * fuse_time
     local fragment_amount, fragment_pen, fragment_angle = get_fragment_config(shell)
-    local spall_paths = process_multi_spall(explosion_point, shell.velocity:normalize(), {{fragment_angle, fragment_amount, fragment_angle}}, nil)
+    local spall_paths = process_multi_spall(explosion_point, shell.velocity:normalize(),
+        { { fragment_angle, fragment_amount, fragment_angle } }, nil)
 
     if shell.debug then
         for path_id = 1, #spall_paths do
             local path = spall_paths[path_id]
-            shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
+            shell.debug.path.spall[#shell.debug.path.spall + 1] = { path[1], path[2] }
         end
     end
     return explosion_point
 end
 
-function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
-
+function process_aphe_penetration(shell, hit_shape, hit_data, start_point, end_point, dt, net)
     if shell.fuse.active then
-        local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, true, end_point, hit_data.pointWorld)
+        local is_alive, explosion_point = process_collision_aphe_inject(shell, start_point, true, end_point,
+            hit_data.pointWorld)
         if not is_alive then
             return false, false, start_point, explosion_point, nil
         end
@@ -102,7 +103,7 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
     local shell_direction = shell.velocity:normalize()
     local is_world_surface = is_world_surface(hit_data.type)
     if is_world_surface then
-        return false, false, start_point, end_point,shell_direction
+        return false, false, start_point, end_point, shell_direction
     end
 
     local ricochet_dir = calculate_ricochet(shell_direction, hit_data.normalWorld, shell)
@@ -133,7 +134,7 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
     if shell.fuse.active then
         local time_to_travel_shape = armor_thickness / shell.velocity:length()
         if shell.fuse.delay - time_to_travel_shape <= 0 then
-            return false, start_point, hit_data.pointWorld + shell.velocity * shell.fuse.delay, nils
+            return false, start_point, hit_data.pointWorld + shell.velocity * shell.fuse.delay, nil
         end
         shell.fuse.delay = shell.fuse.delay - time_to_travel_shape
     end
@@ -158,15 +159,15 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         local spall_angles = get_spall_cones(shell)
 
         local spall_cones = {
-            spall_angles[1] and {spall_angles[1], big_spall_amount, 70} or nil,
-            spall_angles[2] and {spall_angles[2], big_spall_amount, 50} or nil,
-            spall_angles[3] and {spall_angles[3], big_spall_amount, 30} or nil,
+            spall_angles[1] and { spall_angles[1], big_spall_amount, 70 } or nil,
+            spall_angles[2] and { spall_angles[2], big_spall_amount, 50 } or nil,
+            spall_angles[3] and { spall_angles[3], big_spall_amount, 30 } or nil,
         }
 
         local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, spall_cones, hit_shape)
 
         local clamped_spall_data = {}
-        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5),1) do
+        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 100 + 0.5), 1) do
             clamped_spall_data[#clamped_spall_data + 1] = spall_effect_data[i]
         end
         net:sendToClients("cl_play_spall_effects", clamped_spall_data)
@@ -174,10 +175,10 @@ function process_aphe_penetration (shell, hit_shape, hit_data, start_point, end_
         if shell.debug then
             for path_id = 1, #spall_paths do
                 local path = spall_paths[path_id]
-                shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
+                shell.debug.path.spall[#shell.debug.path.spall + 1] = { path[1], path[2] }
             end
         end
     end
 
-    return is_penetrated, is_exititing, new_start_point, new_end_point, shell_direction
+    return is_penetrated, is_exiting, new_start_point, new_end_point, shell_direction
 end
