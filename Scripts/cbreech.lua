@@ -414,7 +414,9 @@ function Cbreech:cl_onCaliberChange(name, position)
     if name ~= "CaliberEditBox" then
         self.cl.gui:setText("CaliberEditBox", tostring(converted_pos))
     else
-        self.cl.gui:setSliderData("CaliberSlider", 100, converted_pos) -- jafkdjkdsnjklondsjonaj
+        print("chaged via editbox", position)
+        self.cl.gui:setSliderData("CaliberSlider", 100, converted_pos) -- jafkdjkdsnjklondsjonaj axolot whyyy
+        converted_pos = tonumber(position)
     end
     self.network:sendToServer("change_barrel_diameter", converted_pos)
     print(name, position, converted_pos, tonumber(position) / 100, self.data.min_caliber, self.data.max_caliber,
