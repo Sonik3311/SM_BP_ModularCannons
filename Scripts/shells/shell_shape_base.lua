@@ -4,6 +4,19 @@ dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 
 Shell = class()
 
+local function sleep(t)
+    print("sleep")
+    local start = os.clock()
+
+    local work = 0
+    while (os.clock() - start) * 1000 < t do
+        work = work + 1
+    end
+    print(start - os.clock(), work)
+    return work
+end
+
+
 function Shell:server_onCreate()
 end
 
@@ -67,14 +80,11 @@ function Shell:client_onCreate()
     self.cl.gui_he:setSliderCallback("Slider_HE_Mass", "gui_onChange_HE_explosive")
     self.cl.gui_he:setTextChangedCallback("TextBox_HE_Mass", "gui_onChange_HE_explosive")
 
-
-
-    self.cl.gui = self.cl.gui_apfsds
-
     self.cl.gui_apfsds:setOnCloseCallback("cl_onGuiClosed")
     self.cl.gui_ap:setOnCloseCallback("cl_onGuiClosed")
     self.cl.gui_aphe:setOnCloseCallback("cl_onGuiClosed")
     self.cl.gui_he:setOnCloseCallback("cl_onGuiClosed")
+    self:cl_request_ammoInfo()
 end
 
 function Shell.client_onInteract(self, character)
@@ -123,10 +133,23 @@ function Shell:cl_onGuiClosed()
 end
 
 function Shell.client_onTinker(self, character, state)
+    local work
     if state == true then
+        self:cl_request_ammoInfo()
+        self:gui_setText()
+        if self.cl.ammo[1].type == "APFSDS" then
+            self.cl.gui = self.cl.gui_apfsds
+        elseif self.cl.ammo[1].type == "AP" then
+            self.cl.gui = self.cl.gui_ap
+        elseif self.cl.ammo[1].type == "APHE" then
+            self.cl.gui = self.cl.gui_aphe
+        elseif self.cl.ammo[1].type == "HE" then
+            self.cl.gui = self.cl.gui_he
+        end
         self.cl.gui:open()
     end
     print("onTinker")
+    return work
 end
 
 -------------------------------------------------------------------------------
@@ -159,9 +182,69 @@ function Shell:sv_edit_ammo(data)
     self.interactable:setPublicData(ammo)
 end
 
+function Shell:sv_sync_ammo(data, client)
+    self.network:sendToClient(client, "cl_recieve_ammoInfo", self.interactable:getPublicData())
+end
+
+-------------------------------------------------------------------------------
+--[[                            Network Client                             ]] --
+-------------------------------------------------------------------------------
+
+function Shell:cl_request_ammoInfo()
+    self.network:sendToServer("sv_sync_ammo")
+end
+
+function Shell:cl_recieve_ammoInfo(data)
+    print(data)
+    self.cl.ammo = data
+end
+
 -------------------------------------------------------------------------------
 --[[                                 GUI                                   ]] --
 -------------------------------------------------------------------------------
+
+function Shell:gui_setText()
+    if not self.cl.ammo then
+        return
+    end
+    print(self.cl.ammo[1].caliber)
+    local propellant = self.cl.ammo[1].parameters.propellant
+    local caliber = self.cl.ammo[1].caliber
+
+    local apfsds_length = self.cl.ammo[1].parameters.penetrator_length
+    local apfsds_density = self.cl.ammo[1].parameters.penetrator_density
+    local apfdsds_diameter = self.cl.ammo[1].parameters.diameter
+
+    local is_apcbc = self.cl.ammo[1].parameters.is_apcbc
+    local explosive_mass = self.cl.ammo[1].parameters.explosive_mass
+    local fuse_depth = self.cl.ammo[1].fuse and self.cl.ammo[1].fuse.trigger_depth or 0
+    local fuse_delay = self.cl.ammo[1].fuse and self.cl.ammo[1].fuse.delay or 0
+
+    self.cl.is_apcbc = is_apcbc
+
+    self.cl.gui_apfsds:setText("TextBox_Amount", tostring(propellant))
+    self.cl.gui_ap:setText("TextBox_Amount", tostring(propellant))
+    self.cl.gui_aphe:setText("TextBox_Amount", tostring(propellant))
+    self.cl.gui_he:setText("TextBox_Amount", tostring(propellant))
+
+    self.cl.gui_apfsds:setText("TextBox_Diameter", tostring(caliber))
+    self.cl.gui_ap:setText("TextBox_Diameter", tostring(caliber))
+    self.cl.gui_aphe:setText("TextBox_Diameter", tostring(caliber))
+    self.cl.gui_he:setText("TextBox_Diameter", tostring(caliber))
+
+    self.cl.gui_apfsds:setText("TextBox_APFSDS_Lenght", tostring(apfsds_length))
+    self.cl.gui_apfsds:setText("TextBox_APFSDS_Density", tostring(apfsds_density))
+    self.cl.gui_apfsds:setText("TextBox_APFSDS_Diameter", tostring(apfdsds_diameter))
+
+    self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
+    self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
+
+    self.cl.gui_aphe:setText("TextBox_APHE_Mass", tostring(explosive_mass))
+    self.cl.gui_he:setText("TextBox_HE_Mass", tostring(explosive_mass))
+
+    self.cl.gui_aphe:setText("TextBox_APHE_FuseDepth", tostring(fuse_depth))
+    self.cl.gui_aphe:setText("TextBox_APHE_FuseDelay", tostring(fuse_delay))
+end
 
 function Shell:gui_change_to_APFSDS()
     print("change to APFSDS")
@@ -171,21 +254,27 @@ function Shell:gui_change_to_APFSDS()
     self.cl.gui_changed = true
 
     local ammo_index = 1
+    local old_caliber = self.cl.ammo[ammo_index].caliber
+    print(old_caliber)
+    local new_ammo = {
+        type = "APFSDS",
+        caliber = old_caliber,
+        parameters = {
+            propellant = 200,
+            projectile_mass = 12,
+            diameter = 27,
+            penetrator_length = 700,
+            penetrator_density = 17800
+        }
+    }
+
+    self.cl.ammo[ammo_index] = new_ammo
     self.network:sendToServer("sv_edit_ammo", {
         ammo_index = ammo_index,
         from_scratch = true,
-        edits = {
-            type = "APFSDS",
-            caliber = nil,
-            parameters = {
-                propellant = 200,
-                projectile_mass = 12,
-                diameter = 27,
-                penetrator_length = 700,
-                penetrator_density = 17800
-            }
-        }
+        edits = new_ammo
     })
+    self:gui_setText()
 end
 
 function Shell:gui_change_to_AP()
@@ -197,22 +286,25 @@ function Shell:gui_change_to_AP()
     self.cl.is_apcbc = false
 
     local ammo_index = 1
+    local old_caliber = self.cl.ammo[ammo_index].caliber
+    local new_ammo = {
+        type = "AP",
+        caliber = old_caliber,
+        parameters = {
+            propellant = 130,
+            projectile_mass = 10,
+            is_apcbc = self.cl.is_apcbc
+        }
+    }
+
+    self.cl.ammo[ammo_index] = new_ammo
     self.network:sendToServer("sv_edit_ammo", {
         ammo_index = ammo_index,
         from_scratch = true,
-        edits = {
-            type = "AP",
-            calibre = nil,
-            parameters = {
-                propellant = 130,
-                projectile_mass = 10,
-                is_apcbc = self.cl.is_apcbc
-            }
-        }
+        edits = new_ammo
     })
 
-    self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
-    self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
+    self:gui_setText()
 end
 
 function Shell:gui_change_to_APHE()
@@ -224,28 +316,30 @@ function Shell:gui_change_to_APHE()
     self.cl.is_apcbc = false
 
     local ammo_index = 1
+    local old_caliber = self.cl.ammo[ammo_index].caliber
+    local new_ammo = {
+        type = "APHE",
+        caliber = old_caliber,
+        parameters = {
+            propellant = 120,
+            projectile_mass = 10,
+            is_apcbc = self.cl.is_apcbc,
+            explosive_mass = 0.365, --kg
+        },
+        fuse = {
+            active = false,
+            delay = 0.001,     --seconds
+            trigger_depth = 10 --mm
+        }
+    }
+
+    self.cl.ammo[ammo_index] = new_ammo
     self.network:sendToServer("sv_edit_ammo", {
         ammo_index = ammo_index,
         from_scratch = true,
-        edits = {
-            type = "APHE",
-            caliber = nil,
-            parameters = {
-                propellant = 120,
-                projectile_mass = 10,
-                is_apcbc = self.cl.is_apcbc,
-                explosive_mass = 0.365, --kg
-            },
-            fuse = {
-                active = false,
-                delay = 0.001,     --seconds
-                trigger_depth = 10 --mm
-            }
-        }
+        edits = new_ammo
     })
-
-    self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
-    self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
+    self:gui_setText()
 end
 
 function Shell:gui_change_to_HE()
@@ -254,20 +348,25 @@ function Shell:gui_change_to_HE()
     self.cl.gui = self.cl.gui_he
     self.cl.gui:open()
     self.cl.gui_changed = true
+
     local ammo_index = 1
+    local old_caliber = self.cl.ammo[ammo_index].caliber
+    local new_ammo = {
+        type = "HE",
+        caliber = old_caliber,
+        parameters = {
+            propellant = 50,
+            projectile_mass = 15,
+            explosive_mass = 1000
+        }
+    }
+    self.cl.ammo[ammo_index] = new_ammo
     self.network:sendToServer("sv_edit_ammo", {
         ammo_index = ammo_index,
         from_scratch = true,
-        edits = {
-            type = "HE",
-            caliber = nil,
-            parameters = {
-                propellant = 50,
-                projectile_mass = 15,
-                explosive_mass = 1000
-            }
-        }
+        edits = new_ammo
     })
+    self:gui_setText()
 end
 
 function Shell:gui_onChange_propellant(name, value)
@@ -286,6 +385,7 @@ function Shell:gui_onChange_propellant(name, value)
         from_scratch = false,
         edits = { propellant = converted_value }
     })
+    self.cl.ammo[1].parameters.propellant = converted_value
 end
 
 function Shell:gui_onChange_caliber(name, value)
@@ -304,6 +404,8 @@ function Shell:gui_onChange_caliber(name, value)
         from_scratch = false,
         edits = { caliber = converted_value }
     })
+
+    self.cl.ammo[1].caliber = converted_value
 end
 
 function Shell:gui_onChange_APFSDS_Length(name, value)
@@ -319,6 +421,7 @@ function Shell:gui_onChange_APFSDS_Length(name, value)
         from_scratch = false,
         edits = { penetrator_length = converted_value }
     })
+    self.cl.ammo[1].parameters.penetrator_length = converted_value
 end
 
 function Shell:gui_onChange_APFSDS_Diameter(name, value)
@@ -334,6 +437,8 @@ function Shell:gui_onChange_APFSDS_Diameter(name, value)
         from_scratch = false,
         edits = { diameter = converted_value }
     })
+
+    self.cl.ammo[1].parameters.diameter = converted_value
 end
 
 function Shell:gui_onChange_APFSDS_Density(name, value)
@@ -349,6 +454,8 @@ function Shell:gui_onChange_APFSDS_Density(name, value)
         from_scratch = false,
         edits = { penetrator_density = converted_value }
     })
+
+    self.cl.ammo[1].parameters.penetrator_density = converted_value
 end
 
 function Shell:gui_onChange_APCBC(name)
@@ -360,6 +467,8 @@ function Shell:gui_onChange_APCBC(name)
         from_scratch = false,
         edits = { is_apcbc = self.cl.is_apcbc }
     })
+
+    self.cl.ammo[1].parameters.is_apcbc = self.cl.is_apcbc
 end
 
 function Shell:gui_onChange_APHE_explosive(name, value)
@@ -375,6 +484,8 @@ function Shell:gui_onChange_APHE_explosive(name, value)
         from_scratch = false,
         edits = { explosive_mass = converted_value }
     })
+
+    self.cl.ammo[1].parameters.explosive_mass = converted_value
 end
 
 function Shell:gui_onChange_APHE_FuseDepth(name, value)
@@ -384,6 +495,8 @@ function Shell:gui_onChange_APHE_FuseDepth(name, value)
         is_fuse = true,
         edits = { trigger_depth = tonumber(value) }
     })
+
+    self.cl.ammo[1].fuse.trigger_depth = tonumber(value)
 end
 
 function Shell:gui_onChange_APHE_FuseDelay(name, value)
@@ -393,7 +506,8 @@ function Shell:gui_onChange_APHE_FuseDelay(name, value)
         is_fuse = true,
         edits = { delay = tonumber(value) }
     })
-    print(tonumber(value))
+
+    self.cl.ammo[1].fuse.delay = tonumber(value)
 end
 
 function Shell:gui_onChange_HE_explosive(name, value)
@@ -409,4 +523,6 @@ function Shell:gui_onChange_HE_explosive(name, value)
         from_scratch = false,
         edits = { explosive_mass = converted_value }
     })
+
+    self.cl.ammo[1].parameters.explosive_mass = converted_value
 end
