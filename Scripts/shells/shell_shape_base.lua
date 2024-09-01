@@ -32,6 +32,20 @@ end
 
 
 function Shell:server_onCreate()
+    self.sv = {}
+
+    self.sv.ammo = self.storage:load() or self.interactable:getPublicData()
+    print("SHELL:::", self.sv.ammo)
+    self.interactable:setPublicData(self.sv.ammo)
+    self.sv.save_timer = 0
+end
+
+function Shell:server_onFixedUpdate(dt)
+    self.sv.save_timer = math.max(-1, self.sv.save_timer - dt)
+    if self.sv.save_timer <= 0 and self.sv.save_timer >= -dt then
+        print("SAVE!!!!")
+        self.storage:save(self.sv.ammo)
+    end
 end
 
 function Shell:client_onCreate()
@@ -126,22 +140,6 @@ function Shell.client_onInteract(self, character)
     self.network:sendToServer("sv_transfer_to_carry")
 end
 
-function Shell:sv_transfer_to_carry(data, player)
-    local character = player.character
-    local uuid = #self.interactable:getPublicData() > 1 and obj_generic_acammo or obj_generic_apfsds
-    print(#self.interactable:getPublicData(), uuid)
-    sm.container.beginTransaction()
-    sm.container.collect(player:getCarry(), uuid, 1, true)
-    if sm.container.endTransaction() then
-        print("World -> Carry")
-        local pd = character:getPublicData()
-        pd.carried_shell = self.interactable:getPublicData()
-        print(pd)
-        character:setPublicData(pd)
-        self.shape:destroyShape()
-    end
-end
-
 function Shell.client_canTinker(self, character)
     return true
 end
@@ -162,21 +160,21 @@ end
 function Shell:cl_onGuiClosed()
     if self.cl.gui_changed then -- hack
         self.cl.gui:open()
+    else
+        self.network:sendToServer("sv_save")
     end
     self.cl.gui_changed = false
+
     print("gui closed")
 end
 
 function Shell.client_onTinker(self, character, state)
-    local work
     if state == true then
         self:cl_request_ammoInfo()
         self:gui_setText()
         self:gui_set_gui_type()
         self.cl.gui:open()
     end
-    print("onTinker")
-    return work
 end
 
 -------------------------------------------------------------------------------
@@ -207,10 +205,32 @@ function Shell:sv_edit_ammo(data)
         end
     end
     self.interactable:setPublicData(ammo)
+    self.sv.storage = ammo
+    self.sv.save_timer = 2
 end
 
 function Shell:sv_sync_ammo(data, client)
     self.network:sendToClient(client, "cl_recieve_ammoInfo", self.interactable:getPublicData())
+end
+
+function Shell:sv_save()
+    self.sv.save_timer = 0
+end
+
+function Shell:sv_transfer_to_carry(data, player)
+    local character = player.character
+    local uuid = #self.interactable:getPublicData() > 1 and obj_generic_acammo or obj_generic_apfsds
+    print(#self.interactable:getPublicData(), uuid)
+    sm.container.beginTransaction()
+    sm.container.collect(player:getCarry(), uuid, 1, true)
+    if sm.container.endTransaction() then
+        print("World -> Carry")
+        local pd = character:getPublicData()
+        pd.carried_shell = self.interactable:getPublicData()
+        print(pd)
+        character:setPublicData(pd)
+        self.shape:destroyShape()
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -324,6 +344,7 @@ function Shell:gui_change_to_APFSDS()
         edits = new_ammo
     })
     self:gui_setText()
+    self.network:sendToServer("sv_save")
 end
 
 function Shell:gui_change_to_AP()
@@ -354,6 +375,7 @@ function Shell:gui_change_to_AP()
     })
 
     self:gui_setText()
+    self.network:sendToServer("sv_save")
 end
 
 function Shell:gui_change_to_APHE()
@@ -389,6 +411,7 @@ function Shell:gui_change_to_APHE()
         edits = new_ammo
     })
     self:gui_setText()
+    self.network:sendToServer("sv_save")
 end
 
 function Shell:gui_change_to_HE()
@@ -416,6 +439,7 @@ function Shell:gui_change_to_HE()
         edits = new_ammo
     })
     self:gui_setText()
+    self.network:sendToServer("sv_save")
 end
 
 function Shell:gui_onChange_propellant(name, value)
