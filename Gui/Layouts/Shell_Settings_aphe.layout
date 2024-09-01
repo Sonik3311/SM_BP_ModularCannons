@@ -30,7 +30,7 @@
                 <Property key="TextAlign" value="Center"/>
             </Widget>
         </Widget>
-        <Widget type="Widget" skin="BackgroundPopup" position_real="0.30196078431372547 0 0.43137254901960786 1">
+        <Widget type="Widget" skin="NonBlurryBackgroundDarkRoundedUpperRight" position_real="0.29411764705882354 0 0.43137254901960786 1">
             <Widget type="ScrollBar" skin="InventoryHSlider" position_real="0.3515151515151515 0.21651376146788992 0.38787878787878788 0.044036697247706424" name="Slider_Amount">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>
@@ -135,6 +135,32 @@
             <Property key="FontName" value="SM_Header"/>
             <Property key="TextAlign" value="Center"/>
             <Property key="Caption" value="Fuse settings"/>
+        </Widget>
+    </Widget>
+    <Widget type="Widget" skin="ModPanelBackground" position_real="0 0.4052734375 0.2021484375 0.126953125">
+        <Widget type="TextBox" skin="TextBox" position_real="0 0.11538461538461539 0.36231884057971014 0.34615384615384615" name="AC_Text">
+            <Property key="FontName" value="X_Hud_PlayerName"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="Caption" value="Shell id:"/>
+        </Widget>
+        <Widget type="Button" skin="PrimaryButton" position_real="0.096618357487922704 0.53846153846153844 0.33816425120772947 0.34615384615384615" name="Copy_Button">
+            <Property key="FontName" value="SM_Header"/>
+            <Property key="Caption" value="Copy"/>
+            <Property key="TextAlign" value="Center"/>
+        </Widget>
+        <Widget type="Button" skin="PrimaryButton" position_real="0.55555555555555558 0.53846153846153844 0.33816425120772947 0.34615384615384615" name="Paste_Button">
+            <Property key="FontName" value="SM_Header"/>
+            <Property key="Caption" value="Paste"/>
+            <Property key="TextAlign" value="Center"/>
+        </Widget>
+    </Widget>
+    <Widget type="Widget" skin="SettingsButton" position_real="0.068359375 0.41015625 0.1220703125 0.0634765625" name="AC_BG">
+        <Widget type="Button" skin="DressbotArrowRight" position_real="0.76000000000000001 0.15384615384615385 0.20000000000000001 0.69230769230769229" name="AC_RightButton"/>
+        <Widget type="Button" skin="DressbotArrowLeft" position_real="0.040000000000000001 0.15384615384615385 0.20000000000000001 0.69230769230769229" name="AC_LeftButton"/>
+        <Widget type="TextBox" skin="TextBox" position_real="0.20000000000000001 0.15384615384615385 0.59999999999999998 0.69230769230769229" name="AC_Ammo">
+            <Property key="Caption" value="15/20"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="FontName" value="X_Hud_PlayerName"/>
         </Widget>
     </Widget>
     <CodeGeneratorSettings/>

@@ -4,16 +4,30 @@ dofile "$CONTENT_DATA/Scripts/shell_uuid.lua"
 
 Shell = class()
 
-local function sleep(t)
-    print("sleep")
-    local start = os.clock()
-
-    local work = 0
-    while (os.clock() - start) * 1000 < t do
-        work = work + 1
+local function deep_copy(tbl)
+    if tbl == nil then
+        return nil
     end
-    print(start - os.clock(), work)
-    return work
+    local copy = {}
+    for key, value in pairs(tbl) do
+        local var_type = type(value)
+        if var_type ~= 'table' then
+            if var_type == "Vec3" then
+                copy[key] = sm.vec3.new(value.x, value.y, value.z)
+            elseif var_type == "Quat" then
+                copy[key] = sm.quat.new(value.x, value.y, value.z, value.w)
+            elseif var_type == "Color" then
+                copy[key] = sm.color.new(value.r, value.g, value.b)
+            elseif var_type == "Uuid" then
+                copy[key] = sm.uuid.new(tostring(value))
+            else
+                copy[key] = value
+            end
+        else
+            copy[key] = deep_copy(value)
+        end
+    end
+    return copy
 end
 
 
@@ -24,6 +38,10 @@ function Shell:client_onCreate()
     self.cl = {}
 
     self.cl.is_apcbc = false -- to avoid desync you must desync
+    self.cl.selected_shell_id = 1
+    self.cl.ammo = {}
+    self:cl_request_ammoInfo()
+
     -- help
     self.cl.gui_apfsds = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_apfsds.layout", false)
     self.cl.gui_he = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/Shell_Settings_he.layout", false)
@@ -42,6 +60,24 @@ function Shell:client_onCreate()
     self.cl.gui_he:setButtonCallback("Button_APHE", "gui_change_to_APHE")
     self.cl.gui_he:setButtonCallback("Button_AP", "gui_change_to_AP")
     self.cl.gui_he:setButtonCallback("Button_APFSDS", "gui_change_to_APFSDS")
+
+    self.cl.gui_apfsds:setButtonCallback("Copy_Button", "gui_copy_shell")
+    self.cl.gui_ap:setButtonCallback("Copy_Button", "gui_copy_shell")
+    self.cl.gui_aphe:setButtonCallback("Copy_Button", "gui_copy_shell")
+    self.cl.gui_he:setButtonCallback("Copy_Button", "gui_copy_shell")
+    self.cl.gui_apfsds:setButtonCallback("Paste_Button", "gui_paste_shell")
+    self.cl.gui_ap:setButtonCallback("Paste_Button", "gui_paste_shell")
+    self.cl.gui_aphe:setButtonCallback("Paste_Button", "gui_paste_shell")
+    self.cl.gui_he:setButtonCallback("Paste_Button", "gui_paste_shell")
+
+    self.cl.gui_apfsds:setButtonCallback("AC_LeftButton", "gui_select_shell")
+    self.cl.gui_ap:setButtonCallback("AC_LeftButton", "gui_select_shell")
+    self.cl.gui_aphe:setButtonCallback("AC_LeftButton", "gui_select_shell")
+    self.cl.gui_he:setButtonCallback("AC_LeftButton", "gui_select_shell")
+    self.cl.gui_apfsds:setButtonCallback("AC_RightButton", "gui_select_shell")
+    self.cl.gui_ap:setButtonCallback("AC_RightButton", "gui_select_shell")
+    self.cl.gui_aphe:setButtonCallback("AC_RightButton", "gui_select_shell")
+    self.cl.gui_he:setButtonCallback("AC_RightButton", "gui_select_shell")
 
     self.cl.gui_apfsds:setSliderCallback("Slider_Amount", "gui_onChange_propellant")
     self.cl.gui_apfsds:setTextChangedCallback("TextBox_Amount", "gui_onChange_propellant")
@@ -84,7 +120,6 @@ function Shell:client_onCreate()
     self.cl.gui_ap:setOnCloseCallback("cl_onGuiClosed")
     self.cl.gui_aphe:setOnCloseCallback("cl_onGuiClosed")
     self.cl.gui_he:setOnCloseCallback("cl_onGuiClosed")
-    self:cl_request_ammoInfo()
 end
 
 function Shell.client_onInteract(self, character)
@@ -137,15 +172,7 @@ function Shell.client_onTinker(self, character, state)
     if state == true then
         self:cl_request_ammoInfo()
         self:gui_setText()
-        if self.cl.ammo[1].type == "APFSDS" then
-            self.cl.gui = self.cl.gui_apfsds
-        elseif self.cl.ammo[1].type == "AP" then
-            self.cl.gui = self.cl.gui_ap
-        elseif self.cl.ammo[1].type == "APHE" then
-            self.cl.gui = self.cl.gui_aphe
-        elseif self.cl.ammo[1].type == "HE" then
-            self.cl.gui = self.cl.gui_he
-        end
+        self:gui_set_gui_type()
         self.cl.gui:open()
     end
     print("onTinker")
@@ -203,22 +230,39 @@ end
 --[[                                 GUI                                   ]] --
 -------------------------------------------------------------------------------
 
+function Shell:gui_set_gui_type()
+    if not self.cl.ammo then
+        return
+    end
+    local id = self.cl.selected_shell_id
+    if self.cl.ammo[id].type == "APFSDS" then
+        self.cl.gui = self.cl.gui_apfsds
+    elseif self.cl.ammo[id].type == "AP" then
+        self.cl.gui = self.cl.gui_ap
+    elseif self.cl.ammo[id].type == "APHE" then
+        self.cl.gui = self.cl.gui_aphe
+    elseif self.cl.ammo[id].type == "HE" then
+        self.cl.gui = self.cl.gui_he
+    end
+end
+
 function Shell:gui_setText()
     if not self.cl.ammo then
         return
     end
-    print(self.cl.ammo[1].caliber)
-    local propellant = self.cl.ammo[1].parameters.propellant
-    local caliber = self.cl.ammo[1].caliber
 
-    local apfsds_length = self.cl.ammo[1].parameters.penetrator_length
-    local apfsds_density = self.cl.ammo[1].parameters.penetrator_density
-    local apfdsds_diameter = self.cl.ammo[1].parameters.diameter
+    local id = self.cl.selected_shell_id
+    local propellant = self.cl.ammo[id].parameters.propellant
+    local caliber = self.cl.ammo[id].caliber
 
-    local is_apcbc = self.cl.ammo[1].parameters.is_apcbc
-    local explosive_mass = self.cl.ammo[1].parameters.explosive_mass
-    local fuse_depth = self.cl.ammo[1].fuse and self.cl.ammo[1].fuse.trigger_depth or 0
-    local fuse_delay = self.cl.ammo[1].fuse and self.cl.ammo[1].fuse.delay or 0
+    local apfsds_length = self.cl.ammo[id].parameters.penetrator_length
+    local apfsds_density = self.cl.ammo[id].parameters.penetrator_density
+    local apfdsds_diameter = self.cl.ammo[id].parameters.diameter
+
+    local is_apcbc = self.cl.ammo[id].parameters.is_apcbc
+    local explosive_mass = self.cl.ammo[id].parameters.explosive_mass
+    local fuse_depth = self.cl.ammo[id].fuse and self.cl.ammo[id].fuse.trigger_depth or 0
+    local fuse_delay = self.cl.ammo[id].fuse and self.cl.ammo[id].fuse.delay or 0
 
     self.cl.is_apcbc = is_apcbc
 
@@ -244,6 +288,12 @@ function Shell:gui_setText()
 
     self.cl.gui_aphe:setText("TextBox_APHE_FuseDepth", tostring(fuse_depth))
     self.cl.gui_aphe:setText("TextBox_APHE_FuseDelay", tostring(fuse_delay))
+
+    local string = tostring(self.cl.selected_shell_id) .. "/" .. tostring(#self.cl.ammo)
+    self.cl.gui_apfsds:setText("AC_Ammo", string)
+    self.cl.gui_ap:setText("AC_Ammo", string)
+    self.cl.gui_aphe:setText("AC_Ammo", string)
+    self.cl.gui_he:setText("AC_Ammo", string)
 end
 
 function Shell:gui_change_to_APFSDS()
@@ -253,9 +303,8 @@ function Shell:gui_change_to_APFSDS()
     self.cl.gui:open()
     self.cl.gui_changed = true
 
-    local ammo_index = 1
+    local ammo_index = self.cl.selected_shell_id
     local old_caliber = self.cl.ammo[ammo_index].caliber
-    print(old_caliber)
     local new_ammo = {
         type = "APFSDS",
         caliber = old_caliber,
@@ -285,7 +334,7 @@ function Shell:gui_change_to_AP()
     self.cl.gui_changed = true
     self.cl.is_apcbc = false
 
-    local ammo_index = 1
+    local ammo_index = self.cl.selected_shell_id
     local old_caliber = self.cl.ammo[ammo_index].caliber
     local new_ammo = {
         type = "AP",
@@ -315,7 +364,7 @@ function Shell:gui_change_to_APHE()
     self.cl.gui_changed = true
     self.cl.is_apcbc = false
 
-    local ammo_index = 1
+    local ammo_index = self.cl.selected_shell_id
     local old_caliber = self.cl.ammo[ammo_index].caliber
     local new_ammo = {
         type = "APHE",
@@ -349,7 +398,7 @@ function Shell:gui_change_to_HE()
     self.cl.gui:open()
     self.cl.gui_changed = true
 
-    local ammo_index = 1
+    local ammo_index = self.cl.selected_shell_id
     local old_caliber = self.cl.ammo[ammo_index].caliber
     local new_ammo = {
         type = "HE",
@@ -357,7 +406,7 @@ function Shell:gui_change_to_HE()
         parameters = {
             propellant = 50,
             projectile_mass = 15,
-            explosive_mass = 1000
+            explosive_mass = 10
         }
     }
     self.cl.ammo[ammo_index] = new_ammo
@@ -381,11 +430,11 @@ function Shell:gui_onChange_propellant(name, value)
     self.cl.gui_he:setText("TextBox_Amount", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { propellant = converted_value }
     })
-    self.cl.ammo[1].parameters.propellant = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].parameters.propellant = converted_value
 end
 
 function Shell:gui_onChange_caliber(name, value)
@@ -400,12 +449,12 @@ function Shell:gui_onChange_caliber(name, value)
     self.cl.gui_he:setText("TextBox_Diameter", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { caliber = converted_value }
     })
 
-    self.cl.ammo[1].caliber = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].caliber = converted_value
 end
 
 function Shell:gui_onChange_APFSDS_Length(name, value)
@@ -417,11 +466,11 @@ function Shell:gui_onChange_APFSDS_Length(name, value)
     self.cl.gui_apfsds:setText("TextBox_APFSDS_Lenght", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { penetrator_length = converted_value }
     })
-    self.cl.ammo[1].parameters.penetrator_length = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].parameters.penetrator_length = converted_value
 end
 
 function Shell:gui_onChange_APFSDS_Diameter(name, value)
@@ -433,12 +482,12 @@ function Shell:gui_onChange_APFSDS_Diameter(name, value)
     self.cl.gui_apfsds:setText("TextBox_APFSDS_Diameter", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { diameter = converted_value }
     })
 
-    self.cl.ammo[1].parameters.diameter = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].parameters.diameter = converted_value
 end
 
 function Shell:gui_onChange_APFSDS_Density(name, value)
@@ -450,12 +499,12 @@ function Shell:gui_onChange_APFSDS_Density(name, value)
     self.cl.gui_apfsds:setText("TextBox_APFSDS_Density", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { penetrator_density = converted_value }
     })
 
-    self.cl.ammo[1].parameters.penetrator_density = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].parameters.penetrator_density = converted_value
 end
 
 function Shell:gui_onChange_APCBC(name)
@@ -463,12 +512,12 @@ function Shell:gui_onChange_APCBC(name)
     self.cl.gui_ap:setButtonState("CheckBox_AP_APCBC", self.cl.is_apcbc)
     self.cl.gui_aphe:setButtonState("CheckBox_APHE_APCBC", self.cl.is_apcbc)
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { is_apcbc = self.cl.is_apcbc }
     })
 
-    self.cl.ammo[1].parameters.is_apcbc = self.cl.is_apcbc
+    self.cl.ammo[self.cl.selected_shell_id].parameters.is_apcbc = self.cl.is_apcbc
 end
 
 function Shell:gui_onChange_APHE_explosive(name, value)
@@ -480,34 +529,34 @@ function Shell:gui_onChange_APHE_explosive(name, value)
     self.cl.gui_aphe:setText("TextBox_APHE_Mass", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { explosive_mass = converted_value }
     })
 
-    self.cl.ammo[1].parameters.explosive_mass = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].parameters.explosive_mass = converted_value
 end
 
 function Shell:gui_onChange_APHE_FuseDepth(name, value)
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         is_fuse = true,
         edits = { trigger_depth = tonumber(value) }
     })
 
-    self.cl.ammo[1].fuse.trigger_depth = tonumber(value)
+    self.cl.ammo[self.cl.selected_shell_id].fuse.trigger_depth = tonumber(value)
 end
 
 function Shell:gui_onChange_APHE_FuseDelay(name, value)
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         is_fuse = true,
         edits = { delay = tonumber(value) }
     })
 
-    self.cl.ammo[1].fuse.delay = tonumber(value)
+    self.cl.ammo[self.cl.selected_shell_id].fuse.delay = tonumber(value)
 end
 
 function Shell:gui_onChange_HE_explosive(name, value)
@@ -519,10 +568,43 @@ function Shell:gui_onChange_HE_explosive(name, value)
     self.cl.gui_he:setText("TextBox_HE_Mass", tostring(converted_value))
 
     self.network:sendToServer("sv_edit_ammo", {
-        ammo_index = 1,
+        ammo_index = self.cl.selected_shell_id,
         from_scratch = false,
         edits = { explosive_mass = converted_value }
     })
 
-    self.cl.ammo[1].parameters.explosive_mass = converted_value
+    self.cl.ammo[self.cl.selected_shell_id].parameters.explosive_mass = converted_value
+end
+
+function Shell:gui_copy_shell(name)
+    print("Copy")
+    sm.ACC.copied_shell = deep_copy(self.cl.ammo[self.cl.selected_shell_id])
+end
+
+function Shell:gui_paste_shell(name)
+    print("Paste")
+    self.cl.ammo[self.cl.selected_shell_id] = deep_copy(sm.ACC.copied_shell)
+    self.cl.gui_changed = true
+    self.cl.gui:close()
+    self:gui_set_gui_type()
+    self:gui_setText()
+end
+
+function Shell:gui_select_shell(name)
+    local max_length = #self.cl.ammo
+    local old_id = self.cl.selected_shell_id
+    if name == "AC_LeftButton" then
+        self.cl.selected_shell_id = math.max(1, self.cl.selected_shell_id - 1)
+    else
+        self.cl.selected_shell_id = math.min(max_length, self.cl.selected_shell_id + 1)
+    end
+
+    if old_id == self.cl.selected_shell_id then
+        return
+    end
+
+    self.cl.gui_changed = true
+    self.cl.gui:close()
+    self:gui_set_gui_type()
+    self:gui_setText()
 end
