@@ -74,7 +74,7 @@ function Ammorack:server_onCreate()
 
     self.sv = {}
 
-    self.sv.stored_shell = self.storage:load() or { backup_shell }
+    self.sv.stored_shell = self.storage:load() or { backup_shell, backup_shell }
     print(self.storage:load())
     if self.sv.stored_shell then
         sm.container.beginTransaction()

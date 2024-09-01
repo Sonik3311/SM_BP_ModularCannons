@@ -88,7 +88,7 @@ function Cbreech:server_onCreate()
         end
     end
 
-    self.loaded_projectile = {}
+    self.loaded_projectile = self.storage:load() or {}
     self.fire_time_delay = 0
     self.heat = 0
     self.overheated = false
@@ -286,6 +286,7 @@ function Cbreech:sv_e_receiveItem(data)
         sm.container.endTransaction()
         self.network:sendToClients("cl_updateModel", 1)
     end
+    self.storage:save(self.loaded_projectile)
 end
 
 function Cbreech:sv_fire_shell(is_debug, dt)
@@ -324,6 +325,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
             sm.container.endTransaction()
             self.network:sendToClients("cl_updateModel", 0)
         end
+        self.storage:save(self.loaded_projectile)
     end
 
     local projectile_mass = shell.parameters.projectile_mass
