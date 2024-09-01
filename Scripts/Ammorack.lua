@@ -56,11 +56,16 @@ function Ammorack:server_onCreate()
     if not container then
         container = self.shape:getInteractable():addContainer(0, 1, 1)
     end
-    container:setFilters({ obj_generic_apfsds })
+
+    if self.data.is_acammo then
+        container:setFilters({ obj_generic_acammo })
+    else
+        container:setFilters({ obj_generic_apfsds })
+    end
 
 
 
-    local backup_shell = {
+    local backup_shell = { {
         type = "APFSDS",
         caliber = 100,
         parameters = {
@@ -70,15 +75,32 @@ function Ammorack:server_onCreate()
             penetrator_length = 700,
             penetrator_density = 17800
         }
-    }
+    } }
+
+    if self.data.is_acammo then
+        print("add")
+        for i = 1, 14 do
+            backup_shell[#backup_shell + 1] = {
+                type = "APFSDS",
+                caliber = 100,
+                parameters = {
+                    propellant = 200,
+                    projectile_mass = 12,
+                    diameter = 27,
+                    penetrator_length = 700,
+                    penetrator_density = 17800
+                }
+            }
+        end
+    end
 
     self.sv = {}
 
-    self.sv.stored_shell = self.storage:load() or { backup_shell, backup_shell }
-    print(self.storage:load())
+    self.sv.stored_shell = self.storage:load() or backup_shell
+    local needed_uuid = self.data.is_acammo and obj_generic_acammo or obj_generic_apfsds
     if self.sv.stored_shell then
         sm.container.beginTransaction()
-        sm.container.collect(container, obj_generic_apfsds, 1, true)
+        sm.container.collect(container, needed_uuid, 1, true)
         sm.container.endTransaction()
     end
 
@@ -194,11 +216,12 @@ end
 
 function Ammorack.client_onInteract(self, character, state)
     local carried_uuid = sm.localPlayer.getCarry():getItem(0).uuid
-    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() and carried_uuid ~= obj_generic_apfsds) then
+    local needed_uuid = self.data.is_acammo and obj_generic_acammo or obj_generic_apfsds
+    if (self.shape.interactable:getContainer(0):getItem(0).uuid == sm.uuid.getNil() or carried_uuid ~= sm.uuid.getNil()) then
         return
     end
     self.network:sendToServer("sv_giveShell",
-        { character = character, carryContainer = sm.localPlayer.getCarry(), uuid = obj_generic_apfsds })
+        { character = character, carryContainer = sm.localPlayer.getCarry(), uuid = needed_uuid })
     --self.cl.is_loaded = false
     self.cl.loaded_shell_effect:stopImmediate()
 end
@@ -298,14 +321,14 @@ function Ammorack:sv_giveShell(params)
     sm.container.beginTransaction()
     sm.container.collect(params.carryContainer, params.uuid, 1, true)
     if sm.container.endTransaction() then
-        print("Ammorack -> Carry [success]")
+        dprint("Ammorack -> Carry", "info", "Ammorack", "sv", "sv_e_recieveItem")
         local pd = params.character:getPublicData()
         pd.carried_shell = deep_copy(self.sv.stored_shell)
-        print(self.sv.stored_shell)
+        print(pd.carried_shell)
         params.character:setPublicData(pd)
         self.sv.stored_shell = nil
         sm.container.beginTransaction()
-        sm.container.spend(self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true)
+        sm.container.spend(self.shape.interactable:getContainer(0), params.uuid, 1, true)
         sm.container.endTransaction()
     end
     self.storage:save(self.sv.stored_shell)
@@ -314,16 +337,18 @@ end
 function Ammorack:sv_e_receiveItem(data)
     local character = data.character
     local ammo = character:getPublicData().carried_shell
+    local needed_uuid = self.data.is_acammo and obj_generic_acammo or obj_generic_apfsds
     sm.container.beginTransaction()
     sm.container.spend(data.playerCarry, data.itemUuid, 1, true)
     if sm.container.endTransaction() then
-        print("Carry -> Ammorack:")
+        dprint("Carry -> Ammorack", "info", "Ammorack", "sv", "sv_e_recieveItem")
+        print(ammo)
         self.sv.stored_shell = ammo
         local pd = character:getPublicData()
         pd.carried_shell = {}
         character:setPublicData(pd)
         sm.container.beginTransaction()
-        sm.container.collect(self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true)
+        sm.container.collect(self.shape.interactable:getContainer(0), needed_uuid, 1, true)
         sm.container.endTransaction()
     end
     self.storage:save(self.sv.stored_shell)
@@ -342,6 +367,7 @@ function Ammorack:cl_recieve_isLoaded(data)
 end
 
 function Ammorack:cl_update_visualization(data)
-    self.cl.loaded_shell_effect:setParameter("uuid", sm.uuid.new("f8353f82-d9ae-4dc3-bc98-2517337ee188"))
+    local needed_uuid = self.data.is_acammo and obj_generic_acammo or obj_generic_apfsds
+    self.cl.loaded_shell_effect:setParameter("uuid", needed_uuid)
     self.cl.loaded_shell_effect:setScale(sm.vec3.one() / 4)
 end

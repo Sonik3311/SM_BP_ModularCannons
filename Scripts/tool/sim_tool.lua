@@ -30,6 +30,7 @@ function SimTool:server_onCreate()
     SimTool.sv_instance = self
     sm.ACC = {}
     sm.ACC.shells = {}
+    sm.ACC.debug = true
     dprint("Server successfuly created", "info", dprint_filename, "sv", "onCreate")
 end
 
@@ -180,6 +181,10 @@ end
 
 function SimTool:cl_save_path(data)
     if SimTool.cl_instance ~= self then
+        return
+    end
+
+    if not sm.ACC.debug then
         return
     end
     dprint("recieved path with the length of " .. tostring(#data.path.shell + #data.path.spall), "info", dprint_filename,

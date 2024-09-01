@@ -1,1 +1,38 @@
-{}
+{
+   "2d93cd84-6690-4eb0-8058-9c239dde0fbe" : {
+      "description" : "Ammorack used to store tank shells",
+      "title" : "Ammorack"
+   },
+   "3298df18-5437-47d5-9864-e38e3e91f385" : {
+      "description" : "Ammorack used to store autocannon ammo boxes",
+      "title" : "Autocannon ammorack"
+   },
+   "3ff64b8c-a7c1-4814-8453-fbc862a46726" : {
+      "description" : "Only works on autocannons.\\nAllows autocannon breech to use it as another magazine.",
+      "title" : "Autocannon additional magazine"
+   },
+   "5efb3348-ce62-4f26-9e28-a728d8527360" : {
+      "description" : "Makes your gun heat up slower ang cool faster.",
+      "title" : "Gun cooler"
+   },
+   "696bcf23-7551-4527-a517-a3ad2d4b5fa7" : {
+      "description" : "Makes your gun's base fire delay shorter",
+      "title" : "Gun speeder"
+   },
+   "90e6714d-e105-476f-875b-4b69b8c7802e" : {
+      "description" : "Doesn't work sideways. I think.",
+      "title" : "Cannon barrel"
+   },
+   "c5ad1edb-94e5-4057-9b5e-ece5f44fe1a9" : {
+      "description" : "Use to view fired shots and their paths.\\nRMB to clear paths\\nLMB to toggle path logging (only as host)",
+      "title" : "Shot debug viewer"
+   },
+   "ed93a54c-6c5d-4a8e-ade4-4bd4544cfefb" : {
+      "description" : "Doesn't work without a barrel.\\nTakes in tank shells",
+      "title" : "Cannon breech"
+   },
+   "f4a8b564-52b3-4ecb-8068-976be2f9c62d" : {
+      "description" : "Doesn't work without a barrel.\\nTakes in autocannon shells.\\nFires faster than the usual breech, but is limited in the caliber (it isn't atm because of the shell customization)",
+      "title" : "Autocannon breech"
+   }
+}

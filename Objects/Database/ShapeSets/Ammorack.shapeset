@@ -6,15 +6,37 @@
             "y" : 1,
             "z" : 5
          },
-         "name" : "Debug ammorack",
+         "name" : "Ammorack",
          "physicsMaterial" : "Default",
          "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_Ammorack.rend",
          "rotationSet" : "PropFull",
          "scripted" : {
             "classname" : "Ammorack",
+            "data" : {
+               "is_acammo" : false
+            },
             "filename" : "$CONTENT_DATA/Scripts/Ammorack.lua"
          },
          "uuid" : "2d93cd84-6690-4eb0-8058-9c239dde0fbe"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Autocannon Ammorack",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/generic_acAmmorack.rend",
+         "rotationSet" : "PropFull",
+         "scripted" : {
+            "classname" : "Ammorack",
+            "data" : {
+               "is_acammo" : true
+            },
+            "filename" : "$CONTENT_DATA/Scripts/Ammorack.lua"
+         },
+         "uuid" : "3298df18-5437-47d5-9864-e38e3e91f385"
       }
    ]
 }

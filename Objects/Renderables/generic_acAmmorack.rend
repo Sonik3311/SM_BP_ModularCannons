@@ -1,0 +1,13 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/generic_acammorack.fbx",
+         "subMeshList" : [
+            {
+               "material" : "Dif",
+               "textureList" : [ "", "", "" ]
+            }
+         ]
+      }
+   ]
+}

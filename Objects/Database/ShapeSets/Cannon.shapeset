@@ -10,6 +10,7 @@
          "physicsMaterial" : "Default",
          "renderable" : "$GAME_DATA/Objects/Renderable/decor/obj_decor_mug.rend",
          "rotationSet" : "PropFull",
+         "showInInventory" : false,
          "uuid" : "98212a7d-eac1-45a9-8e5b-3e36319b9b29"
       },
       {
