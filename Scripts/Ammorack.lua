@@ -58,32 +58,29 @@ function Ammorack:server_onCreate()
     end
     container:setFilters({ obj_generic_apfsds })
 
-    self.sv = {}
-    self.sv.stored_shell = {
-        {
-            type = "APFSDS",
-            caliber = 100,
-            parameters = {
-                propellant = 200,
-                projectile_mass = 12,
-                diameter = 27,
-                penetrator_length = 700,
-                penetrator_density = 17800
-            }
-        },
-        {
-            type = "APFSDS",
-            caliber = 120,
-            parameters = {
-                propellant = 250,
-                projectile_mass = 12,
-                diameter = 27,
-                penetrator_length = 700,
-                penetrator_density = 17800
-            }
+
+
+    local backup_shell = {
+        type = "APFSDS",
+        caliber = 100,
+        parameters = {
+            propellant = 200,
+            projectile_mass = 12,
+            diameter = 27,
+            penetrator_length = 700,
+            penetrator_density = 17800
         }
     }
-    self.barrel_diameter = 100
+
+    self.sv = {}
+
+    self.sv.stored_shell = self.storage:load() or { backup_shell }
+    print(self.storage:load())
+    if self.sv.stored_shell then
+        sm.container.beginTransaction()
+        sm.container.collect(container, obj_generic_apfsds, 1, true)
+        sm.container.endTransaction()
+    end
 
     --local volume_sphere = 0.5 * (4/3) * math.pi * (self.barrel_diameter / 2000)^3
     --local volume_cylinder = (self.barrel_diameter / 2000)^2 * math.pi * (2.5*self.barrel_diameter/1000 - self.barrel_diameter/2000)
@@ -132,9 +129,7 @@ function Ammorack:server_onCreate()
     --}
     --}
 
-    sm.container.beginTransaction()
-    sm.container.collect(container, obj_generic_apfsds, 1, true)
-    sm.container.endTransaction()
+
 
     --self:sv_onBurn()
 end
@@ -313,6 +308,7 @@ function Ammorack:sv_giveShell(params)
         sm.container.spend(self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true)
         sm.container.endTransaction()
     end
+    self.storage:save(self.sv.stored_shell)
 end
 
 function Ammorack:sv_e_receiveItem(data)
@@ -330,6 +326,7 @@ function Ammorack:sv_e_receiveItem(data)
         sm.container.collect(self.shape.interactable:getContainer(0), obj_generic_apfsds, 1, true)
         sm.container.endTransaction()
     end
+    self.storage:save(self.sv.stored_shell)
 end
 
 -------------------------------------------------------------------------------

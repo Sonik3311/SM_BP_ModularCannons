@@ -35,7 +35,6 @@ function Shell:server_onCreate()
     self.sv = {}
 
     self.sv.ammo = self.storage:load() or self.interactable:getPublicData()
-    print("SHELL:::", self.sv.ammo)
     self.interactable:setPublicData(self.sv.ammo)
     self.sv.save_timer = 0
 end
