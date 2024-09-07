@@ -1,40 +1,40 @@
 -----------------------------------------------------------------------------------
---[[                                    Util                                   ]]--
+--[[                                    Util                                   ]] --
 -----------------------------------------------------------------------------------
 
 function clamp(mx, mn, t)
-	if t > mx then return mx end
-	if t < mn then return mn end
-	return t
+    if t > mx then return mx end
+    if t < mn then return mn end
+    return t
 end
 
-local function ray_box_intersection ( ro, rd, boxSize )
-    local rdx = rd.x^-1
-    local rdy = rd.y^-1
-    local rdz = rd.z^-1
+local function ray_box_intersection(ro, rd, boxSize)
+    local rdx = rd.x ^ -1
+    local rdy = rd.y ^ -1
+    local rdz = rd.z ^ -1
 
     -- gives division by zero error if left unattended
-    rdx = rd.x ~= 0 and rd.x^-1 or 9999999999
-    rdy = rd.y ~= 0 and rd.y^-1 or 9999999999
-    rdz = rd.z ~= 0 and rd.z^-1 or 9999999999
+    rdx = rd.x ~= 0 and rd.x ^ -1 or 9999999999
+    rdy = rd.y ~= 0 and rd.y ^ -1 or 9999999999
+    rdz = rd.z ~= 0 and rd.z ^ -1 or 9999999999
 
     local m = sm.vec3.new(rdx, rdy, rdz) -- can precompute if traversing a set of aligned boxes
-    local n = m * ro   -- can precompute if traversing a set of aligned boxes
-    local k = sm.vec3.new(math.abs(m.x),math.abs(m.y),math.abs(m.z)) * boxSize
+    local n = m * ro                     -- can precompute if traversing a set of aligned boxes
+    local k = sm.vec3.new(math.abs(m.x), math.abs(m.y), math.abs(m.z)) * boxSize
     local t1 = -n - k
     local t2 = -n + k
-    local tN = math.max(math.max( math.max( t1.x, t1.y ), t1.z ), 0)
-    local tF = math.min( math.min( t2.x, t2.y ), t2.z )
+    local tN = math.max(math.max(math.max(t1.x, t1.y), t1.z), 0)
+    local tF = math.min(math.min(t2.x, t2.y), t2.z)
 
     return (tF - tN) / 2
 end
 
-local function reflect (v,n)
+local function reflect(v, n)
     return v - n * 2 * v:dot(n)
 end
 
 -----------------------------------------------------------------------------------
---[[                        Armor properties calculation                       ]]--
+--[[                        Armor properties calculation                       ]] --
 -----------------------------------------------------------------------------------
 
 function is_seat(hit_shape)
@@ -50,38 +50,41 @@ function is_seat(hit_shape)
     return false
 end
 
-function calculate_ricochet (direction, normal, shell)
-    local angle = math.acos(normal:dot(direction:normalize())) * 180/math.pi
+function calculate_ricochet(direction, normal, shell)
+    local angle = math.acos(normal:dot(direction:normalize())) * 180 / math.pi
     if angle > 90 then
         angle = 180 - angle
     end
     if shell.type == "APFSDS" then
-        local chance = clamp(1, 0, -0.00125*angle^2+0.225*angle-9.125)
+        local chance = clamp(1, 0, -0.00125 * angle ^ 2 + 0.225 * angle - 9.125)
         local choice = math.random()
         if choice <= chance then
-            local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+            local random_dir = sm.vec3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5):normalize() /
+            10
             return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
         return nil
     elseif shell.type == "AP" or shell.type == "APHE" then
-        local chance = clamp(1,0, 0.03*angle - 45 * 0.03)
+        local chance = clamp(1, 0, 0.03 * angle - 45 * 0.03)
         local choice = math.random()
         if choice <= chance then
-            local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+            local random_dir = sm.vec3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5):normalize() /
+            10
             return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
     elseif shell.type == "HE" then
-        local chance = clamp(1,0, 0.05 * angle - 75 * 0.0425)
+        local chance = clamp(1, 0, 0.05 * angle - 75 * 0.0425)
         local choice = math.random()
         if choice <= chance then
-            local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+            local random_dir = sm.vec3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5):normalize() /
+            10
             return reflect(direction:normalize(), (normal + random_dir):normalize())
         end
     elseif shell.type == "ray" then
         local armor = shell.to_pen
         local max_pen = shell.max_pen
-        local can_ricochet = (armor > max_pen / 1.5) and math.random() <= clamp(1,0, 0.0666*angle-60*0.0666)
-        local random_dir = sm.vec3.new(math.random()-0.5,math.random()-0.5,math.random()-0.5):normalize() / 10
+        local can_ricochet = (armor > max_pen / 1.5) and math.random() <= clamp(1, 0, 0.0666 * angle - 60 * 0.0666)
+        local random_dir = sm.vec3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5):normalize() / 10
         return can_ricochet and reflect(direction:normalize(), (normal + random_dir):normalize()) or nil
     end
 end

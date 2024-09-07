@@ -72,8 +72,7 @@ function Cbreech:server_onCreate()
     self.barrel_shapes = construct_cannon_new(self.shape, self.shape:getAt())
     self.barrel_length = #self.barrel_shapes
     self.muzzle_shape = self.barrel_length > 0 and self.barrel_shapes[self.barrel_length] or nil
-    self.barrel_diameter = (self.data.max_caliber + self.data.min_caliber) / 4
-    update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+
 
     self.modules = get_connected_modules(self.shape)
     self.coolers_amount = 0
@@ -88,7 +87,10 @@ function Cbreech:server_onCreate()
         end
     end
 
-    self.loaded_projectile = self.storage:load() or {}
+    local storage = self.storage:load()
+    self.loaded_projectile = storage and storage[1] or {}
+    self.barrel_diameter = storage and storage[2] or (self.data.max_caliber + self.data.min_caliber) / 4
+    update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fire_time_delay = 0
     self.heat = 0
     self.overheated = false
@@ -286,7 +288,7 @@ function Cbreech:sv_e_receiveItem(data)
         sm.container.endTransaction()
         self.network:sendToClients("cl_updateModel", 1)
     end
-    self.storage:save(self.loaded_projectile)
+    self.storage:save({ self.loaded_projectile, self.barrel_diameter })
 end
 
 function Cbreech:sv_fire_shell(is_debug, dt)
@@ -325,7 +327,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
             sm.container.endTransaction()
             self.network:sendToClients("cl_updateModel", 0)
         end
-        self.storage:save(self.loaded_projectile)
+        self.storage:save({ self.loaded_projectile, self.barrel_diameter })
     end
 
     local projectile_mass = shell.parameters.projectile_mass
@@ -396,6 +398,7 @@ end
 
 function Cbreech:change_barrel_diameter(diameter)
     self.barrel_diameter = diameter
+    self.storage:save({ self.loaded_projectile, self.barrel_diameter })
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
 end
 

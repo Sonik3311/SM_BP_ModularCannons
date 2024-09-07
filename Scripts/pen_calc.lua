@@ -71,7 +71,7 @@ function calculate_bullet_penetration(impact_velocity, shell_diameter, shell_mas
     end
 
     return ((impact_velocity ^ 1.43) * (shell_mass ^ 0.71)) / ((kfbr ^ 1.43) * ((shell_diameter / 100) ^ 1.07)) * 100 *
-    knap * kf_apcbc
+        knap * kf_apcbc
 end
 
 -- TODO: Replace this shit

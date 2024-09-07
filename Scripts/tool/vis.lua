@@ -21,8 +21,8 @@ function Visualizer.cl_onUneqipped(self)
     for _, path in pairs(sm.ACC.vis.paths) do
         local lines = path.lines
         for line_id = 1, #lines do
-            effect = lines[line_id][1]
-            a = lines[line_id][2]
+            local effect = lines[line_id][1]
+            local a = lines[line_id][2]
             effect:stop()
             a:stop()
         end
