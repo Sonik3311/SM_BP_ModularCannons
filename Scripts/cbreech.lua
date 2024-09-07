@@ -114,7 +114,7 @@ function Cbreech:client_onCreate()
     self.cl.gui:setText("CaliberEditBox", tostring(20))
     self.cl.animation_state = 0
     self.cl.play_overheat = false
-    self.network:sendToServer("getLoadState")
+    self.network:sendToServer("sv_getBreechState")
 end
 
 -------------------------------------------------------------------------------
@@ -202,13 +202,13 @@ function Cbreech:server_onUpdate(dt)
 end
 
 function Cbreech:client_onUpdate(dt)
-    if self.wants_to_be ~= self.cl.animation_state then
-        local delta = math.abs(self.wants_to_be - self.cl.animation_state)
+    if self.cl.wants_to_be ~= self.cl.animation_state then
+        local delta = math.abs(self.cl.wants_to_be - self.cl.animation_state)
         if delta < 0.01 then
-            self.cl.animation_state = self.wants_to_be
+            self.cl.animation_state = self.cl.wants_to_be
         end
         local m = 10 * delta
-        if self.wants_to_be == 0 then
+        if self.cl.wants_to_be == 0 then
             m = -10 * delta
         end
         self.cl.animation_state = clamp(self.cl.animation_state + dt * m, 0, 1)
@@ -254,8 +254,8 @@ end
 --[[                            Network Server                             ]] --
 -------------------------------------------------------------------------------
 
-function Cbreech:getLoadState(data, player)
-    self.network:sendToClient(player, "cl_updateModel", #self.loaded_projectile > 0 and 1 or 0)
+function Cbreech:sv_getBreechState(data, player)
+    self.network:sendToClient(player, "cl_updateModel", { #self.loaded_projectile > 0 and 1 or 0, self.barrel_diameter })
 end
 
 function Cbreech:sv_e_receiveItem(data)
@@ -286,7 +286,7 @@ function Cbreech:sv_e_receiveItem(data)
         sm.container.beginTransaction()
         sm.container.collect(self.shape.interactable:getContainer(0), data.itemUuid, 1, true)
         sm.container.endTransaction()
-        self.network:sendToClients("cl_updateModel", 1)
+        self.network:sendToClients("cl_updateModel", { 1 })
     end
     self.storage:save({ self.loaded_projectile, self.barrel_diameter })
 end
@@ -325,7 +325,7 @@ function Cbreech:sv_fire_shell(is_debug, dt)
             local uuid = self.shape.interactable:getContainer(0):getItem(0).uuid
             sm.container.spend(self.shape.interactable:getContainer(0), uuid, 1, true)
             sm.container.endTransaction()
-            self.network:sendToClients("cl_updateModel", 0)
+            self.network:sendToClients("cl_updateModel", { 0 })
         end
         self.storage:save({ self.loaded_projectile, self.barrel_diameter })
     end
@@ -400,6 +400,7 @@ function Cbreech:change_barrel_diameter(diameter)
     self.barrel_diameter = diameter
     self.storage:save({ self.loaded_projectile, self.barrel_diameter })
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
+    self.network:sendToClients("cl_updateModel", { false, self.barrel_diameter })
 end
 
 -------------------------------------------------------------------------------
@@ -407,7 +408,10 @@ end
 -------------------------------------------------------------------------------
 
 function Cbreech:cl_updateModel(data)
-    self.wants_to_be = data
+    print(data)
+    self.cl.wants_to_be = data[1] or self.cl.wants_to_be
+    self.cl.barrel_diameter = data[2] or self.cl.barrel_diameter
+    self.cl.gui:setText("CaliberEditBox", tostring(self.cl.barrel_diameter))
 end
 
 function Cbreech:cl_onGuiClosed()
