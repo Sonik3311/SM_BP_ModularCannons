@@ -1,0 +1,17 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/modules/mod_caliberchanger.fbx",
+         "subMeshMap" : {
+            "subMesh" : {
+               "material" : "DifAsgNor",
+               "textureList" : [
+                  "",
+                  "",
+                  "$CONTENT_DATA/Objects/Texture/modules/caliberchanger/bake_normal.png"
+               ]
+            }
+         }
+      }
+   ]
+}

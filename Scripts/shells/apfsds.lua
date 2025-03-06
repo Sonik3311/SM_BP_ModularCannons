@@ -22,11 +22,11 @@ local function get_spall_amount(shell, hit_shape)
     return math.ceil(max_spall_amount * material_multiplier[hit_shape.material])
 end
 
-function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, end_point, dt, net)
+function process_apfsds_penetration(shell, hit_shape, hit_data, start_point, end_point, dt, net)
     local shell_direction = shell.velocity:normalize()
     local is_world_surface = is_world_surface(hit_data.type)
     if is_world_surface then
-        return false, false, start_point, end_point,shell_direction
+        return false, false, start_point, end_point, shell_direction
     end
 
 
@@ -70,10 +70,11 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         local big_spall_amount = math.ceil(spall_amount / 10)
         local med_spall_amount = math.ceil(spall_amount / 5)
         local low_spall_amount = spall_amount
-        local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction, {{10, big_spall_amount, 70}, {20, med_spall_amount, 40}, {30, low_spall_amount, 20}}, hit_shape)
+        local spall_paths, spall_effect_data = process_multi_spall(exit_point, shell_direction,
+            { { 10, big_spall_amount, 70 }, { 20, med_spall_amount, 40 }, { 30, low_spall_amount, 20 } }, hit_shape)
 
         local clamped_spall_data = {}
-        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 170 + 0.5),1) do
+        for i = 1, #spall_effect_data, math.max(math.floor(#spall_effect_data / 170 + 0.5), 1) do
             clamped_spall_data[#clamped_spall_data + 1] = spall_effect_data[i]
         end
         net:sendToClients("cl_play_spall_effects", clamped_spall_data)
@@ -81,7 +82,7 @@ function process_apfsds_penetration (shell, hit_shape, hit_data, start_point, en
         if shell.debug then
             for path_id = 1, #spall_paths do
                 local path = spall_paths[path_id]
-                shell.debug.path.spall[#shell.debug.path.spall + 1] = {path[1], path[2]}
+                shell.debug.path.spall[#shell.debug.path.spall + 1] = { path[1], path[2] }
             end
         end
     end

@@ -1,0 +1,17 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Cannon loader",
+         "physicsMaterial" : "Mechanical",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/loaders/ldr_cannon.rend",
+         "rotationSet" : "PropX",
+         "sticky" : "-X",
+         "uuid" : "28420e4a-5672-4734-84aa-5b6f2d382d97"
+      }
+   ]
+}

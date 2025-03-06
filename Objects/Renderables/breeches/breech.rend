@@ -1,0 +1,17 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/breech/breech.fbx",
+         "subMeshMap" : {
+            "subMesh" : {
+               "material" : "DifAsgNor",
+               "textureList" : [
+                  "",
+                  "",
+                  "$CONTENT_DATA/Objects/Texture/breeches/breech/nor_breech.png"
+               ]
+            }
+         }
+      }
+   ]
+}

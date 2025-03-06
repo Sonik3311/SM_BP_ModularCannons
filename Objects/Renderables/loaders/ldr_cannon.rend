@@ -1,0 +1,17 @@
+{
+   "lodList" : [
+      {
+         "mesh" : "$CONTENT_DATA/Objects/Mesh/loaders/ldr_cannon.fbx",
+         "subMeshMap" : {
+            "subMesh" : {
+               "material" : "DifAsgNor",
+               "textureList" : [
+                  "",
+                  "",
+                  "$CONTENT_DATA/Objects/Texture/loaders/cannon_loader/nor_cannon_loader.png"
+               ]
+            }
+         }
+      }
+   ]
+}

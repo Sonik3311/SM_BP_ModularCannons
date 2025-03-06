@@ -1,0 +1,55 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 2,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Module extender",
+         "physicsMaterial" : "Mechanical",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/modules/mod_extender.rend",
+         "rotationSet" : "PropFull",
+         "uuid" : "cb4ea23a-fc9c-4153-9ae1-95ddafea0b8c"
+      },
+      {
+         "box" : {
+            "x" : 2,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Cannon customizer",
+         "physicsMaterial" : "Mechanical",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/modules/mod_caliberchanger.rend",
+         "rotationSet" : "PropZ",
+         "sticky" : "-Z",
+         "uuid" : "50ab3437-fb3e-43bf-884e-0ada8fbd0734"
+      },
+      {
+         "box" : {
+            "x" : 2,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Heat capacitor",
+         "physicsMaterial" : "Mechanical",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/modules/mod_heatexchanger.rend",
+         "rotationSet" : "PropZ",
+         "sticky" : "-Z",
+         "uuid" : "d4e489c0-3cbe-49b1-ba18-00f02eac2866"
+      },
+      {
+         "box" : {
+            "x" : 2,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "BRS",
+         "physicsMaterial" : "Mechanical",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/modules/mod_brs.rend",
+         "rotationSet" : "PropZ",
+         "sticky" : "-Z",
+         "uuid" : "aa5bcda7-11a9-43ed-98df-aebd5a22dbdc"
+      }
+   ]
+}

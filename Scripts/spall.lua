@@ -9,7 +9,7 @@ local function sv_color_hit_block(shape, hit_point)
     end
 
     local hit_block = shape:getClosestBlockLocalPosition(hit_point)
-    shape:destroyBlock( hit_block )
+    shape:destroyBlock(hit_block)
     local new_block = shape.body:createBlock(shape.uuid, sm.vec3.one(), hit_block)
     new_block:setColor(new_color)
 end
@@ -41,37 +41,37 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
 
     local ground_colors = {
         Default = {
-            sm.color.new(0.35,0.388,0.368)*1.2
+            sm.color.new(0.35, 0.388, 0.368) * 1.2
         },
         Rock = {
-            sm.color.new(0.25,0.288,0.268)*1.2
+            sm.color.new(0.25, 0.288, 0.268) * 1.2
         },
         Concrete = {
-            sm.color.new(0.35,0.388,0.368)*1.2
+            sm.color.new(0.35, 0.388, 0.368) * 1.2
         },
         Sand = {
-            sm.color.new(0.76, 0.39, 0.04)*1.2
+            sm.color.new(0.76, 0.39, 0.04) * 1.2
         },
         Stone = {
-            sm.color.new(0.4,0.4,0.4)*1.2
+            sm.color.new(0.4, 0.4, 0.4) * 1.2
         },
         Dirt = {
-            sm.color.new(0.27,0.219,0.16)*1.2
+            sm.color.new(0.27, 0.219, 0.16) * 1.2
         },
         Weeds = {
-            sm.color.new(1,0.74,0.3)*1.2
+            sm.color.new(1, 0.74, 0.3) * 1.2
         },
         ["Rough Stone"] = {
-            sm.color.new(0.37,0.37,0.37)*1.2
+            sm.color.new(0.37, 0.37, 0.37) * 1.2
         },
         Hay = {
-            sm.color.new(0.87,0.59,0.1)*1.2
+            sm.color.new(0.87, 0.59, 0.1) * 1.2
         },
         ["Bright Grass"] = {
-            sm.color.new(0.83,1,0.18)*1.2
+            sm.color.new(0.83, 1, 0.18) * 1.2
         },
         Grass = {
-            sm.color.new(0.57,0.67,0.16)*1.2
+            sm.color.new(0.57, 0.67, 0.16) * 1.2
         }
     }
 
@@ -106,15 +106,16 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 local hit, hit_result = result[1], result[2]
 
                 if not hit then
-                    return_paths[#return_paths + 1] = {ray.startPoint, ray.endPoint}
+                    return_paths[#return_paths + 1] = { ray.startPoint, ray.endPoint }
                     goto next
                 end
 
                 local hit_shape = hit_result:getShape()
 
                 if not hit_shape or is_world_surface(hit_result.type) then
-                    return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
-                    return_effect_data[#return_effect_data + 1] = {hit_result.pointWorld, hit_result.normalWorld, ground_colors[sm.physics.getGroundMaterial(hit_result.pointWorld)][1]}
+                    return_paths[#return_paths + 1] = { ray.startPoint, hit_result.pointWorld }
+                    return_effect_data[#return_effect_data + 1] = { hit_result.pointWorld, hit_result.normalWorld,
+                        ground_colors[sm.physics.getGroundMaterial(hit_result.pointWorld)][1] }
                     goto next
                 end
 
@@ -128,10 +129,10 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 if ricochet_dir then
                     ray.max_pen = ray.max_pen / 2
                     if ray.max_pen < 10 then
-                        return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                        return_paths[#return_paths + 1] = { ray.startPoint, hit_result.pointWorld }
                         goto next
                     end
-                    return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                    return_paths[#return_paths + 1] = { ray.startPoint, hit_result.pointWorld }
                     ray.direction = ricochet_dir
                     ray.endPoint = hit_result.pointWorld + ricochet_dir * (ray.endPoint - hit_result.pointWorld):length()
                     ray.startPoint = hit_result.pointWorld
@@ -154,7 +155,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                 if not is_penetrated then
                     -- color the hit block black or smth
 
-                    return_paths[#return_paths + 1] = {ray.startPoint, hit_result.pointWorld}
+                    return_paths[#return_paths + 1] = { ray.startPoint, hit_result.pointWorld }
                     if ray.should_color then
                         print("color")
                         sv_color_hit_block(hit_shape, hit_result.pointWorld)
@@ -162,7 +163,7 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
                     goto next
                 end
 
-                return_paths[#return_paths + 1] = {ray.startPoint, exit_point}
+                return_paths[#return_paths + 1] = { ray.startPoint, exit_point }
                 ray.startPoint = hit_result.pointWorld - ray.direction * 0.01
                 new_casts[#new_casts + 1] = ray
                 ::next::
@@ -171,6 +172,6 @@ function process_multi_spall(position, direction, angles_amounts, ignore_shape)
             casts = new_casts
         end
     end
-    print("Spall process took",os.clock()-start_time)
+    print("Spall process took", os.clock() - start_time)
     return return_paths, return_effect_data
 end

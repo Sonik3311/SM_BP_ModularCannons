@@ -1,0 +1,26 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 2,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Cannon breech",
+         "physicsMaterial" : "Mechanical",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/breeches/breech.rend",
+         "rotationSet" : "PropFull",
+         "scripted" : {
+            "classname" : "Breech",
+            "data" : {
+               "max_caliber" : 105,
+               "min_caliber" : 1,
+               "std_caliber" : 75,
+               "std_firerate" : 5.0
+            },
+            "filename" : "$CONTENT_DATA/Scripts/new_breech.lua"
+         },
+         "uuid" : "877a7716-a823-4d06-98b8-42f98cddf34c"
+      }
+   ]
+}

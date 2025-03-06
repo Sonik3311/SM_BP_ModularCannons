@@ -89,7 +89,7 @@ function Cbreech:server_onCreate()
 
     local storage = self.storage:load()
     self.loaded_projectile = storage and storage[1] or {}
-    self.barrel_diameter = storage and storage[2] or (self.data.max_caliber + self.data.min_caliber) / 4
+    self.barrel_diameter = storage and storage[2] or math.floor((self.data.max_caliber + self.data.min_caliber) / 4)
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.fire_time_delay = 0
     self.heat = 0
@@ -399,6 +399,14 @@ end
 function Cbreech:change_barrel_diameter(diameter)
     self.barrel_diameter = diameter
     self.storage:save({ self.loaded_projectile, self.barrel_diameter })
+    self.network:sendToClients("cl_update_overheat",
+        {
+            breech = self.shape,
+            muzzle = self.muzzle_shape,
+            diameter = self.barrel_diameter,
+            state = self.overheated,
+            reset_effect = true
+        })
     update_barrel_diameter(self.barrel_shapes, self.barrel_diameter)
     self.network:sendToClients("cl_updateModel", { false, self.barrel_diameter })
 end

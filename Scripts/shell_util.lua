@@ -4,12 +4,13 @@ function is_exititing_body(position, direction, hit_shape)
 end
 
 function is_world_surface(object_type)
-    return object_type == "terrainSurface" or object_type == "terrainAsset" or object_type == "limiter" or object_type == "harvestable" or object_type == "lift" or object_type == "character"
+    return object_type == "terrainSurface" or object_type == "terrainAsset" or object_type == "limiter" or
+    object_type == "harvestable" or object_type == "lift" or object_type == "character"
 end
 
 function voxel_trace(sx, sy, sz, dx, dy, dz)
     local steps = math.max(math.abs(sx - dx), math.abs(sy - dy),
-                           math.abs(sz - dz))
+        math.abs(sz - dz))
     local lx, ly, lz = sx, sy, sz
 
     local voxels = {}
@@ -22,20 +23,20 @@ function voxel_trace(sx, sy, sz, dx, dy, dz)
 
         if x ~= lx and y ~= ly then
             voxel_count = voxel_count + 1
-            voxels[voxel_count] = sm.vec3.new(lx,y,z)
+            voxels[voxel_count] = sm.vec3.new(lx, y, z)
         end
 
         if y ~= ly and z ~= lz then
             voxel_count = voxel_count + 1
-            voxels[voxel_count] = sm.vec3.new(x,ly,z)
+            voxels[voxel_count] = sm.vec3.new(x, ly, z)
         end
 
         if z ~= lz and x ~= lx then
             voxel_count = voxel_count + 1
-            voxels[voxel_count] = sm.vec3.new(x,y,lz)
+            voxels[voxel_count] = sm.vec3.new(x, y, lz)
         end
         voxel_count = voxel_count + 1
-        voxels[voxel_count] = sm.vec3.new(x,y,z)
+        voxels[voxel_count] = sm.vec3.new(x, y, z)
         lx, ly, lz = x, y, z
     end
     return voxels
@@ -43,12 +44,12 @@ end
 
 function penetrate_shape(hit_shape, p1, p2)
     if hit_shape.isBlock then
-        local p1 = hit_shape:getClosestBlockLocalPosition( p1 )
-        local p2 = hit_shape:getClosestBlockLocalPosition( p2 )
+        local p1 = hit_shape:getClosestBlockLocalPosition(p1)
+        local p2 = hit_shape:getClosestBlockLocalPosition(p2)
         hit_shape:destroyBlock(p1)
         hit_shape:destroyBlock(p2)
 
-        for _,block in pairs(voxel_trace(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z)) do
+        for _, block in pairs(voxel_trace(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z)) do
             hit_shape:destroyBlock(block)
         end
     else

@@ -3,6 +3,9 @@
       "$CONTENT_DATA/Objects/Database/ShapeSets/Cannon.shapeset",
       "$CONTENT_DATA/Objects/Database/ShapeSets/Shells.shapeset",
       "$CONTENT_DATA/Objects/Database/ShapeSets/Ammorack.shapeset",
-      "$CONTENT_DATA/Objects/Database/ShapeSets/vfx.shapeset"
+      "$CONTENT_DATA/Objects/Database/ShapeSets/vfx.shapeset",
+      "$CONTENT_DATA/Objects/Database/ShapeSets/Modules.shapeset",
+      "$CONTENT_DATA/Objects/Database/ShapeSets/Loaders.shapeset",
+      "$CONTENT_DATA/Objects/Database/ShapeSets/Breeches.shapeset"
    ]
 }
